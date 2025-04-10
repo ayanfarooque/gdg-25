@@ -1,0 +1,52 @@
+[
+    {
+        "assignmentId": "603dcd7f1c4ae72f8c8b9101",
+        "studentId": "603dcd7f1c4ae72f8c8b4567",
+        "classroomId": "603dcd7f1c4ae72f8c8b9101",
+        "submissiondate": "2025-03-01T09:00:00.000Z",
+        "fileUrl": "http://example.com/submission1.pdf",
+        "status": "Pending",
+        "aiScore": 85,
+        "feedback": "Good work, but needs improvement in some areas."
+    },
+    {
+        "assignmentId": "603dcd7f1c4ae72f8c8b9102",
+        "studentId": "603dcd7f1c4ae72f8c8b4568",
+        "classroomId": "603dcd7f1c4ae72f8c8b9102",
+        "submissiondate": "2025-03-02T10:00:00.000Z",
+        "fileUrl": "http://example.com/submission2.pdf",
+        "status": "Checked",
+        "aiScore": 90,
+        "feedback": "Excellent work!"
+    },
+    {
+        "assignmentId": "603dcd7f1c4ae72f8c8b9103",
+        "studentId": "603dcd7f1c4ae72f8c8b4569",
+        "classroomId": "603dcd7f1c4ae72f8c8b9103",
+        "submissiondate": "2025-03-03T11:00:00.000Z",
+        "fileUrl": "http://example.com/submission3.pdf",
+        "status": "Rejected",
+        "aiScore": 60,
+        "feedback": "Please revise and resubmit."
+    },
+    {
+        "assignmentId": "603dcd7f1c4ae72f8c8b9104",
+        "studentId": "603dcd7f1c4ae72f8c8b4570",
+        "classroomId": "603dcd7f1c4ae72f8c8b9104",
+        "submissiondate": "2025-03-04T12:00:00.000Z",
+        "fileUrl": "http://example.com/submission4.pdf",
+        "status": "Pending",
+        "aiScore": 75,
+        "feedback": "Good effort, but needs more detail."
+    },
+    {
+        "assignmentId": "603dcd7f1c4ae72f8c8b9105",
+        "studentId": "603dcd7f1c4ae72f8c8b4571",
+        "classroomId": "603dcd7f1c4ae72f8c8b9105",
+        "submissiondate": "2025-03-05T13:00:00.000Z",
+        "fileUrl": "http://example.com/submission5.pdf",
+        "status": "Checked",
+        "aiScore": 95,
+        "feedback": "Outstanding submission!"
+    }
+]

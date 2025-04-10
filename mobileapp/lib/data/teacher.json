@@ -1,0 +1,182 @@
+[
+    {
+        "name": "Mr. Smith",
+        "email": "mr.smith@example.com",
+        "password": "hashed_password_1",
+        "address": "123 Main St",
+        "dob": "1980-01-15T00:00:00.000Z",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1234",
+                "subjectName": "Mathematics"
+            }
+        ],
+        "students": [
+            {
+                "studentId": "603dcd7f1c4ae72f8c8b4567",
+                "studyHours": 10,
+                "scores": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1234",
+                        "marks": [
+                            {
+                                "testId": "603dcd7f1c4ae72f8c8b5678",
+                                "testMarks": 90
+                            }
+                        ]
+                    }
+                ],
+                "growthPoints": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1234",
+                        "subjectPoints": 20
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Ms. Davis",
+        "email": "ms.davis@example.com",
+        "password": "hashed_password_2",
+        "address": "456 Elm St",
+        "dob": "1985-02-20T00:00:00.000Z",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1235",
+                "subjectName": "Science"
+            }
+        ],
+        "students": [
+            {
+                "studentId": "603dcd7f1c4ae72f8c8b4568",
+                "studyHours": 15,
+                "scores": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1235",
+                        "marks": [
+                            {
+                                "testId": "603dcd7f1c4ae72f8c8b5679",
+                                "testMarks": 85
+                            }
+                        ]
+                    }
+                ],
+                "growthPoints": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1235",
+                        "subjectPoints": 25
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Mr. Johnson",
+        "email": "mr.johnson@example.com",
+        "password": "hashed_password_3",
+        "address": "789 Oak St",
+        "dob": "1975-03-25T00:00:00.000Z",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1236",
+                "subjectName": "History"
+            }
+        ],
+        "students": [
+            {
+                "studentId": "603dcd7f1c4ae72f8c8b4569",
+                "studyHours": 8,
+                "scores": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1236",
+                        "marks": [
+                            {
+                                "testId": "603dcd7f1c4ae72f8c8b5680",
+                                "testMarks": 70
+                            }
+                        ]
+                    }
+                ],
+                "growthPoints": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1236",
+                        "subjectPoints": 15
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Ms. Lee",
+        "email": "ms.lee@example.com",
+        "password": "hashed_password_4",
+        "address": "101 Pine St",
+        "dob": "1990-04-30T00:00:00.000Z",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1237",
+                "subjectName": "Geography"
+            }
+        ],
+        "students": [
+            {
+                "studentId": "603dcd7f1c4ae72f8c8b4570",
+                "studyHours": 12,
+                "scores": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1237",
+                        "marks": [
+                            {
+                                "testId": "603dcd7f1c4ae72f8c8b5681",
+                                "testMarks": 95
+                            }
+                        ]
+                    }
+                ],
+                "growthPoints": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1237",
+                        "subjectPoints": 18
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "Mr. Brown",
+        "email": "mr.brown@example.com",
+        "password": "hashed_password_5",
+        "address": "202 Birch St",
+        "dob": "1982-05-05T00:00:00.000Z",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1238",
+                "subjectName": "English"
+            }
+        ],
+        "students": [
+            {
+                "studentId": "603dcd7f1c4ae72f8c8b4571",
+                "studyHours": 20,
+                "scores": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1238",
+                        "marks": [
+                            {
+                                "testId": "603dcd7f1c4ae72f8c8b5682",
+                                "testMarks": 88
+                            }
+                        ]
+                    }
+                ],
+                "growthPoints": [
+                    {
+                        "subjectId": "603dcd7f1c4ae72f8c8b1238",
+                        "subjectPoints": 30
+                    }
+                ]
+            }
+        ]
+    }
+]

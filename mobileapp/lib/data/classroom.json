@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Classroom A",
+        "teacher": "603dcd7f1c4ae72f8c8b5678",
+        "students": ["603dcd7f1c4ae72f8c8b4567", "603dcd7f1c4ae72f8c8b4568"],
+        "assignments": ["603dcd7f1c4ae72f8c8b9101", "603dcd7f1c4ae72f8c8b9102"]
+    },
+    {
+        "name": "Classroom B",
+        "teacher": "603dcd7f1c4ae72f8c8b5679",
+        "students": ["603dcd7f1c4ae72f8c8b4569", "603dcd7f1c4ae72f8c8b4570"],
+        "assignments": ["603dcd7f1c4ae72f8c8b9103", "603dcd7f1c4ae72f8c8b9104"]
+    },
+    {
+        "name": "Classroom C",
+        "teacher": "603dcd7f1c4ae72f8c8b5680",
+        "students": ["603dcd7f1c4ae72f8c8b4571", "603dcd7f1c4ae72f8c8b4567"],
+        "assignments": ["603dcd7f1c4ae72f8c8b9105", "603dcd7f1c4ae72f8c8b9106"]
+    },
+    {
+        "name": "Classroom D",
+        "teacher": "603dcd7f1c4ae72f8c8b5681",
+        "students": ["603dcd7f1c4ae72f8c8b4568", "603dcd7f1c4ae72f8c8b4569"],
+        "assignments": ["603dcd7f1c4ae72f8c8b9107", "603dcd7f1c4ae72f8c8b9108"]
+    },
+    {
+        "name": "Classroom E",
+        "teacher": "603dcd7f1c4ae72f8c8b5682",
+        "students": ["603dcd7f1c4ae72f8c8b4570", "603dcd7f1c4ae72f8c8b4571"],
+        "assignments": ["603dcd7f1c4ae72f8c8b9109", "603dcd7f1c4ae72f8c8b9110"]
+    }
+]

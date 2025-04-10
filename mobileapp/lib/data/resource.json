@@ -1,0 +1,52 @@
+[
+    {
+      "resourcesId": "res001",
+      "resourcesType": "Article",
+      "resourcesDate": "2025-03-01T09:00:00.000Z",
+      "resourcesHeading": "Understanding JavaScript Closures",
+      "resourcesContent": "A comprehensive guide to understanding closures in JavaScript.",
+      "resourcesImage": "lib/assets/images/default.jpg",
+      "stared": false,
+      "detailedContent": "This article provides an in-depth look at JavaScript closures, explaining how they work and how to use them effectively in your code. It covers various use cases and common pitfalls to avoid."
+    },
+    {
+      "resourcesId": "res002",
+      "resourcesType": "Video",
+      "resourcesDate": "2025-03-02T10:00:00.000Z",
+      "resourcesHeading": "React Hooks Tutorial",
+      "resourcesContent": "Learn how to use React Hooks in this detailed video tutorial.",
+      "resourcesImage": "lib/assets/images/default.jpg",
+      "stared": true,
+      "detailedContent": "This video tutorial walks you through the basics of React Hooks, including useState, useEffect, and custom hooks. It provides practical examples and tips for integrating hooks into your React projects."
+    },
+    {
+      "resourcesId": "res003",
+      "resourcesType": "Podcast",
+      "resourcesDate": "2025-03-03T11:00:00.000Z",
+      "resourcesHeading": "The Future of Web Development",
+      "resourcesContent": "A podcast discussing the future trends in web development.",
+      "resourcesImage": "lib/assets/images/default.jpg",
+      "stared": false,
+      "detailedContent": "In this podcast episode, industry experts discuss the latest trends and future directions in web development. Topics include new frameworks, tools, and best practices for building modern web applications."
+    },
+    {
+      "resourcesId": "res004",
+      "resourcesType": "Article",
+      "resourcesDate": "2025-03-04T12:00:00.000Z",
+      "resourcesHeading": "CSS Grid Layout",
+      "resourcesContent": "An in-depth article on how to use CSS Grid Layout.",
+      "resourcesImage": "lib/assets/images/default.jpg",
+      "stared": true,
+      "detailedContent": "This article explores the CSS Grid Layout module, providing examples and techniques for creating complex, responsive grid-based layouts. It covers grid properties, alignment, and common layout patterns."
+    },
+    {
+      "resourcesId": "res005",
+      "resourcesType": "Video",
+      "resourcesDate": "2025-03-05T13:00:00.000Z",
+      "resourcesHeading": "Node.js Performance Tips",
+      "resourcesContent": "Tips and tricks to improve the performance of your Node.js applications.",
+      "resourcesImage": "lib/assets/images/default.jpg",
+      "stared": false,
+      "detailedContent": "This video provides performance optimization tips for Node.js applications, including best practices for memory management, asynchronous programming, and efficient use of Node.js modules."
+    }
+  ]

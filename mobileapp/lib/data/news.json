@@ -1,0 +1,32 @@
+[
+  {
+    "newsId": "1",
+    "newsType": "Technology",
+    "newsDate": "2025-02-25T00:00:00Z",
+    "newsHeading": "New AI Breakthrough",
+    "newsContent": "A new AI model has been developed that can understand and generate human-like text.",
+    "newsImage": "lib/assets/images/news/image1.jpg",
+    "stared": false,
+    "detailedContent": "In a groundbreaking development, researchers have created an AI model that can understand and generate human-like text with unprecedented accuracy. This new model, which leverages advanced machine learning techniques, has the potential to revolutionize various industries, including customer service, content creation, and more. The AI's ability to comprehend context and generate coherent responses marks a significant leap forward in the field of artificial intelligence."
+  },
+  {
+    "newsId": "2",
+    "newsType": "Health",
+    "newsDate": "2025-02-24T00:00:00Z",
+    "newsHeading": "Health Benefits of Yoga",
+    "newsContent": "Recent studies show that practicing yoga can significantly improve mental and physical health.",
+    "newsImage": "lib/assets/images/news/image2.jpeg",
+    "stared": true,
+    "detailedContent": "Yoga, an ancient practice that combines physical postures, breathing exercises, and meditation, has been shown to offer numerous health benefits. Recent studies indicate that regular yoga practice can reduce stress, improve flexibility, enhance respiratory function, and promote overall well-being. Additionally, yoga has been linked to better mental health outcomes, including reduced symptoms of anxiety and depression. As more people turn to holistic approaches for health, yoga continues to gain popularity as a versatile and effective practice."
+  },
+  {
+    "newsId": "3",
+    "newsType": "Science",
+    "newsDate": "2025-02-23T00:00:00Z",
+    "newsHeading": "Mars Rover Discovers Water",
+    "newsContent": "The Mars Rover has discovered evidence of water on the surface of Mars.",
+    "newsImage": "lib/assets/images/news/image3.jpeg",
+    "stared": false,
+    "detailedContent": "In a historic discovery, the Mars Rover has found evidence of water on the surface of Mars. This finding has significant implications for the possibility of life on the Red Planet and future human exploration. The presence of water suggests that Mars may have once had conditions suitable for life and could potentially support human colonization in the future. Scientists are now analyzing the data to understand the extent and nature of the water deposits, which could provide valuable insights into the planet's history and geology."
+  }
+]

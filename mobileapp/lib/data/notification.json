@@ -1,0 +1,44 @@
+[
+    {
+        "notificationId": "notif001",
+        "notificationTime": "2025-03-01T09:00:00.000Z",
+        "notificationContent": "Your math assignment is due tomorrow.",
+        "studentId": "603dcd7f1c4ae72f8c8b4567",
+        "teacherId": "603dcd7f1c4ae72f8c8b5678"
+    },
+    {
+        "notificationId": "notif002",
+        "notificationTime": "2025-03-02T10:00:00.000Z",
+        "notificationContent": "Science fair is scheduled for next week.",
+        "studentId": "603dcd7f1c4ae72f8c8b4568",
+        "teacherId": "603dcd7f1c4ae72f8c8b5679"
+    },
+    {
+        "notificationId": "notif003",
+        "notificationTime": "2025-03-03T11:00:00.000Z",
+        "notificationContent": "History essay submission deadline is approaching.",
+        "studentId": "603dcd7f1c4ae72f8c8b4569",
+        "teacherId": "603dcd7f1c4ae72f8c8b5680"
+    },
+    {
+        "notificationId": "notif004",
+        "notificationTime": "2025-03-04T12:00:00.000Z",
+        "notificationContent": "Geography field trip permission slips are due.",
+        "studentId": "603dcd7f1c4ae72f8c8b4570",
+        "teacherId": "603dcd7f1c4ae72f8c8b5681"
+    },
+    {
+        "notificationId": "notif005",
+        "notificationTime": "2025-03-05T13:00:00.000Z",
+        "notificationContent": "English debate preparation meeting tomorrow.",
+        "studentId": "603dcd7f1c4ae72f8c8b4571",
+        "teacherId": "603dcd7f1c4ae72f8c8b5682"
+    },
+    {
+        "notificationId": "notif006",
+        "notificationTime": "2025-03-05T13:00:00.000Z",
+        "notificationContent": "Please report to the principal's office immediately.",
+        "studentId": "603dcd7f1c4ae72f8c8b4571",
+        "teacherId": "603dcd7f1c4ae72f8c8b5682"
+    }
+]

@@ -1,0 +1,130 @@
+[
+    {
+        "question": "What is the reason behind tennis ball swinging and spinning at the same time? Explain and justify this using Bernoulli's theorem.",
+        "frequentAnswers": [{
+            "answer": "ayana aaaaaa",
+            "upvotes": 5,
+            "downvotes": 1
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 3,
+            "downvotes": 2
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 4,
+            "downvotes": 0
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 2,
+            "downvotes": 1
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 1,
+            "downvotes": 3
+        }],
+        "subjectOrBookName": "Physics",
+        "upvotes": 10,
+        "downvotes": 2,
+        "studentName": "John Doe"
+    },
+    {
+        "question": "How does the blockchain technology work?",
+        "frequentAnswers": [{
+            "answer": "ayana aaaaaa",
+            "upvotes": 5,
+            "downvotes": 1
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 3,
+            "downvotes": 2
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 4,
+            "downvotes": 0
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 2,
+            "downvotes": 1
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 1,
+            "downvotes": 3
+        }],
+        "subjectOrBookName": "Computer Science",
+        "upvotes": 15,
+        "downvotes": 1,
+        "studentName": "Jane Smith"
+    },
+    {
+        "question": "What are the key principles of Agile methodology?",
+        "frequentAnswers": [{
+            "answer": "ayana aaaaaa",
+            "upvotes": 5,
+            "downvotes": 1
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 3,
+            "downvotes": 2
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 4,
+            "downvotes": 0
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 2,
+            "downvotes": 1
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 1,
+            "downvotes": 3
+        }],
+        "subjectOrBookName": "Project Management",
+        "upvotes": 20,
+        "downvotes": 3,
+        "studentName": "Mike Johnson"
+    },
+    {
+        "question": "What is the difference between supervised and unsupervised learning?",
+        "frequentAnswers": [{
+            "answer": "ayana aaaaaa",
+            "upvotes": 5,
+            "downvotes": 1
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 3,
+            "downvotes": 2
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 4,
+            "downvotes": 0
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 2,
+            "downvotes": 1
+        },
+        {
+            "answer": "ayana aaaaaa",
+            "upvotes": 1,
+            "downvotes": 3
+        }],
+        "subjectOrBookName": "Machine Learning",
+        "upvotes": 25,
+        "downvotes": 0,
+        "studentName": "Emily Davis"
+    }
+]

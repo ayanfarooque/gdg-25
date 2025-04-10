@@ -1,0 +1,14 @@
+.container {
+    width: 900px; /* Increase width */
+    height: 600px; /* Increase height */
+}
+input {
+    width: 100%; 
+    height: 50px;
+    font-size: 18px;
+}
+
+button {
+    padding: 12px 25px;
+    font-size: 18px;
+}

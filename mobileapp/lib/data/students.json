@@ -1,0 +1,382 @@
+[
+    {
+        "studentId": "1",
+        "name": "John Doe",
+        "image": "lib/assets/images/image3.png",
+        "email": "john.doe@example.com",
+        "password": "hashed_password_1",
+        "address": "123 Main St",
+        "dob": "2005-01-15T00:00:00.000Z",
+        "grade": "10",
+        "growthPoints": 50,
+        "guardianName": "Jane Doe",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1234",
+                "subjectName": "Mathematics"
+            }
+        ],
+        "isWeakStudent": false,
+        "istopStudent": true,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5678",
+                "teacherName": "Mr. Smith",
+                "subjectId": "603dcd7f1c4ae72f8c8b1234"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1234",
+                "subjectName": "Mathematics",
+                "date": "2025-02-15T00:00:00.000Z",
+                "score": 90,
+                "total": 100
+            }
+        ],
+        "badges": ["Top Scorer"],
+        "classroomId": "60d21b4b67d0d8992e610c87"
+    },
+    {
+        "studentId": "2",
+        "name": "Alice Johnson",
+        "image": "lib/assets/images/image3.png",
+        "email": "alice.johnson@example.com",
+        "password": "hashed_password_2",
+        "address": "456 Elm St",
+        "dob": "2006-02-20T00:00:00.000Z",
+        "grade": "9",
+        "growthPoints": 40,
+        "guardianName": "Bob Johnson",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1235",
+                "subjectName": "Science"
+            }
+        ],
+        "isWeakStudent": false,
+        "istopStudent": false,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5679",
+                "teacherName": "Ms. Davis",
+                "subjectId": "603dcd7f1c4ae72f8c8b1235"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1235",
+                "subjectName": "Science",
+                "date": "2025-02-20T00:00:00.000Z",
+                "score": 85,
+                "total": 100
+            }
+        ],
+        "badges": ["Science Enthusiast"],
+        "classroomId": "60d21b5567d0d8992e610c8c"
+    },
+    {
+        "studentId": "3",
+        "name": "Michael Brown",
+        "image": "lib/assets/images/image3.png",
+        "email": "michael.brown@example.com",
+        "password": "hashed_password_3",
+        "address": "789 Oak St",
+        "dob": "2007-03-25T00:00:00.000Z",
+        "grade": "8",
+        "growthPoints": 30,
+        "guardianName": "Sarah Brown",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1236",
+                "subjectName": "History"
+            }
+        ],
+        "isWeakStudent": true,
+        "istopStudent": false,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5680",
+                "teacherName": "Mr. Johnson",
+                "subjectId": "603dcd7f1c4ae72f8c8b1236"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1236",
+                "subjectName": "History",
+                "date": "2025-02-25T00:00:00.000Z",
+                "score": 70,
+                "total": 100
+            }
+        ],
+        "badges": ["History Buff"],
+        "classroomId": "60d21b4b67d0d8992e610c87"
+    },
+    {
+        "studentId": "4",
+        "name": "Emily Davis",
+        "image": "lib/assets/images/image3.png",
+        "email": "emily.davis@example.com",
+        "password": "hashed_password_4",
+        "address": "101 Pine St",
+        "dob": "2005-04-30T00:00:00.000Z",
+        "grade": "10",
+        "growthPoints": 60,
+        "guardianName": "James Davis",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1237",
+                "subjectName": "Geography"
+            }
+        ],
+        "isWeakStudent": false,
+        "istopStudent": true,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5681",
+                "teacherName": "Ms. Lee",
+                "subjectId": "603dcd7f1c4ae72f8c8b1237"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1237",
+                "subjectName": "Geography",
+                "date": "2025-03-01T00:00:00.000Z",
+                "score": 95,
+                "total": 100
+            }
+        ],
+        "badges": ["Geography Genius"],
+        "classroomId": "60d21b5567d0d8992e610c8c"
+    },
+    {
+        "studentId": "5",
+        "name": "David Wilson",
+        "image": "lib/assets/images/image3.png",
+        "email": "david.wilson@example.com",
+        "password": "hashed_password_5",
+        "address": "202 Birch St",
+        "dob": "2006-05-05T00:00:00.000Z",
+        "grade": "9",
+        "growthPoints": 45,
+        "guardianName": "Laura Wilson",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1238",
+                "subjectName": "English"
+            }
+        ],
+        "isWeakStudent": false,
+        "istopStudent": false,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5682",
+                "teacherName": "Mr. Brown",
+                "subjectId": "603dcd7f1c4ae72f8c8b1238"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1238",
+                "subjectName": "English",
+                "date": "2025-03-03T00:00:00.000Z",
+                "score": 88,
+                "total": 100
+            }
+        ],
+        "badges": ["Literature Lover"],
+        "classroomId": "60d21b5567d0d8992e610c8c"
+    },
+    {
+        "studentId": "6",
+        "name": "Sophia Martinez",
+        "image": "lib/assets/images/image3.png",
+        "email": "sophia.martinez@example.com",
+        "password": "hashed_password_6",
+        "address": "303 Cedar St",
+        "dob": "2007-06-10T00:00:00.000Z",
+        "grade": "8",
+        "growthPoints": 35,
+        "guardianName": "Carlos Martinez",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1234",
+                "subjectName": "Mathematics"
+            }
+        ],
+        "isWeakStudent": true,
+        "istopStudent": false,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5678",
+                "teacherName": "Mr. Smith",
+                "subjectId": "603dcd7f1c4ae72f8c8b1234"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1234",
+                "subjectName": "Mathematics",
+                "date": "2025-02-15T00:00:00.000Z",
+                "score": 75,
+                "total": 100
+            }
+        ],
+        "badges": ["Math Whiz"],
+        "classroomId": "60d21b4b67d0d8992e610c87"
+    },
+    {
+        "studentId": "7",
+        "name": "James Anderson",
+        "image": "lib/assets/images/image3.png",
+        "email": "james.anderson@example.com",
+        "password": "hashed_password_7",
+        "address": "404 Maple St",
+        "dob": "2005-07-15T00:00:00.000Z",
+        "grade": "10",
+        "growthPoints": 55,
+        "guardianName": "Mary Anderson",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1235",
+                "subjectName": "Science"
+            }
+        ],
+        "isWeakStudent": false,
+        "istopStudent": true,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5679",
+                "teacherName": "Ms. Davis",
+                "subjectId": "603dcd7f1c4ae72f8c8b1235"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1235",
+                "subjectName": "Science",
+                "date": "2025-02-20T00:00:00.000Z",
+                "score": 92,
+                "total": 100
+            }
+        ],
+        "badges": ["Science Star"],
+        "classroomId": "60d21b5567d0d8992e610c8c"
+    },
+    {
+        "studentId": "8",
+        "name": "Olivia Thomas",
+        "image": "lib/assets/images/image3.png",
+        "email": "olivia.thomas@example.com",
+        "password": "hashed_password_8",
+        "address": "505 Walnut St",
+        "dob": "2006-08-20T00:00:00.000Z",
+        "grade": "9",
+        "growthPoints": 50,
+        "guardianName": "Robert Thomas",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1236",
+                "subjectName": "History"
+            }
+        ],
+        "isWeakStudent": false,
+        "istopStudent": false,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5680",
+                "teacherName": "Mr. Johnson",
+                "subjectId": "603dcd7f1c4ae72f8c8b1236"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1236",
+                "subjectName": "History",
+                "date": "2025-02-25T00:00:00.000Z",
+                "score": 80,
+                "total": 100
+            }
+        ],
+        "badges": ["History Hero"],
+        "classroomId": "60d21b4b67d0d8992e610c87"
+    },
+    {
+        "studentId": "9",
+        "name": "William Harris",
+        "image": "lib/assets/images/image3.png",
+        "email": "william.harris@example.com",
+        "password": "hashed_password_9",
+        "address": "606 Spruce St",
+        "dob": "2007-09-25T00:00:00.000Z",
+        "grade": "8",
+        "growthPoints": 40,
+        "guardianName": "Patricia Harris",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1237",
+                "subjectName": "Geography"
+            }
+        ],
+        "isWeakStudent": true,
+        "istopStudent": false,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5681",
+                "teacherName": "Ms. Lee",
+                "subjectId": "603dcd7f1c4ae72f8c8b1237"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1237",
+                "subjectName": "Geography",
+                "date": "2025-03-01T00:00:00.000Z",
+                "score": 78,
+                "total": 100
+            }
+        ],
+        "badges": ["Geography Guru"],
+        "classroomId": "60d21b5567d0d8992e610c8c"
+    },
+    {
+        "studentId": "10",
+        "name": "Emma Clark",
+        "image": "lib/assets/images/image3.png",
+        "email": "emma.clark@example.com",
+        "password": "hashed_password_10",
+        "address": "707 Ash St",
+        "dob": "2005-10-30T00:00:00.000Z",
+        "grade": "10",
+        "growthPoints": 65,
+        "guardianName": "Thomas Clark",
+        "subjects": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1238",
+                "subjectName": "English"
+            }
+        ],
+        "isWeakStudent": false,
+        "istopStudent": true,
+        "teachers": [
+            {
+                "teacherId": "603dcd7f1c4ae72f8c8b5682",
+                "teacherName": "Mr. Brown",
+                "subjectId": "603dcd7f1c4ae72f8c8b1238"
+            }
+        ],
+        "testScores": [
+            {
+                "subjectId": "603dcd7f1c4ae72f8c8b1238",
+                "subjectName": "English",
+                "date": "2025-03-03T00:00:00.000Z",
+                "score": 93,
+                "total": 100
+            }
+        ],
+        "badges": ["English Expert"],
+        "classroomId": "60d21b5567d0d8992e610c8c"
+    }
+]

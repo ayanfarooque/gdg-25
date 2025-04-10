@@ -1,0 +1,37 @@
+[
+    {
+        "title": "Math Exam",
+        "description": "Final exam for the math course.",
+        "date": "2025-04-10T00:00:00.000Z",
+        "createdBy": "603dcd7f1c4ae72f8c8b5678",
+        "studentIds": ["603dcd7f1c4ae72f8c8b4567", "603dcd7f1c4ae72f8c8b4568"]
+    },
+    {
+        "title": "Science Fair",
+        "description": "Annual science fair event.",
+        "date": "2025-04-15T00:00:00.000Z",
+        "createdBy": "603dcd7f1c4ae72f8c8b5679",
+        "studentIds": ["603dcd7f1c4ae72f8c8b4569", "603dcd7f1c4ae72f8c8b4570"]
+    },
+    {
+        "title": "History Presentation",
+        "description": "Presentation on historical events.",
+        "date": "2025-04-20T00:00:00.000Z",
+        "createdBy": "603dcd7f1c4ae72f8c8b5680",
+        "studentIds": ["603dcd7f1c4ae72f8c8b4571", "603dcd7f1c4ae72f8c8b4567"]
+    },
+    {
+        "title": "Geography Field Trip",
+        "description": "Field trip to the local museum.",
+        "date": "2025-04-25T00:00:00.000Z",
+        "createdBy": "603dcd7f1c4ae72f8c8b5681",
+        "studentIds": ["603dcd7f1c4ae72f8c8b4568", "603dcd7f1c4ae72f8c8b4569"]
+    },
+    {
+        "title": "English Debate",
+        "description": "Debate competition for English class.",
+        "date": "2025-04-30T00:00:00.000Z",
+        "createdBy": "603dcd7f1c4ae72f8c8b5682",
+        "studentIds": ["603dcd7f1c4ae72f8c8b4570", "603dcd7f1c4ae72f8c8b4571"]
+    }
+]

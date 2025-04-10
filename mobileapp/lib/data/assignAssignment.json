@@ -1,0 +1,62 @@
+[
+    {
+        "title": "Math Assignment 1",
+        "description": "Complete the algebra problems.",
+        "subjectId": "603dcd7f1c4ae72f8c8b1234",
+        "teacherId": "603dcd7f1c4ae72f8c8b5678",
+        "classroomId": "603dcd7f1c4ae72f8c8b9101",
+        "dueDate": "2025-03-10T00:00:00.000Z",
+        "attachments": ["algebra_problems.pdf"],
+        "isCompleted": false,
+        "gradingCriteria": "Accuracy and completeness",
+        "submissions": ["603dcd7f1c4ae72f8c8b1111"]
+    },
+    {
+        "title": "Science Project",
+        "description": "Build a model of the solar system.",
+        "subjectId": "603dcd7f1c4ae72f8c8b1235",
+        "teacherId": "603dcd7f1c4ae72f8c8b5679",
+        "classroomId": "603dcd7f1c4ae72f8c8b9102",
+        "dueDate": "2025-03-15T00:00:00.000Z",
+        "attachments": ["solar_system_instructions.pdf"],
+        "isCompleted": false,
+        "gradingCriteria": "Creativity and accuracy",
+        "submissions": ["603dcd7f1c4ae72f8c8b1112"]
+    },
+    {
+        "title": "History Essay",
+        "description": "Write an essay on World War II.",
+        "subjectId": "603dcd7f1c4ae72f8c8b1236",
+        "teacherId": "603dcd7f1c4ae72f8c8b5680",
+        "classroomId": "603dcd7f1c4ae72f8c8b9103",
+        "dueDate": "2025-03-20T00:00:00.000Z",
+        "attachments": ["essay_guidelines.pdf"],
+        "isCompleted": false,
+        "gradingCriteria": "Depth of research and clarity",
+        "submissions": ["603dcd7f1c4ae72f8c8b1113"]
+    },
+    {
+        "title": "Geography Map",
+        "description": "Draw a map of your local area.",
+        "subjectId": "603dcd7f1c4ae72f8c8b1237",
+        "teacherId": "603dcd7f1c4ae72f8c8b5681",
+        "classroomId": "603dcd7f1c4ae72f8c8b9104",
+        "dueDate": "2025-03-25T00:00:00.000Z",
+        "attachments": ["map_template.pdf"],
+        "isCompleted": false,
+        "gradingCriteria": "Accuracy and detail",
+        "submissions": ["603dcd7f1c4ae72f8c8b1114"]
+    },
+    {
+        "title": "English Literature Review",
+        "description": "Review a book of your choice.",
+        "subjectId": "603dcd7f1c4ae72f8c8b1238",
+        "teacherId": "603dcd7f1c4ae72f8c8b5682",
+        "classroomId": "603dcd7f1c4ae72f8c8b9105",
+        "dueDate": "2025-03-30T00:00:00.000Z",
+        "attachments": ["review_guidelines.pdf"],
+        "isCompleted": false,
+        "gradingCriteria": "Insight and analysis",
+        "submissions": ["603dcd7f1c4ae72f8c8b1115"]
+    }
+]

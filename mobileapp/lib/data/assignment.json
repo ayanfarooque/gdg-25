@@ -1,0 +1,62 @@
+[
+    {
+      "id": "MABS1",
+      "title": "Math Assignment 1",
+      "description": "Solve the given problems on algebra.",
+      "subjectId": "60d21b4667d0d8992e610c85",
+      "teacherId": "60d21b4967d0d8992e610c86",
+      "classroomId": "60d21b4b67d0d8992e610c87",
+      "dueDate": "2025-03-01T00:00:00.000Z",
+      "attachments": [
+        "https://example.com/attachments/algebra.pdf"
+      ],
+      "isCompleted": false,
+      "gradingCriteria": "Accuracy and completeness",
+      "submissions": [
+        "60d21b4e67d0d8992e610c88",
+        "60d21b5067d0d8992e610c89"
+      ],
+      "createdAt": "2025-02-01T00:00:00.000Z",
+      "updatedAt": "2025-02-01T00:00:00.000Z"
+    },
+    {
+      "id": "SCBS1",
+      "title": "Science Project",
+      "description": "Create a model of the solar system.",
+      "subjectId": "60d21b5167d0d8992e610c8a",
+      "teacherId": "60d21b5367d0d8992e610c8b",
+      "classroomId": "60d21b5567d0d8992e610c8c",
+      "dueDate": "2025-03-15T00:00:00.000Z",
+      "attachments": [
+        "https://example.com/attachments/solar_system.pdf"
+      ],
+      "isCompleted": false,
+      "gradingCriteria": "Creativity and accuracy",
+      "submissions": [
+        "60d21b5767d0d8992e610c8d",
+        "60d21b5967d0d8992e610c8e"
+      ],
+      "createdAt": "2025-02-05T00:00:00.000Z",
+      "updatedAt": "2025-02-05T00:00:00.000Z"
+    },
+    {
+      "id": "SSTBS1",  
+      "title": "History Essay",
+      "description": "Write an essay on the causes of World War II.",
+      "subjectId": "60d21b5b67d0d8992e610c8f",
+      "teacherId": "60d21b5d67d0d8992e610c90",
+      "classroomId": "60d21b5f67d0d8992e610c91",
+      "dueDate": "2025-03-10T00:00:00.000Z",
+      "attachments": [
+        "https://example.com/attachments/ww2_essay.pdf"
+      ],
+      "isCompleted": false,
+      "gradingCriteria": "Depth of analysis and clarity",
+      "submissions": [
+        "60d21b6167d0d8992e610c92",
+        "60d21b6367d0d8992e610c93"
+      ],
+      "createdAt": "2025-02-10T00:00:00.000Z",
+      "updatedAt": "2025-02-10T00:00:00.000Z"
+    }
+  ]

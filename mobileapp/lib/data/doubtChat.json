@@ -1,0 +1,72 @@
+[
+    {
+        "chatId": "chat001",
+        "subjectId": "603dcd7f1c4ae72f8c8b1234",
+        "studentId": "603dcd7f1c4ae72f8c8b4567",
+        "responses": [
+            {
+                "responseId": "response001",
+                "timeStamp": "2025-03-01T10:00:00.000Z",
+                "prompt": "What is the formula for the area of a circle?",
+                "output": "The formula for the area of a circle is πr².",
+                "fileUrl": "http://example.com/formula_image.png"
+            }
+        ]
+    },
+    {
+        "chatId": "chat002",
+        "subjectId": "603dcd7f1c4ae72f8c8b1235",
+        "studentId": "603dcd7f1c4ae72f8c8b4568",
+        "responses": [
+            {
+                "responseId": "response002",
+                "timeStamp": "2025-03-02T11:00:00.000Z",
+                "prompt": "Explain Newton's first law of motion.",
+                "output": "Newton's first law states that an object will remain at rest or in uniform motion unless acted upon by an external force.",
+                "fileUrl": "http://example.com/newton_first_law.png"
+            }
+        ]
+    },
+    {
+        "chatId": "chat003",
+        "subjectId": "603dcd7f1c4ae72f8c8b1236",
+        "studentId": "603dcd7f1c4ae72f8c8b4569",
+        "responses": [
+            {
+                "responseId": "response003",
+                "timeStamp": "2025-03-03T12:00:00.000Z",
+                "prompt": "What are the causes of World War II?",
+                "output": "The causes of World War II include the Treaty of Versailles, the rise of fascism, and the invasion of Poland.",
+                "fileUrl": "http://example.com/ww2_causes.png"
+            }
+        ]
+    },
+    {
+        "chatId": "chat004",
+        "subjectId": "603dcd7f1c4ae72f8c8b1237",
+        "studentId": "603dcd7f1c4ae72f8c8b4570",
+        "responses": [
+            {
+                "responseId": "response004",
+                "timeStamp": "2025-03-04T13:00:00.000Z",
+                "prompt": "Describe the water cycle.",
+                "output": "The water cycle consists of evaporation, condensation, precipitation, and collection.",
+                "fileUrl": "http://example.com/water_cycle.png"
+            }
+        ]
+    },
+    {
+        "chatId": "chat005",
+        "subjectId": "603dcd7f1c4ae72f8c8b1238",
+        "studentId": "603dcd7f1c4ae72f8c8b4571",
+        "responses": [
+            {
+                "responseId": "response005",
+                "timeStamp": "2025-03-05T14:00:00.000Z",
+                "prompt": "What is the theme of 'To Kill a Mockingbird'?",
+                "output": "The theme of 'To Kill a Mockingbird' is the moral nature of human beings, particularly the struggle between discrimination and tolerance.",
+                "fileUrl": "http://example.com/mockingbird_theme.png"
+            }
+        ]
+    }
+]

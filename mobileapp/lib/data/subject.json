@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Mathematics",
+        "code": "MATH101",
+        "teacherId": "603dcd7f1c4ae72f8c8b5678",
+        "description": "This course covers basic to advanced mathematical concepts."
+    },
+    {
+        "name": "Science",
+        "code": "SCI101",
+        "teacherId": "603dcd7f1c4ae72f8c8b5679",
+        "description": "This course covers various scientific principles and experiments."
+    },
+    {
+        "name": "History",
+        "code": "HIST101",
+        "teacherId": "603dcd7f1c4ae72f8c8b5680",
+        "description": "This course covers significant historical events and figures."
+    },
+    {
+        "name": "Geography",
+        "code": "GEO101",
+        "teacherId": "603dcd7f1c4ae72f8c8b5681",
+        "description": "This course covers physical and human geography."
+    },
+    {
+        "name": "English",
+        "code": "ENG101",
+        "teacherId": "603dcd7f1c4ae72f8c8b5682",
+        "description": "This course covers English literature and language skills."
+    }
+]

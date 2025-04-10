@@ -1,0 +1,97 @@
+[
+    {
+        "testId": "test001",
+        "subjectId": "603dcd7f1c4ae72f8c8b1234",
+        "teacherId": "603dcd7f1c4ae72f8c8b5678",
+        "questions": [
+            {
+                "questionText": "What is the formula for the area of a circle?",
+                "options": ["πr²", "2πr", "πd", "r²"],
+                "correctAnswer": "πr²"
+            },
+            {
+                "questionText": "What is 2 + 2?",
+                "options": ["3", "4", "5", "6"],
+                "correctAnswer": "4"
+            }
+        ],
+        "timeLimit": 30,
+        "createdAt": "2025-03-01T09:00:00.000Z"
+    },
+    {
+        "testId": "test002",
+        "subjectId": "603dcd7f1c4ae72f8c8b1235",
+        "teacherId": "603dcd7f1c4ae72f8c8b5679",
+        "questions": [
+            {
+                "questionText": "What is Newton's first law of motion?",
+                "options": ["An object in motion stays in motion", "Force equals mass times acceleration", "For every action, there is an equal and opposite reaction", "Energy cannot be created or destroyed"],
+                "correctAnswer": "An object in motion stays in motion"
+            },
+            {
+                "questionText": "What is the chemical symbol for water?",
+                "options": ["H2O", "O2", "CO2", "H2"],
+                "correctAnswer": "H2O"
+            }
+        ],
+        "timeLimit": 30,
+        "createdAt": "2025-03-02T10:00:00.000Z"
+    },
+    {
+        "testId": "test003",
+        "subjectId": "603dcd7f1c4ae72f8c8b1236",
+        "teacherId": "603dcd7f1c4ae72f8c8b5680",
+        "questions": [
+            {
+                "questionText": "Who was the first President of the United States?",
+                "options": ["George Washington", "Thomas Jefferson", "Abraham Lincoln", "John Adams"],
+                "correctAnswer": "George Washington"
+            },
+            {
+                "questionText": "In what year did World War II end?",
+                "options": ["1945", "1939", "1918", "1963"],
+                "correctAnswer": "1945"
+            }
+        ],
+        "timeLimit": 30,
+        "createdAt": "2025-03-03T11:00:00.000Z"
+    },
+    {
+        "testId": "test004",
+        "subjectId": "603dcd7f1c4ae72f8c8b1237",
+        "teacherId": "603dcd7f1c4ae72f8c8b5681",
+        "questions": [
+            {
+                "questionText": "What is the capital of France?",
+                "options": ["Paris", "London", "Berlin", "Madrid"],
+                "correctAnswer": "Paris"
+            },
+            {
+                "questionText": "Which continent is the Sahara Desert located on?",
+                "options": ["Africa", "Asia", "Australia", "South America"],
+                "correctAnswer": "Africa"
+            }
+        ],
+        "timeLimit": 30,
+        "createdAt": "2025-03-04T12:00:00.000Z"
+    },
+    {
+        "testId": "test005",
+        "subjectId": "603dcd7f1c4ae72f8c8b1238",
+        "teacherId": "603dcd7f1c4ae72f8c8b5682",
+        "questions": [
+            {
+                "questionText": "Who wrote 'To Kill a Mockingbird'?",
+                "options": ["Harper Lee", "Mark Twain", "Ernest Hemingway", "F. Scott Fitzgerald"],
+                "correctAnswer": "Harper Lee"
+            },
+            {
+                "questionText": "What is the main theme of '1984' by George Orwell?",
+                "options": ["Totalitarianism", "Love", "Adventure", "Friendship"],
+                "correctAnswer": "Totalitarianism"
+            }
+        ],
+        "timeLimit": 30,
+        "createdAt": "2025-03-05T13:00:00.000Z"
+    }
+]
