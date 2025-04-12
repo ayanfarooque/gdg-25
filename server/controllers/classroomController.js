@@ -1,8 +1,7 @@
-const Classroom = require('../models/Classroom');
+const Classroom = require('../models/Classroom.js');
 const AssignAssignment = require('../models/AssignAssignment')
 const Student = require('../models/Student.js')
 const Teacher = require('../models/Teacher.js');
-const Classroom = require('../models/Classroom');
 
 // exports.createClassroom = async(req,res) => {
 //     try {
@@ -418,5 +417,198 @@ exports.getClassroomStats = asyncHandler(async (req, res) => {
     res.status(200).json({
         success: true,
         data: stats
+    });
+});
+
+// @desc    Assign assignment to classroom
+// @route   POST /api/classrooms/:id/assignments
+// @access  Private (Teacher)
+exports.assignAssignment = [
+    // Validation middleware
+    body('title').trim().isLength({ min: 3, max: 200 }).withMessage('Title must be between 3-200 characters'),
+    body('description').optional().trim().isLength({ max: 2000 }),
+    body('subject').isIn(["Math", "Science", "History", "English", "Art", "Music", "Physical Education", "Computer Science", "Foreign Language", "Other"]),
+    body('dueDate').isISO8601().withMessage('Invalid date format').custom((value) => {
+        if (new Date(value) <= new Date()) {
+            throw new Error('Due date must be in the future');
+        }
+        return true;
+    }),
+    body('points').optional().isInt({ min: 0, max: 1000 }),
+    body('submissionType').optional().isIn(["none", "online", "offline", "both"]),
+    
+    asyncHandler(async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                errors: errors.array()
+            });
+        }
+
+        const { title, description, subject, dueDate, attachments, points, submissionType } = req.body;
+        const classroomId = req.params.id;
+        const teacherId = req.user.id;
+
+        // Check if classroom exists and teacher is the owner
+        const classroom = await Classroom.findOne({ _id: classroomId, teacher: teacherId });
+        if (!classroom) {
+            return res.status(404).json({
+                success: false,
+                error: 'Classroom not found or you are not the teacher'
+            });
+        }
+
+        // Create assignment
+        const assignment = new AssignAssignment({
+            title,
+            description,
+            subject,
+            teacher: teacherId,
+            classroom: classroomId,
+            dueDate,
+            attachments: attachments || [],
+            points: points || 0,
+            submissionType: submissionType || "none"
+        });
+
+        await assignment.save();
+
+        // Add assignment to classroom
+        classroom.assignments.push(assignment._id);
+        await classroom.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Assignment created and assigned to classroom",
+            data: assignment
+        });
+    })
+];
+
+// @desc    Get classroom assignments
+// @route   GET /api/classrooms/:id/assignments
+// @access  Private (Teacher/Student)
+exports.getAssignments = asyncHandler(async (req, res) => {
+    const { status, upcoming, past } = req.query;
+    const classroomId = req.params.id;
+    const userId = req.user.id;
+
+    // Check if user is part of the classroom (teacher or student)
+    const classroom = await Classroom.findOne({
+        _id: classroomId,
+        $or: [
+            { teacher: userId },
+            { students: userId }
+        ]
+    }).select('_id');
+
+    if (!classroom) {
+        return res.status(403).json({
+            success: false,
+            error: 'Not authorized to access these assignments'
+        });
+    }
+
+    let query = { classroom: classroomId };
+
+    if (status) {
+        query.status = status;
+    }
+
+    if (upcoming === 'true') {
+        query.dueDate = { $gt: new Date() };
+    } else if (past === 'true') {
+        query.dueDate = { $lte: new Date() };
+    }
+
+    const assignments = await AssignAssignment.find(query)
+        .sort({ dueDate: 1 })
+        .populate('teacher', 'name email');
+
+    res.status(200).json({
+        success: true,
+        count: assignments.length,
+        data: assignments
+    });
+});
+
+// @desc    Update assignment
+// @route   PUT /api/classrooms/:classroomId/assignments/:assignmentId
+// @access  Private (Teacher)
+exports.updateAssignment = [
+    // Validation middleware (same as assignAssignment)
+    asyncHandler(async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                errors: errors.array()
+            });
+        }
+
+        const { classroomId, assignmentId } = req.params;
+        const teacherId = req.user.id;
+
+        // Verify assignment belongs to teacher's classroom
+        const assignment = await AssignAssignment.findOne({
+            _id: assignmentId,
+            classroom: classroomId,
+            teacher: teacherId
+        });
+
+        if (!assignment) {
+            return res.status(404).json({
+                success: false,
+                error: 'Assignment not found or not authorized'
+            });
+        }
+
+        // Update fields
+        const updatableFields = ['title', 'description', 'dueDate', 'attachments', 'status', 'points', 'submissionType'];
+        updatableFields.forEach(field => {
+            if (req.body[field] !== undefined) {
+                assignment[field] = req.body[field];
+            }
+        });
+
+        await assignment.save();
+
+        res.status(200).json({
+            success: true,
+            data: assignment
+        });
+    })
+];
+
+// @desc    Delete assignment
+// @route   DELETE /api/classrooms/:classroomId/assignments/:assignmentId
+// @access  Private (Teacher)
+exports.deleteAssignment = asyncHandler(async (req, res) => {
+    const { classroomId, assignmentId } = req.params;
+    const teacherId = req.user.id;
+
+    // Verify assignment belongs to teacher's classroom
+    const assignment = await AssignAssignment.findOneAndDelete({
+        _id: assignmentId,
+        classroom: classroomId,
+        teacher: teacherId
+    });
+
+    if (!assignment) {
+        return res.status(404).json({
+            success: false,
+            error: 'Assignment not found or not authorized'
+        });
+    }
+
+    // Remove assignment from classroom
+    await Classroom.findByIdAndUpdate(classroomId, {
+        $pull: { assignments: assignmentId }
+    });
+
+    res.status(200).json({
+        success: true,
+        data: {}
     });
 });
