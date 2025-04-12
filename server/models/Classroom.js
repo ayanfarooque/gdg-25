@@ -17,7 +17,15 @@ const classroomSchema = new mongoose.Schema({
     assignments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Assignment"
-    }]
+    }],
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 module.exports = mongoose.model("Classroom", classroomSchema);
