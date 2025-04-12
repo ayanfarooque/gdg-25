@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
-const assignassignment = new mongoose.Schema({
+const assignAssignmentSchema = new mongoose.Schema({
+    // Core Fields (from your original schema)
     title: {
         type: String,
         required: [true, "Title is required"],
@@ -37,31 +39,97 @@ const assignassignment = new mongoose.Schema({
             message: "Due date must be in the future"
         }
     },
+
+    // Enhanced Attachments (with cloud storage support)
     attachments: [{
-        url: String,
-        name: String,
-        type: String,
-        size: Number
+        url: {
+            type: String,
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        },
+        type: {
+            type: String,
+            enum: ["pdf", "doc", "docx", "ppt", "pptx", "xls", "xlsx"],
+            required: true
+        },
+        size: {
+            type: Number,
+            required: true,
+            max: [50 * 1024 * 1024, "File size cannot exceed 50MB"]
+        },
+        key: {  // For cloud storage management (e.g., AWS S3)
+            type: String,
+            required: true
+        },
+        previewUrl: String  // PDF thumbnail URL
     }],
+
+    // Submission System (critical addition)
+    submissions: [{
+        student: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Student",
+            required: true
+        },
+        documents: [{
+            url: String,
+            name: String,
+            type: String,
+            size: Number
+        }],
+        textAnswer: String,
+        submittedAt: {
+            type: Date,
+            default: Date.now
+        },
+        grade: {
+            type: Number,
+            min: 0,
+            max: 100
+        },
+        feedback: String,
+        isLate: Boolean  // Auto-calculated
+    }],
+
+    // Status & Workflow (enhanced)
     status: {
         type: String,
         enum: ["draft", "published", "archived"],
         default: "draft"
     },
-    submissionType: {
-        type: String,
-        enum: ["none", "online", "offline", "both"],
-        default: "none"
+    isActive: {
+        type: Boolean,
+        default: true
     },
+    accessCode: {  // For secure sharing
+        type: String,
+        default: () => uuidv4().slice(0, 8).toUpperCase()
+    },
+
+    // Grading (structured system)
     points: {
         type: Number,
         min: 0,
-        max: 1000
+        max: 1000,
+        default: 100
     },
-    gradingCriteria: String,
+    gradingRubric: {
+        criteria: [{
+            name: String,
+            points: Number,
+            description: String
+        }],
+        notes: String
+    },
+
+    // Timestamps (kept from your original)
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
+        immutable: true
     },
     updatedAt: {
         type: Date,
@@ -69,16 +137,46 @@ const assignassignment = new mongoose.Schema({
     }
 });
 
-// Update timestamp before saving
-assignassignment.pre("save", function(next) {
+// Middleware (auto-update timestamps)
+assignAssignmentSchema.pre("save", function(next) {
     this.updatedAt = Date.now();
+    
+    // Auto-set isLate for submissions
+    if (this.submissions && this.isModified("submissions")) {
+        this.submissions.forEach(sub => {
+            sub.isLate = sub.submittedAt > this.dueDate;
+        });
+    }
     next();
 });
 
-// Indexes
-assignassignment.index({ classroom: 1 });
-assignassignment.index({ teacher: 1 });
-assignassignment.index({ dueDate: 1 });
-assignassignment.index({ status: 1 });
+// Indexes (optimized queries)
+assignAssignmentSchema.index({ classroom: 1 });
+assignAssignmentSchema.index({ teacher: 1 });
+assignAssignmentSchema.index({ dueDate: 1 });
+assignAssignmentSchema.index({ status: 1, isActive: 1 });
 
-module.exports = mongoose.model("AssignAssignment", assignassignment);
+// Virtuals (auto-calculated fields)
+assignAssignmentSchema.virtual("submissionCount").get(function() {
+    return this.submissions.length;
+});
+
+assignAssignmentSchema.virtual("daysRemaining").get(function() {
+    return Math.ceil((this.dueDate - Date.now()) / (1000 * 60 * 60 * 24));
+});
+
+// Instance Methods (workflow helpers)
+assignAssignmentSchema.methods.addSubmission = async function(studentId, files, textAnswer) {
+    const submission = {
+        student: studentId,
+        documents: files || [],
+        textAnswer: textAnswer || "",
+        submittedAt: new Date(),
+        isLate: new Date() > this.dueDate
+    };
+    this.submissions.push(submission);
+    await this.save();
+    return submission;
+};
+
+module.exports = mongoose.model("AssignAssignment", assignAssignmentSchema);
