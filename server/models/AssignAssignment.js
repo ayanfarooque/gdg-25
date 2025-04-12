@@ -1,39 +1,84 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const assignassginment = new mongoose.Schema({
+const assignassignment = new mongoose.Schema({
     title: {
         type: String,
-        required: true
+        required: [true, "Title is required"],
+        trim: true,
+        maxlength: [200, "Title cannot exceed 200 characters"]
     },
     description: {
         type: String,
-        required: true,
+        trim: true,
+        maxlength: [2000, "Description cannot exceed 2000 characters"]
     },
-    subjectId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Subject",
-        required: true,
+    subject: {
+        type: String,
+        enum: ["Math", "Science", "History", "English", "Art", "Music", "Physical Education", "Computer Science", "Foreign Language", "Other"],
+        required: true
     },
-    teacherId: {
+    teacher: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Teacher",
-        required: true,
+        required: true
     },
-    classroomId: {
+    classroom: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Classroom",
-        required: true,
+        required: true
     },
     dueDate: {
         type: Date,
         required: true,
+        validate: {
+            validator: function(v) {
+                return v > Date.now();
+            },
+            message: "Due date must be in the future"
+        }
     },
     attachments: [{
-        type: String
+        url: String,
+        name: String,
+        type: String,
+        size: Number
     }],
-    isCompleted: { type: Boolean,default: false },
-    gradingCriteria: { type: String }, 
-    submissions: [{ type: mongoose.Schema.Types.ObjectId, ref: "SubmitAssignment" }]
-},{ timestamps: true })
+    status: {
+        type: String,
+        enum: ["draft", "published", "archived"],
+        default: "draft"
+    },
+    submissionType: {
+        type: String,
+        enum: ["none", "online", "offline", "both"],
+        default: "none"
+    },
+    points: {
+        type: Number,
+        min: 0,
+        max: 1000
+    },
+    gradingCriteria: String,
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
 
-module.exports = mongoose.model("Assignment", assignassginment);
+// Update timestamp before saving
+assignassignment.pre("save", function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
+// Indexes
+assignassignment.index({ classroom: 1 });
+assignassignment.index({ teacher: 1 });
+assignassignment.index({ dueDate: 1 });
+assignassignment.index({ status: 1 });
+
+module.exports = mongoose.model("AssignAssignment", assignassignment);

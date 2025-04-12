@@ -53,7 +53,7 @@ const classroomSchema = new mongoose.Schema({
     }],
     assignments: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Assignment"
+        ref: "AssignAssignment"
     }],
     //adding this below field for sharing the resourcs in classroom also adding clodinary support till now adding files loacaly
     resources: [{
@@ -106,6 +106,7 @@ const classroomSchema = new mongoose.Schema({
             default: "Private"
         }
     },
+    //adding isactive field so that inseted of deleting the classroom from the schema will just set isactive as false smart move...
     isActive: {
         type: Boolean,
         default: true
