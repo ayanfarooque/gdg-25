@@ -425,9 +425,16 @@ exports.getClassroomStats = asyncHandler(async (req, res) => {
 // @access  Private (Teacher)
 exports.assignAssignment = [
     // Validation middleware
-    body('title').trim().isLength({ min: 3, max: 200 }).withMessage('Title must be between 3-200 characters'),
-    body('description').optional().trim().isLength({ max: 2000 }),
-    body('subject').isIn(["Math", "Science", "History", "English", "Art", "Music", "Physical Education", "Computer Science", "Foreign Language", "Other"]),
+    body('title').
+    trim().
+    isLength({ min: 3, max: 200 }).
+    withMessage('Title must be between 3-200 characters'),
+    body('description').
+    optional().
+    trim().
+    isLength({ max: 2000 }),
+    body('subject').
+    isIn(["Math", "Science", "History", "English", "Art", "Music", "Physical Education", "Computer Science", "Foreign Language", "Other"]),
     body('dueDate').isISO8601().withMessage('Invalid date format').custom((value) => {
         if (new Date(value) <= new Date()) {
             throw new Error('Due date must be in the future');

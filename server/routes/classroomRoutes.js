@@ -49,4 +49,10 @@ router.post("/:id/announcements", authorize("teacher"), classroomController.addA
 // Stats
 router.get("/:id/stats", authorize("teacher", "admin"), classroomController.getClassroomStats);
 
+// Assignment routes
+router.post("/:id/assignments", authorize("teacher"), classroomController.assignAssignment);
+router.get("/:id/assignments", authorize("teacher", "student"), classroomController.getAssignments);
+router.put("/:classroomId/assignments/:assignmentId", authorize("teacher"), classroomController.updateAssignment);
+router.delete("/:classroomId/assignments/:assignmentId", authorize("teacher"), classroomController.deleteAssignment);
+
 module.exports = router;
