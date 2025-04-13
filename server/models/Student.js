@@ -19,8 +19,67 @@ const studentSchema = new mongoose.Schema(
       required: true, 
       enum: ['9', '10', '11', '12', 'college'] 
     },
-    growthPoints: { type: Number, default: 0 },
-    guardianName: { type: String },
+
+    academicStats: {
+      growthPoints: { 
+        type: Number, 
+        default: 0 
+      },
+      totalAssignmentsSubmitted: { 
+        type: Number, 
+        default: 0 
+      },
+      classRank: Number,
+      averageScore: Number
+    },
+
+    badges: [{
+      name: String,
+      description: String,
+      awardedOn: { type: Date, default: Date.now },
+      icon: String
+    }],
+
+    enrolledClassrooms: [
+      { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Classroom' 
+      }
+    ],
+    pendingClassroomRequests: [
+      { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Classroom' 
+      }
+    ],
+    joinedCommunities: [
+      { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Community' 
+      }
+      ],
+    pendingCommunityRequests: [
+      { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Community' 
+      }
+      ],
+    friends: [
+      { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Student' 
+      }
+    ],
+    pendingFriendRequests: [
+      { type: Schema.Types.ObjectId, 
+        ref: 'Student' 
+      }
+    ],
+    performanceHistory: [{
+      date: Date,
+      growthPoints: Number,
+      assignmentsCompleted: Number
+    }],
 
     subjects: [
       {
@@ -29,8 +88,6 @@ const studentSchema = new mongoose.Schema(
       }
     ],
 
-    isWeakStudent: { type: Boolean, default: false },
-    isTopStudent: { type: Boolean, default: false },
 
     teachers: [
       {
@@ -49,8 +106,11 @@ const studentSchema = new mongoose.Schema(
         total: { type: Number }
       }
     ],
-
-    badges: [{ type: String }]
+    performanceHistory: [{
+      date: Date,
+      growthPoints: Number,
+      assignmentsCompleted: Number
+    }],
   },
   { timestamps: true }
 );
