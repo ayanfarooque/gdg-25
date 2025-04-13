@@ -1,5 +1,6 @@
 const AssignAssginment = require('../models/AssignAssignment.js');
 
+//this is added in classroom controller
 // exports.assignassginment = async (req,res) => {
 //     try {
 //         const {title,description,subjectId,teacherId,classroomId,dueDate,attachments} = req.body
@@ -20,3 +21,4 @@ const AssignAssginment = require('../models/AssignAssignment.js');
 //         res.status(500).json({ message: "Error assigning assignment", error: error.message });
 //     }
 // }
+

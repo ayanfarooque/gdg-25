@@ -55,6 +55,11 @@ const classroomSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "AssignAssignment"
     }],
+    performanceStats: {
+        averageScore: Number,
+        assignmentsCompleted: Number,
+        assignmentsPending: Number
+      },
     //adding this below field for sharing the resourcs in classroom also adding clodinary support till now adding files loacaly
     resources: [{
         title: String,

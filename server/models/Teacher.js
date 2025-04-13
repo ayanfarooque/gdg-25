@@ -1,187 +1,96 @@
-const { Schema } = require('mongoose');
-const User = require('./userSchema');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
-const adminSchema = new Schema({
-  // Extended contact information
-  contactInfo: {
-    officeNumber: { 
-      type: String,
-      validate: {
-        validator: function(v) {
-          return /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(v);
-        },
-        message: props => `${props.value} is not a valid phone number!`
-      }
-    },
-    emergencyContact: {
-      name: String,
-      relationship: String,
-      phone: String
-    },
-  },
-
-  // Enhanced permissions system
-  permissions: {
-    userManagement: {
-      view: { type: Boolean, default: true },
-      create: { type: Boolean, default: true },
-      update: { type: Boolean, default: true },
-      delete: { type: Boolean, default: false },
-      permissions: { type: Boolean, default: false }
-    },
-    contentManagement: {
-      create: { type: Boolean, default: true },
-      edit: { type: Boolean, default: true },
-      publish: { type: Boolean, default: true },
-      archive: { type: Boolean, default: true }
-    },
-    systemSettings: {
-      general: { type: Boolean, default: false },
-      security: { type: Boolean, default: false },
-      backups: { type: Boolean, default: false },
-      api: { type: Boolean, default: false }
-    },
-    reports: {
-      view: { type: Boolean, default: true },
-      generate: { type: Boolean, default: true },
-      export: { type: Boolean, default: true }
-    },
-    auditLogs: {
-      view: { type: Boolean, default: true }
-    },
-    // Custom permissions can be added dynamically
-    customPermissions: Schema.Types.Mixed
-  },
-
-  // Security settings
-  security: {
-    lastPasswordChange: { type: Date, default: Date.now },
-    twoFactorEnabled: { type: Boolean, default: true },
-    loginAlerts: { type: Boolean, default: true },
-    failedLoginAttempts: { type: Number, default: 0 },
-    lastFailedLogin: Date,
-    ipWhitelist: [String],
-    deviceManagement: [{
-      deviceId: String,
-      deviceType: String,
-      lastAccess: Date,
-      trusted: Boolean
-    }]
-  },
-
-  // Comprehensive activity logging
-  activityLog: [{
-    action: { 
-      type: String,
-      required: true 
-    },
-    entityType: String,
-    entityId: Schema.Types.ObjectId,
-    changes: Schema.Types.Mixed,
-    ipAddress: String,
-    userAgent: String,
-    status: {
-      type: String,
-      enum: ['success', 'failed', 'pending'],
-      default: 'success'
-    },
-    timestamp: { 
-      type: Date, 
-      default: Date.now,
-      index: true
-    }
-  }],
-
-  // Administrative metadata
-  adminMetadata: {
-    accessLevel: {
-      type: String,
-      enum: ['super', 'global', 'department', 'limited'],
-      default: 'department'
-    },
-    assignedRoles: [{
-      type: String,
-      enum: ['superadmin', 'admin', 'moderator', 'support', 'auditor'],
-      default: 'admin'
+const teacherSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true }, // Hashed password
+    address: { type: String },
+    dob: { type: Date, required: true },
+    contactNumber: String,
+    subjects: [{
+        subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
+        subjectName: { type: String }
     }],
-    lastAccessReview: Date,
-    nextAccessReview: {
-      type: Date,
-      default: () => new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
-    }
-  },
 
-  // Notification preferences
-  notifications: {
-    email: {
-      userActivity: { type: Boolean, default: true },
-      systemAlerts: { type: Boolean, default: true },
-      reports: { type: Boolean, default: false }
-    },
-    push: {
-      critical: { type: Boolean, default: true },
-      updates: { type: Boolean, default: false }
-    },
-    frequency: {
-      type: String,
-      enum: ['immediate', 'daily', 'weekly'],
-      default: 'immediate'
-    }
-  }
-}, {
-  timestamps: true, // Adds createdAt and updatedAt automatically
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
-});
+    qualifications: [{
+        degree: String,
+        institution: String,
+        year: Number
+      }],
 
-// Indexes for performance
-adminSchema.index({ 'adminMetadata.accessLevel': 1 });
-adminSchema.index({ 'permissions.userManagement': 1 });
-adminSchema.index({ 'activityLog.timestamp': -1 });
+      gradesTaught: [
+            { 
+                type: String, 
+                enum: ['9', '10', '11', '12', 'college'] 
+            }
+        ],
 
-// Virtual for full admin title
-adminSchema.virtual('adminTitle').get(function() {
-  return `${this.department} Administrator`;
-});
+      assignedClassrooms: [
+            { 
+                type: Schema.Types.ObjectId, 
+                ref: 'Classroom' 
+            }
+        ],
+        joinedCommunities: [
+            { 
+                type: Schema.Types.ObjectId, 
+                ref: 'Community' 
+            }
+        ],
+        performanceHistory: [
+            {
+            date: Date,
+            studentsTaught: Number,
+            assignmentsCreated: Number
+            }
+        ],
+        teachingStats: {
+            totalStudents: { 
+                type: Number, 
+                default: 0 
+            },
+            totalAssignmentsCreated: { 
+                type: Number, 
+                default: 0 
+            },
+            averageClassPerformance: { 
+                type: Number, 
+                default: 0 
+            }
+        },
+        performanceHistory: [{
+            date: Date,
+            studentsTaught: Number,
+            assignmentsCreated: Number
+          }],
+        students: [{
+            studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+            studyHours: { type: Number, default: 0 },
+            scores: [{
+                subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
+                marks: [{ testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" }, testMarks: { type: Number } }]
+            }],
+        growthPoints: [
+            { 
+                subjectId: { 
+                    type: mongoose.Schema.Types.ObjectId, 
+                    ref: "Subject" 
+                }, 
+                subjectPoints: { 
+                    type: Number 
+                } 
+            }
+        ]
+    }]
+}, { timestamps: true });
 
-// Pre-save hook for security
-adminSchema.pre('save', function(next) {
-  if (this.isModified('security.failedLoginAttempts') ){
-    if (this.security.failedLoginAttempts >= 5) {
-      this.security.loginLocked = true;
-      this.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
-    }
-  }
-  next();
-});
+// teacherSchema.pre("save", async function (next) {
+//     if (!this.isModified("password")) return next();
+//     this.password = await bcrypt.hash(this.password, 10);
+//     next();
+// }
+// );
 
-// Static methods
-adminSchema.statics.findByDepartment = function(department) {
-  return this.find({ 'contactInfo.department': department });
-};
+module.exports = mongoose.model("Teacher", teacherSchema);
 
-// Instance methods
-adminSchema.methods.hasPermission = function(permissionPath) {
-  const paths = permissionPath.split('.');
-  let current = this.permissions;
-  
-  for (const path of paths) {
-    if (current[path] === undefined) return false;
-    current = current[path];
-    if (typeof current === 'boolean') return current;
-  }
-  
-  return false;
-};
-
-adminSchema.methods.logActivity = function(action, metadata = {}) {
-  this.activityLog.push({
-    action,
-    ...metadata,
-    ipAddress: metadata.ipAddress || 'system',
-    timestamp: new Date()
-  });
-  return this.save();
-};
-
-module.exports = User.discriminator('Admin', adminSchema);
