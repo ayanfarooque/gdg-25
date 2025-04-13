@@ -7,20 +7,81 @@ const teacherSchema = new mongoose.Schema({
     password: { type: String, required: true }, // Hashed password
     address: { type: String },
     dob: { type: Date, required: true },
-    
+    contactNumber: String,
     subjects: [{
         subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
         subjectName: { type: String }
     }],
 
-    students: [{
-        studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
-        studyHours: { type: Number, default: 0 },
-        scores: [{
-            subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
-            marks: [{ testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" }, testMarks: { type: Number } }]
-        }],
-        growthPoints: [{ subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" }, subjectPoints: { type: Number } }]
+    qualifications: [{
+        degree: String,
+        institution: String,
+        year: Number
+      }],
+
+      gradesTaught: [
+            { 
+                type: String, 
+                enum: ['9', '10', '11', '12', 'college'] 
+            }
+        ],
+
+      assignedClassrooms: [
+            { 
+                type: Schema.Types.ObjectId, 
+                ref: 'Classroom' 
+            }
+        ],
+        joinedCommunities: [
+            { 
+                type: Schema.Types.ObjectId, 
+                ref: 'Community' 
+            }
+        ],
+        performanceHistory: [
+            {
+            date: Date,
+            studentsTaught: Number,
+            assignmentsCreated: Number
+            }
+        ],
+        teachingStats: {
+            totalStudents: { 
+                type: Number, 
+                default: 0 
+            },
+            totalAssignmentsCreated: { 
+                type: Number, 
+                default: 0 
+            },
+            averageClassPerformance: { 
+                type: Number, 
+                default: 0 
+            }
+        },
+        performanceHistory: [{
+            date: Date,
+            studentsTaught: Number,
+            assignmentsCreated: Number
+          }],
+        students: [{
+            studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+            studyHours: { type: Number, default: 0 },
+            scores: [{
+                subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
+                marks: [{ testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" }, testMarks: { type: Number } }]
+            }],
+        growthPoints: [
+            { 
+                subjectId: { 
+                    type: mongoose.Schema.Types.ObjectId, 
+                    ref: "Subject" 
+                }, 
+                subjectPoints: { 
+                    type: Number 
+                } 
+            }
+        ]
     }]
 }, { timestamps: true });
 
@@ -33,32 +94,3 @@ const teacherSchema = new mongoose.Schema({
 
 module.exports = mongoose.model("Teacher", teacherSchema);
 
-
-// const teacherSchema = new mongoose.Schema({
-//     teacherId: { type: String, required: true, unique: true },
-//     name: { type: String, required: true },
-//     address: { type: String },
-//     dob: { type: Date, required: true },
-//     subjects: [{
-//         subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
-//         subjectName: { type: String }
-//     }],
-//     students: [{
-//         studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
-//         studyHours: { type: Number, default: 0 },
-//         scores: [{
-//             subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
-//             subjectName: { type: String },
-//             marks: [{
-//                 testId: { type: mongoose.Schema.Types.ObjectId, ref: "Test" },
-//                 testMarks: { type: Number }
-//             }]
-//         }],
-//         growthPoints: [{
-//             subjectId: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
-//             subjectPoints: { type: Number }
-//         }]
-//     }]
-// }, { timestamps: true });
-
-// module.exports = mongoose.model("Teacher", teacherSchema);
