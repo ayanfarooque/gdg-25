@@ -9,12 +9,16 @@ const studentSchema = new mongoose.Schema(
     address: {
       line1: { type: String, required: true },
       line2: { type: String },
-      city: { type: String, required: true },
-      state: { type: String, required: true },
-      postalCode: { type: String, required: true }
+      city: { type: String  },
+      state: { type: String  },
+      postalCode: { type: String }
     },
-    dob: { type: Date, required: true },
-    grade: { type: String, required: true },
+    dob: { type: Date },
+    grade: { 
+      type: String, 
+      required: true, 
+      enum: ['9', '10', '11', '12', 'college'] 
+    },
     growthPoints: { type: Number, default: 0 },
     guardianName: { type: String },
 
