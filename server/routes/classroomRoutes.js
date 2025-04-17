@@ -55,4 +55,10 @@ router.get("/:id/assignments", authorize("teacher", "student"), classroomControl
 router.put("/:classroomId/assignments/:assignmentId", authorize("teacher"), classroomController.updateAssignment);
 router.delete("/:classroomId/assignments/:assignmentId", authorize("teacher"), classroomController.deleteAssignment);
 
+
+//join req
+router.post('/:id',classroomController.joinClassroomRequest);
+
+//approve
+router.post('/:id/approve', classroomController.approveJoinRequest);
 module.exports = router;
