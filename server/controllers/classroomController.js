@@ -420,6 +420,78 @@ exports.getClassroomStats = asyncHandler(async (req, res) => {
     });
 });
 
+
+exports.joinClassroomRequest = catchAsync(async (req,res,next) => {
+    if(req.user.role !== 'student'){
+        return next(new AppError('Only students can join classrooms',403));
+    }
+
+
+    //jaab we click on specific assignment us classrom ki id ko as params pass karenge 
+    const classroom = await Classroom.findById(req.params.id);
+
+    if(!classroom){
+        return next(new AppError('No classroom found wiht that ID',404));
+    }
+
+    //got to now easy way of giving responces
+    if(classroom.students.includes(req.user.id)){
+        return next(new AppError('YOU have already joined the classroom'))
+    }else if(classroom.pendingStudents.includes(req.user.id)){
+        return next(new AppError('you have already requested to join this classroom',400));
+    }
+
+    classroom.pendingStudents.push(req.user.id);
+    await classroom.save();
+    res.status(200).json({
+        status: 'success',
+        message: 'Join request sent successfully',
+        data: {
+          classroom
+        }
+      });
+})
+
+exports.approveJoinRequest = catchAsync(async (req,res,next) => {
+    //jab student joint request dalega tab pending students list mai student id's aajaygi thats why and how we are collecting stuid from body
+    const {studendId} = req.body;
+    const classroom = await Classroom.findById(req.params.id);
+
+    if(!classroom){
+        return next(new AppError ('no Clssroom found',404));
+    }
+
+    if(classrom.teacher.toString() !== req.user.id.toString() && req.user.role !== 'admin'){
+        return next(new AppError('you do not have permission to approve requests for this classroom',403));
+    }
+    //got to learn this all error protocols
+
+    if(!classroom.pendingStudents.includes(studentId)){
+        return next(new AppError('this student does not have a pending requrest for this classroom',400));
+    }
+
+    // Move student from pending to enrolled
+  classroom.pendingStudents = classroom.pendingStudents.filter(
+    id => id.toString() !== studentId.toString()
+  );
+  classroom.students.push(studentId);
+  await classroom.save();
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Student added to classroom successfully',
+    data: {
+      classroom
+    }
+  });
+})
+
+
+
+
+
+//going to add below in assignment controller 
+
 // @desc    Assign assignment to classroom
 // @route   POST /api/classrooms/:id/assignments
 // @access  Private (Teacher)
