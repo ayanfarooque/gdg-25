@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const communityController = require('../controllers/communityController.js');
-const { protect, authorize } = require('../middleware/auth.js');
+const { protect, authorize } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/multer.js');
 
 // Public routes (none in this case)
