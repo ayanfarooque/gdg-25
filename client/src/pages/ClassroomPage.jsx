@@ -3,11 +3,12 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from './Dashboardpages/Header';
 import { motion } from 'framer-motion';
 import axios from 'axios';
-import { FiClock, FiUsers, FiFileText, FiCheckCircle } from 'react-icons/fi';
+import { FiClock, FiUsers, FiFileText, FiCheckCircle, FiBarChart2 } from 'react-icons/fi';
+import classroomData from '../data/classroom.json';
 
 const ClassroomPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Move useNavigate hook to the top level
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('assignments');
   const [classroom, setClassroom] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,95 +18,55 @@ const ClassroomPage = () => {
     const fetchClassroom = async () => {
       try {
         setLoading(true);
-        // Replace with your actual API endpoint
-        const response = await axios.get(`/api/classrooms/${id}`);
-        setClassroom(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching classroom data:", err);
-        setError("Failed to load classroom data");
-        setLoading(false);
         
-        // For development/demo purposes, use mock data if API fails
-        setTimeout(() => {
-          // Mock data based on your Mongoose model
-          setClassroom({
-            _id: id,
-            name: "Advanced Mathematics",
-            code: "MATH101",
-            description: "This course covers advanced concepts in calculus, linear algebra, and differential equations.",
-            subject: "Math",
-            gradeLevel: "College",
-            teacher: { _id: "t123", name: "Prof. Smith" },
-            students: Array(28).fill().map((_, i) => ({ _id: `s${i}`, name: `Student ${i+1}` })),
-            academicYear: "2024-2025",
-            coverImage: { 
-              url: "", 
-              thumbnailUrl: "", 
-              altText: "Mathematics course banner" 
-            },
-            performanceStats: {
-              averageScore: 86,
-              assignmentsCompleted: 15,
-              assignmentsPending: 3
-            },
-            assignments: [
+        try {
+          // Try to get data from API first
+          const response = await axios.get(`/api/classrooms/${id}`);
+          setClassroom(response.data);
+          setLoading(false);
+        } catch (apiError) {
+          console.error("API error, falling back to JSON data:", apiError);
+          
+          // Use local JSON data as fallback
+          const foundClassroom = classroomData.find(room => room._id === id) || classroomData[0];
+          
+          if (foundClassroom) {
+            // Add detailed assignment data for UI display
+            foundClassroom.assignments = [
               { _id: "a1", title: "Linear Algebra Problem Set", dueDate: "2025-04-25", status: "pending", points: 100 },
               { _id: "a2", title: "Calculus Integration Challenge", dueDate: "2025-04-28", status: "pending", points: 75 },
               { _id: "a3", title: "Vector Space Homework", submitDate: "2025-04-10", score: 92, points: 100, status: "completed" },
               { _id: "a4", title: "Differential Equations Quiz", submitDate: "2025-04-05", score: 88, points: 50, status: "completed" },
               { _id: "a5", title: "Matrix Operations Assignment", submitDate: "2025-03-28", score: 95, points: 75, status: "completed" }
-            ],
-            resources: [
-              { 
-                _id: "r1", 
-                title: "Calculus Textbook PDF", 
-                type: "Document", 
-                url: "#",
-                addedAt: "2025-02-01",
-                addedBy: { name: "Prof. Smith" }
-              },
-              { 
-                _id: "r2", 
-                title: "Linear Algebra Video Lectures", 
-                type: "Video", 
-                url: "#",
-                addedAt: "2025-02-15"
-              },
-              { 
-                _id: "r3", 
-                title: "Study Guide for Midterm", 
-                type: "Document", 
-                url: "#",
-                addedAt: "2025-03-01"
-              },
-              { 
-                _id: "r4", 
-                title: "Problem-Solving Techniques", 
-                type: "Link", 
-                url: "#",
-                addedAt: "2025-03-20"
-              }
-            ],
-            announcements: [
-              {
-                _id: "an1",
-                content: "Remember to submit your Linear Algebra Problem Set by Friday!",
-                postedBy: { name: "Prof. Smith" },
-                createdAt: "2025-04-20",
-                isPinned: true
-              },
-              {
-                _id: "an2",
-                content: "Office hours are extended this week to help with midterm preparation.",
-                postedBy: { name: "Prof. Smith" },
-                createdAt: "2025-04-18",
-                isPinned: false
-              }
-            ]
-          });
+            ];
+            
+            // Add detailed students data
+            foundClassroom.students = foundClassroom.students.map((studentId, index) => ({
+              _id: studentId,
+              name: `Student ${index + 1}`,
+              email: `student${index + 1}@example.com`,
+              role: "Student"
+            }));
+
+            // Add grades data for the grades tab
+            foundClassroom.grades = [
+              { _id: "g1", title: "Midterm Exam", score: 87, maxScore: 100, date: "2025-03-15", weight: 30 },
+              { _id: "g2", title: "Quizzes Average", score: 42, maxScore: 50, date: "2025-04-01", weight: 20 },
+              { _id: "g3", title: "Homework Average", score: 92, maxScore: 100, date: "2025-04-10", weight: 25 },
+              { _id: "g4", title: "Class Participation", score: 18, maxScore: 20, date: "2025-04-15", weight: 10 },
+              { _id: "g5", title: "Final Project", score: null, maxScore: 100, date: "2025-05-01", weight: 15, status: "Upcoming" }
+            ];
+            
+            setClassroom(foundClassroom);
+          } else {
+            throw new Error("Classroom not found in JSON data");
+          }
           setLoading(false);
-        }, 600);
+        }
+      } catch (err) {
+        console.error("Error fetching classroom data:", err);
+        setError("Failed to load classroom data");
+        setLoading(false);
       }
     };
 
@@ -386,9 +347,11 @@ const ClassroomPage = () => {
                   <div>
                     <p className="text-sm text-gray-500">Average Score</p>
                     <p className="text-2xl font-semibold text-gray-900">
-                      {completedAssignments.length > 0 
-                        ? Math.round(completedAssignments.reduce((sum, a) => sum + (a.score || 0), 0) / completedAssignments.length) + '%' 
-                        : 'N/A'}
+                      {classroom.performanceStats?.averageScore || 
+                        (completedAssignments.length > 0 
+                          ? Math.round(completedAssignments.reduce((sum, a) => sum + (a.score || 0), 0) / completedAssignments.length) 
+                          : 'N/A')}
+                      {classroom.performanceStats?.averageScore ? '%' : ''}
                     </p>
                   </div>
                   <div className="p-2 bg-blue-100 rounded-lg">
@@ -404,7 +367,185 @@ const ClassroomPage = () => {
             </div>
           </div>
         );
+      
+      case 'grades':
+        // Get grades data from classroom model
+        const grades = classroom.grades || [];
         
+        // Calculate overall grade
+        const calculateOverallGrade = () => {
+          if (!grades.length) return 'N/A';
+          
+          const gradedItems = grades.filter(grade => grade.score !== null);
+          if (!gradedItems.length) return 'Pending';
+          
+          const totalWeightedScore = gradedItems.reduce((sum, grade) => {
+            return sum + (grade.score / grade.maxScore * grade.weight);
+          }, 0);
+          
+          const totalWeight = gradedItems.reduce((sum, grade) => sum + grade.weight, 0);
+          
+          return Math.round(totalWeightedScore / totalWeight * 100);
+        };
+        
+        return (
+          <div className="space-y-8">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-800 flex items-center">
+                <FiBarChart2 className="w-5 h-5 mr-2 text-purple-500" />
+                Grades and Performance
+              </h3>
+            </div>
+            
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h4 className="text-lg font-medium text-gray-900">Overall Grade</h4>
+                  <p className="text-sm text-gray-500">Based on weighted average of all assessments</p>
+                </div>
+                <div className="text-3xl font-bold">
+                  {(() => {
+                    const grade = calculateOverallGrade();
+                    if (grade === 'N/A' || grade === 'Pending') {
+                      return <span className="text-gray-500">{grade}</span>;
+                    }
+                    
+                    let colorClass = 'text-green-600';
+                    if (grade < 60) colorClass = 'text-red-600';
+                    else if (grade < 70) colorClass = 'text-orange-500';
+                    else if (grade < 80) colorClass = 'text-yellow-600';
+                    
+                    return <span className={colorClass}>{grade}%</span>;
+                  })()}
+                </div>
+              </div>
+              
+              <div className="overflow-hidden border border-gray-200 rounded-lg">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assessment</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {grades.map((grade) => (
+                      <tr key={grade._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{grade.title}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">{new Date(grade.date).toLocaleDateString()}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">{grade.weight}%</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {grade.score !== null ? (
+                            <div className="flex items-center">
+                              <div className="mr-2">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {grade.score} / {grade.maxScore}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {Math.round((grade.score / grade.maxScore) * 100)}%
+                                </div>
+                              </div>
+                              <div className="w-16 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full ${
+                                    grade.score / grade.maxScore >= 0.8 ? 'bg-green-500' : 
+                                    grade.score / grade.maxScore >= 0.7 ? 'bg-yellow-500' : 
+                                    'bg-red-500'
+                                  }`}
+                                  style={{ width: `${(grade.score / grade.maxScore) * 100}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="px-2 py-1 text-xs font-medium bg-gray-100 rounded-full text-gray-800">
+                              {grade.status || 'Pending'}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {grades.length === 0 && (
+                <div className="text-center py-8 text-gray-500">No grades available yet</div>
+              )}
+              
+              <div className="mt-6 flex justify-end">
+                <button 
+                  className="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-md"
+                >
+                  Download Grade Report
+                </button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Performance Breakdown</h4>
+                <div className="space-y-4">
+                  {grades
+                    .filter(grade => grade.score !== null)
+                    .map(grade => (
+                      <div key={`chart-${grade._id}`}>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-sm font-medium text-gray-700">{grade.title}</span>
+                          <span className="text-sm font-medium text-gray-700">
+                            {Math.round((grade.score / grade.maxScore) * 100)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full ${
+                              grade.score / grade.maxScore >= 0.8 ? 'bg-green-500' : 
+                              grade.score / grade.maxScore >= 0.7 ? 'bg-yellow-500' : 
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${(grade.score / grade.maxScore) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Upcoming Assessments</h4>
+                <div className="space-y-4">
+                  {grades
+                    .filter(grade => grade.score === null)
+                    .map(grade => (
+                      <div key={`upcoming-${grade._id}`} className="flex justify-between items-center border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{grade.title}</div>
+                          <div className="text-xs text-gray-500">{new Date(grade.date).toLocaleDateString()}</div>
+                        </div>
+                        <div>
+                          <div className="text-xs font-medium bg-blue-50 text-blue-600 px-2 py-1 rounded">
+                            {grade.weight}% of grade
+                          </div>
+                        </div>
+                      </div>
+                  ))}
+                  
+                  {!grades.some(g => g.score === null) && (
+                    <div className="text-center py-6 text-gray-500">No upcoming assessments</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
       case 'resources':
         // Get resources from classroom model
         const resources = classroom.resources || [];
@@ -468,7 +609,7 @@ const ClassroomPage = () => {
                     
                     <ul className="space-y-4">
                       {resourcesByType[type].map((resource) => (
-                        <li key={resource._id} className="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                        <li key={resource._id || resource.title} className="border-b border-gray-100 pb-3 last:border-0 last:pb-0">
                           <a 
                             href={resource.url} 
                             target="_blank" 
@@ -502,14 +643,6 @@ const ClassroomPage = () => {
               </div>
             )}
           </div>
-        );
-
-      case 'grades':
-        const grades = classroom.grades || [];
-
-        return(
-          <div className="space-y-8"></div>
-
         );
         
       case 'students':
@@ -728,7 +861,7 @@ const ClassroomPage = () => {
             <div className="p-6 pt-0">
               <div className="border-b border-gray-200 mb-6">
                 <nav className="-mb-px flex space-x-6 overflow-x-auto">
-                  {['assignments', 'announcements', 'resources', 'students','grades'].map(tab => (
+                  {['assignments', 'announcements', 'resources', 'students', 'grades'].map(tab => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
