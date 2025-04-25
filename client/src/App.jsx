@@ -89,7 +89,7 @@ const App = () => {
           <Route path="/test-performance/:testCode" element={<TestPerformance />} />
           <Route path="/detailed-review" element={<DetailedReview />} />
           <Route path='/student-classroom' element={<StudentClassroom />} />
-          <Route path='classroom' element={<ClassroomPage/>} />
+          <Route path='student-classroom/:id' element={<ClassroomPage/>} />
           <Route path='/teacher-classroom' element={<TeacherClassroom />} />
           <Route path='/create-test' element={<AITestCreator />} />
           <Route path='/generate-reportcard' element={<AIGradeCardGenerator />} />
