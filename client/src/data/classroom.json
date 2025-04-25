@@ -1,0 +1,445 @@
+[
+    {
+      "_id": "65a2c8f7d8b3e456789012ab",
+      "name": "Advanced Mathematics",
+      "code": "MATH123",
+      "description": "This course covers advanced concepts in calculus, linear algebra, and differential equations.",
+      "subject": "Math",
+      "gradeLevel": "College",
+      "teacher": "65a2c8f7d8b3e456789012cd",
+      "coTeachers": ["65a2c8f7d8b3e456789012ef", "65a2c8f7d8b3e456789012ff"],
+      "students": [
+        "65a2c8f7d8b3e456789013ab",
+        "65a2c8f7d8b3e456789013ac",
+        "65a2c8f7d8b3e456789013ad",
+        "65a2c8f7d8b3e456789013ae"
+      ],
+      "assignments": [
+        "65a2c8f7d8b3e456789014ab",
+        "65a2c8f7d8b3e456789014ac",
+        "65a2c8f7d8b3e456789014ad"
+      ],
+      "performanceStats": {
+        "averageScore": 86,
+        "assignmentsCompleted": 15,
+        "assignmentsPending": 3
+      },
+      "resources": [
+        {
+          "title": "Calculus Textbook PDF",
+          "url": "https://example.com/resources/calculus.pdf",
+          "type": "Document",
+          "addedBy": "65a2c8f7d8b3e456789012cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-15T09:00:00.000Z"
+        },
+        {
+          "title": "Linear Algebra Video Lectures",
+          "url": "https://example.com/resources/linear-algebra-videos",
+          "type": "Video",
+          "addedBy": "65a2c8f7d8b3e456789012cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-20T14:30:00.000Z"
+        }
+      ],
+      "announcements": [
+        {
+          "content": "Remember to submit your Linear Algebra Problem Set by Friday!",
+          "postedBy": "65a2c8f7d8b3e456789012cd",
+          "createdAt": "2025-02-10T08:15:00.000Z",
+          "isPinned": true
+        },
+        {
+          "content": "Office hours are extended this week to help with midterm preparation.",
+          "postedBy": "65a2c8f7d8b3e456789012cd",
+          "createdAt": "2025-02-08T10:30:00.000Z",
+          "isPinned": false
+        }
+      ],
+      "settings": {
+        "allowStudentPosts": true,
+        "studentJoinApproval": true,
+        "visibility": "Private"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-02-15T12:00:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+        "url": "https://example.com/images/math-classroom-cover.jpg",
+        "thumbnailUrl": "https://example.com/images/math-classroom-cover-thumb.jpg",
+        "altText": "Mathematics classroom banner"
+      }
+    },
+    {
+      "_id": "65a2c8f7d8b3e456789022ab",
+      "name": "Introduction to Biology",
+      "code": "BIO101",
+      "description": "Fundamental principles of biology including cell structure, genetics, evolution, and ecology.",
+      "subject": "Science",
+      "gradeLevel": "High School",
+      "teacher": "65a2c8f7d8b3e456789022cd",
+      "coTeachers": [],
+      "students": [
+        "65a2c8f7d8b3e456789023ab",
+        "65a2c8f7d8b3e456789023ac",
+        "65a2c8f7d8b3e456789023ad",
+        "65a2c8f7d8b3e456789023ae",
+        "65a2c8f7d8b3e456789023af"
+      ],
+      "assignments": [
+        "65a2c8f7d8b3e456789024ab",
+        "65a2c8f7d8b3e456789024ac"
+      ],
+      "performanceStats": {
+        "averageScore": 78,
+        "assignmentsCompleted": 8,
+        "assignmentsPending": 2
+      },
+      "resources": [
+        {
+          "title": "Cell Structure Diagram",
+          "url": "https://example.com/resources/cell-structure.jpg",
+          "type": "Document",
+          "addedBy": "65a2c8f7d8b3e456789022cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-18T11:20:00.000Z"
+        },
+        {
+          "title": "Evolution Documentary",
+          "url": "https://example.com/resources/evolution-documentary",
+          "type": "Video",
+          "addedBy": "65a2c8f7d8b3e456789022cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-25T15:45:00.000Z"
+        },
+        {
+          "title": "Interactive Genetics Lab",
+          "url": "https://example.com/resources/genetics-lab",
+          "type": "Link",
+          "addedBy": "65a2c8f7d8b3e456789023ab",
+          "addedByModel": "Student",
+          "addedAt": "2025-02-05T16:10:00.000Z"
+        }
+      ],
+      "announcements": [
+        {
+          "content": "Lab session on Thursday will focus on microscope techniques.",
+          "postedBy": "65a2c8f7d8b3e456789022cd",
+          "createdAt": "2025-02-12T09:00:00.000Z",
+          "isPinned": true
+        }
+      ],
+      "settings": {
+        "allowStudentPosts": true,
+        "studentJoinApproval": true,
+        "visibility": "Public"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-05T00:00:00.000Z",
+      "updatedAt": "2025-02-12T09:00:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+        "url": "https://example.com/images/biology-classroom-cover.jpg",
+        "thumbnailUrl": "https://example.com/images/biology-classroom-cover-thumb.jpg",
+        "altText": "Biology classroom banner"
+      }
+    },
+    {
+      "_id": "65a2c8f7d8b3e456789032ab",
+      "name": "World History",
+      "code": "HIST202",
+      "description": "An exploration of world history from ancient civilizations to modern times, focusing on key events that shaped our world.",
+      "subject": "History",
+      "gradeLevel": "High School",
+      "teacher": "65a2c8f7d8b3e456789032cd",
+      "coTeachers": ["65a2c8f7d8b3e456789032ef"],
+      "students": [
+        "65a2c8f7d8b3e456789033ab",
+        "65a2c8f7d8b3e456789033ac",
+        "65a2c8f7d8b3e456789033ad",
+        "65a2c8f7d8b3e456789033ae",
+        "65a2c8f7d8b3e456789033af",
+        "65a2c8f7d8b3e456789033ag"
+      ],
+      "assignments": [
+        "65a2c8f7d8b3e456789034ab",
+        "65a2c8f7d8b3e456789034ac",
+        "65a2c8f7d8b3e456789034ad",
+        "65a2c8f7d8b3e456789034ae"
+      ],
+      "performanceStats": {
+        "averageScore": 82,
+        "assignmentsCompleted": 12,
+        "assignmentsPending": 2
+      },
+      "resources": [
+        {
+          "title": "Ancient Rome Timeline",
+          "url": "https://example.com/resources/rome-timeline.pdf",
+          "type": "Document",
+          "addedBy": "65a2c8f7d8b3e456789032cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-10T13:40:00.000Z"
+        },
+        {
+          "title": "Industrial Revolution Presentation",
+          "url": "https://example.com/resources/industrial-revolution.ppt",
+          "type": "Presentation",
+          "addedBy": "65a2c8f7d8b3e456789032ef",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-22T09:15:00.000Z"
+        }
+      ],
+      "announcements": [
+        {
+          "content": "Field trip to the history museum scheduled for March 15. Permission slips due by March 1.",
+          "postedBy": "65a2c8f7d8b3e456789032cd",
+          "createdAt": "2025-02-15T11:30:00.000Z",
+          "isPinned": true
+        },
+        {
+          "content": "Please complete the reading on World War I before Thursday's class.",
+          "postedBy": "65a2c8f7d8b3e456789032ef",
+          "createdAt": "2025-02-10T14:20:00.000Z",
+          "isPinned": false
+        }
+      ],
+      "settings": {
+        "allowStudentPosts": false,
+        "studentJoinApproval": true,
+        "visibility": "Private"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-03T00:00:00.000Z",
+      "updatedAt": "2025-02-15T11:30:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+        "url": "https://example.com/images/history-classroom-cover.jpg",
+        "thumbnailUrl": "https://example.com/images/history-classroom-cover-thumb.jpg",
+        "altText": "History classroom banner"
+      }
+    },
+    {
+      "_id": "65a2c8f7d8b3e456789042ab",
+      "name": "Introduction to Computer Programming",
+      "code": "CS101",
+      "description": "Basic programming concepts using Python, including data structures, algorithms, and object-oriented programming.",
+      "subject": "Computer Science",
+      "gradeLevel": "High School",
+      "teacher": "65a2c8f7d8b3e456789042cd",
+      "coTeachers": [],
+      "students": [
+        "65a2c8f7d8b3e456789043ab",
+        "65a2c8f7d8b3e456789043ac",
+        "65a2c8f7d8b3e456789043ad"
+      ],
+      "assignments": [
+        "65a2c8f7d8b3e456789044ab",
+        "65a2c8f7d8b3e456789044ac"
+      ],
+      "performanceStats": {
+        "averageScore": 91,
+        "assignmentsCompleted": 6,
+        "assignmentsPending": 1
+      },
+      "resources": [
+        {
+          "title": "Python Installation Guide",
+          "url": "https://example.com/resources/python-install.pdf",
+          "type": "Document",
+          "addedBy": "65a2c8f7d8b3e456789042cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-08T10:00:00.000Z"
+        },
+        {
+          "title": "Data Structures Tutorial",
+          "url": "https://example.com/resources/data-structures-video",
+          "type": "Video",
+          "addedBy": "65a2c8f7d8b3e456789042cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-15T14:00:00.000Z"
+        },
+        {
+          "title": "Coding Practice Website",
+          "url": "https://example.com/resources/coding-practice",
+          "type": "Link",
+          "addedBy": "65a2c8f7d8b3e456789042cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-20T09:30:00.000Z"
+        }
+      ],
+      "announcements": [
+        {
+          "content": "Remember to install Python 3.9 before our next class.",
+          "postedBy": "65a2c8f7d8b3e456789042cd",
+          "createdAt": "2025-01-10T08:00:00.000Z",
+          "isPinned": false
+        },
+        {
+          "content": "Final project groups have been posted on the class portal.",
+          "postedBy": "65a2c8f7d8b3e456789042cd",
+          "createdAt": "2025-02-01T13:15:00.000Z",
+          "isPinned": true
+        }
+      ],
+      "settings": {
+        "allowStudentPosts": true,
+        "studentJoinApproval": false,
+        "visibility": "Public"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-06T00:00:00.000Z",
+      "updatedAt": "2025-02-01T13:15:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+        "url": "https://example.com/images/cs-classroom-cover.jpg",
+        "thumbnailUrl": "https://example.com/images/cs-classroom-cover-thumb.jpg",
+        "altText": "Computer Science classroom banner"
+      }
+    },
+    {
+      "_id": "65a2c8f7d8b3e456789052ab",
+      "name": "English Literature",
+      "code": "ENG303",
+      "description": "Analysis of classic and contemporary literature, focusing on literary techniques, themes, and cultural contexts.",
+      "subject": "English",
+      "gradeLevel": "High School",
+      "teacher": "65a2c8f7d8b3e456789052cd",
+      "coTeachers": [],
+      "students": [
+        "65a2c8f7d8b3e456789053ab",
+        "65a2c8f7d8b3e456789053ac",
+        "65a2c8f7d8b3e456789053ad",
+        "65a2c8f7d8b3e456789053ae",
+        "65a2c8f7d8b3e456789053af",
+        "65a2c8f7d8b3e456789053ag",
+        "65a2c8f7d8b3e456789053ah"
+      ],
+      "assignments": [
+        "65a2c8f7d8b3e456789054ab",
+        "65a2c8f7d8b3e456789054ac",
+        "65a2c8f7d8b3e456789054ad"
+      ],
+      "performanceStats": {
+        "averageScore": 84,
+        "assignmentsCompleted": 10,
+        "assignmentsPending": 1
+      },
+      "resources": [
+        {
+          "title": "Shakespeare's Sonnets",
+          "url": "https://example.com/resources/shakespeare-sonnets.pdf",
+          "type": "Document",
+          "addedBy": "65a2c8f7d8b3e456789052cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-12T11:20:00.000Z"
+        },
+        {
+          "title": "MLA Citation Guide",
+          "url": "https://example.com/resources/mla-citation.pdf",
+          "type": "Document",
+          "addedBy": "65a2c8f7d8b3e456789052cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-18T09:45:00.000Z"
+        }
+      ],
+      "announcements": [
+        {
+          "content": "Essay rubric has been updated. Please check the resources section.",
+          "postedBy": "65a2c8f7d8b3e456789052cd",
+          "createdAt": "2025-02-05T10:30:00.000Z",
+          "isPinned": true
+        }
+      ],
+      "settings": {
+        "allowStudentPosts": true,
+        "studentJoinApproval": true,
+        "visibility": "Private"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-04T00:00:00.000Z",
+      "updatedAt": "2025-02-05T10:30:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+        "url": "https://example.com/images/english-classroom-cover.jpg",
+        "thumbnailUrl": "https://example.com/images/english-classroom-cover-thumb.jpg",
+        "altText": "English Literature classroom banner"
+      }
+    },
+    {
+      "_id": "65a2c8f7d8b3e456789062ab",
+      "name": "Elementary Art",
+      "code": "ART105",
+      "description": "Introduction to various art forms and techniques for elementary students, fostering creativity and self-expression.",
+      "subject": "Art",
+      "gradeLevel": "Elementary",
+      "teacher": "65a2c8f7d8b3e456789062cd",
+      "coTeachers": ["65a2c8f7d8b3e456789062ef"],
+      "students": [
+        "65a2c8f7d8b3e456789063ab",
+        "65a2c8f7d8b3e456789063ac",
+        "65a2c8f7d8b3e456789063ad",
+        "65a2c8f7d8b3e456789063ae",
+        "65a2c8f7d8b3e456789063af",
+        "65a2c8f7d8b3e456789063ag",
+        "65a2c8f7d8b3e456789063ah",
+        "65a2c8f7d8b3e456789063ai"
+      ],
+      "assignments": [
+        "65a2c8f7d8b3e456789064ab",
+        "65a2c8f7d8b3e456789064ac"
+      ],
+      "performanceStats": {
+        "averageScore": 95,
+        "assignmentsCompleted": 8,
+        "assignmentsPending": 0
+      },
+      "resources": [
+        {
+          "title": "Watercolor Painting Techniques",
+          "url": "https://example.com/resources/watercolor-techniques.pdf",
+          "type": "Document",
+          "addedBy": "65a2c8f7d8b3e456789062cd",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-15T13:10:00.000Z"
+        },
+        {
+          "title": "Famous Artists Timeline",
+          "url": "https://example.com/resources/artists-timeline.jpg",
+          "type": "Document",
+          "addedBy": "65a2c8f7d8b3e456789062ef",
+          "addedByModel": "Teacher",
+          "addedAt": "2025-01-25T09:30:00.000Z"
+        }
+      ],
+      "announcements": [
+        {
+          "content": "Please remember to bring your art supplies for our painting project on Friday!",
+          "postedBy": "65a2c8f7d8b3e456789062cd",
+          "createdAt": "2025-02-08T15:00:00.000Z",
+          "isPinned": true
+        },
+        {
+          "content": "Art exhibition scheduled for March 20. Start preparing your best pieces!",
+          "postedBy": "65a2c8f7d8b3e456789062ef",
+          "createdAt": "2025-02-01T10:45:00.000Z",
+          "isPinned": true
+        }
+      ],
+      "settings": {
+        "allowStudentPosts": false,
+        "studentJoinApproval": true,
+        "visibility": "Private"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-07T00:00:00.000Z",
+      "updatedAt": "2025-02-08T15:00:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+        "url": "https://example.com/images/art-classroom-cover.jpg",
+        "thumbnailUrl": "https://example.com/images/art-classroom-cover-thumb.jpg",
+        "altText": "Elementary Art classroom banner"
+      }
+    }
+  ]
