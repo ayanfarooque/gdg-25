@@ -161,7 +161,7 @@ const StudentClassroom = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100"
+        className="gray-50 rounded-xl  p-4 md:p-6 border border-gray-50"
       >
         {activeTab === 'classes' && (
           <div>

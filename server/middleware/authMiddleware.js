@@ -68,6 +68,15 @@ exports.protect = async (req, res, next) => {
   }
 };
 
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    next();
+  };
+};
+
 /**
  * Middleware to restrict access based on roles
  * @param {...String} roles - Allowed roles

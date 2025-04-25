@@ -38,16 +38,17 @@ router.use(protect);
 router.post("/", authorize("teacher", "admin"), classroomController.createClassroom);
 router.put("/:id", authorize("teacher", "admin"), classroomController.updateClassroom);
 router.delete("/:id", authorize("teacher", "admin"), classroomController.deleteClassroom);
+router.get("/",classroomController.getAllClassrooms)
 
 // Student management
-router.post("/:id/students", authorize("teacher", "admin"), classroomController.addStudent);
-router.delete("/:id/students/:studentId", authorize("teacher", "admin"), classroomController.removeStudent);
+// router.post("/:id/students", authorize("teacher", "admin"), classroomController.addStudent);
+// router.delete("/:id/students/:studentId", authorize("teacher", "admin"), classroomController.removeStudent);
 
 // Announcements
-router.post("/:id/announcements", authorize("teacher"), classroomController.addAnnouncement);
+// router.post("/:id/announcements", authorize("teacher"), classroomController.addAnnouncement);
 
-// Stats
-router.get("/:id/stats", authorize("teacher", "admin"), classroomController.getClassroomStats);
+// // Stats
+// router.get("/:id/stats", authorize("teacher", "admin"), classroomController.getClassroomStats);
 
 // Assignment routes
 router.post("/:id/assignments", authorize("teacher"), classroomController.assignAssignment);

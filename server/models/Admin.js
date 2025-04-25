@@ -1,5 +1,5 @@
 const { Schema } = require('mongoose');
-const User = require('./userSchema');
+const User = require('../models/User.js');
 
 const adminSchema = new Schema({
   // Extended contact information
@@ -129,7 +129,7 @@ const adminSchema = new Schema({
     }
   }
 }, {
-  timestamps: true, // Adds createdAt and updatedAt automatically
+  // Removed timestamps here to avoid conflict with discriminator
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
