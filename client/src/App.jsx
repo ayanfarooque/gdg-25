@@ -34,11 +34,11 @@ import AdminDashBoard from './pages/AdminDashBoard';
 import Classroom from './pages/Classroom';
 import Adminstupage from './pages/Adminstupage';
 import Admintechpage from './pages/Admintechpage';
-import CreateClssroom from './pages/CreateClssroom';
 import ClassroomDetail from './pages/ClassroomDetail';
 import CreateClassroom from './pages/CreateClssroom';
 import AddTeacherPage from './pages/AddTeacherPage';
 import AdminSettingsPage from './pages/AdminSettingsPage';
+import ClassroomPage from './pages/ClassroomPage'
 
 const App = () => {
   const [role, setRole] = useState('');
@@ -89,6 +89,7 @@ const App = () => {
           <Route path="/test-performance/:testCode" element={<TestPerformance />} />
           <Route path="/detailed-review" element={<DetailedReview />} />
           <Route path='/student-classroom' element={<StudentClassroom />} />
+          <Route path='classroom' element={<ClassroomPage/>} />
           <Route path='/teacher-classroom' element={<TeacherClassroom />} />
           <Route path='/create-test' element={<AITestCreator />} />
           <Route path='/generate-reportcard' element={<AIGradeCardGenerator />} />

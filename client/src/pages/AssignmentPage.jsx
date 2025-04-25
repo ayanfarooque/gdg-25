@@ -32,8 +32,8 @@ const AssignmentPage = () => {
                 <FiArrowRight className="text-sm" />
               </button>
             </div>
-            <SubmittedAssignments />
-            <PendingAssignment />
+            <SubmittedAssignments/>
+            <PendingAssignment/>
           </div>
         </div>
       </div>

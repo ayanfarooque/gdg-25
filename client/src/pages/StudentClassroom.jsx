@@ -1,14 +1,70 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Header from './Dashboardpages/Header';
+import { useNavigate } from 'react-router-dom';
 
 const StudentClassroom = () => {
-  const [activeTab, setActiveTab] = useState('classmates');
+  const [activeTab, setActiveTab] = useState('classes');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [expandedTeacher, setExpandedTeacher] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
-  // Sample data
+  // Sample classroom data
+  const classrooms = [
+    {
+      id: 1,
+      name: "Advanced Mathematics",
+      teacher: "Mr. Smith",
+      section: "Period 3",
+      bannerColor: "#4285F4", // Google blue
+      totalStudents: 28,
+      recentTopic: "Calculus Fundamentals",
+      unreadAnnouncements: 2
+    },
+    {
+      id: 2,
+      name: "Biology 101",
+      teacher: "Ms. Johnson",
+      section: "Period 1",
+      bannerColor: "#0F9D58", // Google green
+      totalStudents: 32,
+      recentTopic: "Cell Structure",
+      unreadAnnouncements: 0
+    },
+    {
+      id: 3,
+      name: "English Literature",
+      teacher: "Mrs. Davis",
+      section: "Period 4",
+      bannerColor: "#DB4437", // Google red
+      totalStudents: 25,
+      recentTopic: "Shakespeare Analysis",
+      unreadAnnouncements: 3
+    },
+    {
+      id: 4,
+      name: "Physics",
+      teacher: "Dr. Wilson",
+      section: "Period 2",
+      bannerColor: "#F4B400", // Google yellow
+      totalStudents: 24,
+      recentTopic: "Newton's Laws",
+      unreadAnnouncements: 1
+    },
+    {
+      id: 5,
+      name: "Computer Science",
+      teacher: "Mr. Roberts",
+      section: "Period 5",
+      bannerColor: "#673AB7", // Purple
+      totalStudents: 20,
+      recentTopic: "Object-Oriented Programming",
+      unreadAnnouncements: 0
+    }
+  ];
+
+  // Sample data (keeping previous data for other tabs)
   const classmates = [
     { id: 1, name: "Alex Johnson", email: "alex@example.com", submissions: 12, avatar: "AJ" },
     { id: 2, name: "Sam Wilson", email: "sam@example.com", submissions: 15, avatar: "SW" },
@@ -34,45 +90,9 @@ const StudentClassroom = () => {
     }
   ];
 
-  const submittedAssignments = [
-    {
-      id: 1,
-      title: "Algebra Homework",
-      subject: "Mathematics",
-      submittedDate: "2023-11-14",
-      status: "Graded",
-      score: "18/20",
-      teacher: "Mr. Smith",
-      feedback: "Good work on the algebraic equations. Remember to show all steps for full credit next time."
-    },
-    {
-      id: 2,
-      title: "Science Lab Report",
-      subject: "Science",
-      submittedDate: "2023-11-18",
-      status: "Pending Review",
-      score: null,
-      teacher: "Ms. Johnson",
-      feedback: ""
-    }
-  ];
-
-  const attendance = [
-    { month: "November", present: 18, absent: 2, late: 1 },
-    { month: "October", present: 20, absent: 0, late: 1 },
-    { month: "September", present: 19, absent: 1, late: 0 }
-  ];
-
-  // Filter classmates based on search term
   const filteredClassmates = classmates.filter(classmate =>
     classmate.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // Calculate attendance percentage
-  const calculateAttendancePercentage = (present, absent) => {
-    const totalDays = present + absent;
-    return Math.round((present / totalDays) * 100);
-  };
 
   // Animation variants
   const cardVariants = {
@@ -82,13 +102,12 @@ const StudentClassroom = () => {
 
   return (
     <div className="p-4 md:p-6 text-gray-800 max-w-6xl mt-20 mx-auto bg-gray-50 min-h-screen">
-        <Header />
+      <Header />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Student Classroom 
+            My Classrooms
           </h1>
-          
         </div>
         <div className="w-full md:w-auto">
           {activeTab === 'classmates' && (
@@ -121,7 +140,7 @@ const StudentClassroom = () => {
 
       {/* Tab Navigation */}
       <div className="flex overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide">
-        {['classmates', 'teachers', 'attendance'].map((tab) => (
+        {['classes', 'classmates', 'teachers'].map((tab) => (
           <button
             key={tab}
             className={`px-4 py-3 whitespace-nowrap font-medium text-sm transition-colors ${
@@ -144,6 +163,100 @@ const StudentClassroom = () => {
         transition={{ duration: 0.3 }}
         className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100"
       >
+        {activeTab === 'classes' && (
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl md:text-2xl font-semibold">Enrolled Classes</h2>
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center">
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Join Class
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {classrooms.map((classroom) => (
+                <motion.div
+                  key={classroom.id}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ duration: 0.3 }}
+                  whileHover={{ y: -5 }}
+                  className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200"
+                  onClick={() => navigate('/classroom')}
+                >
+                  {/* Banner */}
+                  <div 
+                    className="h-24 relative" 
+                    style={{ backgroundColor: classroom.bannerColor }}
+                  >
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <h3 className="font-bold text-xl">{classroom.name}</h3>
+                      <p className="opacity-90 text-sm">{classroom.section}</p>
+                    </div>
+                    {classroom.unreadAnnouncements > 0 && (
+                      <div className="absolute top-4 right-4 bg-white h-6 w-6 rounded-full flex items-center justify-center shadow-sm">
+                        <span className="text-xs font-medium" style={{ color: classroom.bannerColor }}>
+                          {classroom.unreadAnnouncements}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="p-4 bg-white">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <p className="text-gray-600 text-sm">{classroom.teacher}</p>
+                        <p className="text-xs text-gray-500 mt-1">{classroom.totalStudents} students</p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                          <svg className="h-6 w-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="border-t border-gray-100 pt-3">
+                      <div className="flex items-start">
+                        <svg className="h-5 w-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                        </svg>
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Recent topic:</span> {classroom.recentTopic}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+              
+              {/* Add class card */}
+              <motion.div
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                transition={{ duration: 0.3 }}
+                className="rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 h-64 cursor-pointer hover:border-blue-500 transition-colors"
+              >
+                <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-3">
+                  <svg className="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h3 className="font-medium text-gray-900">Join a New Class</h3>
+                <p className="text-sm text-gray-500 text-center mt-1">
+                  Use a class code to join a new classroom
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'classmates' && (
           <div>
             <div className="flex justify-between items-center mb-6">
@@ -283,285 +396,7 @@ const StudentClassroom = () => {
             </div>
           </div>
         )}
-
-        {activeTab === 'assignments' && (
-          <div>
-            <h2 className="text-xl md:text-2xl font-semibold mb-6">Submitted Assignments</h2>
-            <div className="space-y-4">
-              {submittedAssignments.length > 0 ? (
-                submittedAssignments.map((assignment) => (
-                  <motion.div
-                    key={assignment.id}
-                    variants={cardVariants}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ duration: 0.3 }}
-                    whileHover={{ scale: 1.01 }}
-                    className="p-4 border border-gray-200 rounded-xl hover:shadow-sm transition-shadow bg-white"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-bold text-lg">{assignment.title}</h3>
-                        <div className="flex items-center mt-1 space-x-3 text-sm text-gray-600">
-                          <span>{assignment.subject}</span>
-                          <span className="h-1 w-1 rounded-full bg-gray-400"></span>
-                          <span>Submitted: {assignment.submittedDate}</span>
-                          <span className="h-1 w-1 rounded-full bg-gray-400"></span>
-                          <span>{assignment.teacher}</span>
-                        </div>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          assignment.status === "Graded"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {assignment.status}
-                      </span>
-                    </div>
-                    
-                    {assignment.score && (
-                      <div className="mt-3 flex items-center">
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div
-                            className="bg-blue-600 h-2.5 rounded-full"
-                            style={{ width: `${parseInt(assignment.score.split('/')[0]) / parseInt(assignment.score.split('/')[1]) * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="ml-3 font-medium">{assignment.score}</span>
-                      </div>
-                    )}
-                    
-                    <div className="mt-4 flex justify-end">
-                      <button
-                        onClick={() => setSelectedAssignment(assignment)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <h3 className="mt-2 text-lg font-medium text-gray-900">No assignments submitted yet</h3>
-                  <p className="mt-1 text-gray-500">Your submitted work will appear here</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'attendance' && (
-          <div>
-            <h2 className="text-xl md:text-2xl font-semibold mb-6">Attendance Record</h2>
-            <div className="bg-white rounded-xl overflow-hidden border border-gray-200">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Month
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Present
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Absent
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Late
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Attendance
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {attendance.map((record, index) => {
-                      const percentage = calculateAttendancePercentage(record.present, record.absent);
-                      return (
-                        <tr key={index} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap font-medium">
-                            {record.month}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">{record.present}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">{record.absent}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">{record.late}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                <div
-                                  className={`h-2 rounded-full ${
-                                    percentage >= 90
-                                      ? "bg-green-500"
-                                      : percentage >= 75
-                                      ? "bg-blue-500"
-                                      : "bg-red-500"
-                                  }`}
-                                  style={{ width: `${percentage}%` }}
-                                ></div>
-                              </div>
-                              <span
-                                className={`text-xs font-medium ${
-                                  percentage >= 90
-                                    ? "text-green-600"
-                                    : percentage >= 75
-                                    ? "text-blue-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                {percentage}%
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className="p-4 bg-blue-50 border-t border-blue-100">
-                <h3 className="font-semibold text-blue-800">Current Month Summary</h3>
-                <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white p-3 rounded-lg shadow-xs">
-                    <p className="text-sm text-gray-600">Present Days</p>
-                    <p className="text-xl font-bold">{attendance[0].present}</p>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg shadow-xs">
-                    <p className="text-sm text-gray-600">Absent Days</p>
-                    <p className="text-xl font-bold text-red-600">{attendance[0].absent}</p>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg shadow-xs">
-                    <p className="text-sm text-gray-600">Late Arrivals</p>
-                    <p className="text-xl font-bold text-yellow-600">{attendance[0].late}</p>
-                  </div>
-                </div>
-                <div className="mt-3">
-                  <p className="text-sm text-blue-700">
-                    Your current attendance rate is{' '}
-                    <span className="font-medium">
-                      {calculateAttendancePercentage(attendance[0].present, attendance[0].absent)}%
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </motion.div>
-
-      {/* Assignment Detail Modal */}
-      {selectedAssignment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-          >
-            <div className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-2xl font-bold">{selectedAssignment.title}</h2>
-                  <div className="flex items-center mt-1 space-x-3 text-sm text-gray-600">
-                    <span>{selectedAssignment.subject}</span>
-                    <span className="h-1 w-1 rounded-full bg-gray-400"></span>
-                    <span>Submitted: {selectedAssignment.submittedDate}</span>
-                    <span className="h-1 w-1 rounded-full bg-gray-400"></span>
-                    <span>{selectedAssignment.teacher}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedAssignment(null)}
-                  className="text-gray-400 hover:text-gray-500"
-                >
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="mt-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-gray-900">Status</h3>
-                    <p className="mt-1">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        selectedAssignment.status === "Graded"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}>
-                        {selectedAssignment.status}
-                      </span>
-                    </p>
-                  </div>
-                  
-                  {selectedAssignment.score && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-medium text-gray-900">Score</h3>
-                      <div className="mt-1 flex items-center">
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 mr-2">
-                          <div
-                            className="bg-blue-600 h-2.5 rounded-full"
-                            style={{ width: `${parseInt(selectedAssignment.score.split('/')[0]) / parseInt(selectedAssignment.score.split('/')[1]) * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="font-medium">{selectedAssignment.score}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div>
-                  <h3 className="font-medium text-gray-900">Assignment Description</h3>
-                  <p className="mt-1 text-gray-600">
-                    Complete all problems in Chapter 3 of your textbook. Show all work for full credit.
-                    The assignment should be submitted as a PDF document with clear images of your work.
-                  </p>
-                </div>
-                
-                {selectedAssignment.status === "Graded" && (
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                    <h3 className="font-medium text-blue-800">Teacher Feedback</h3>
-                    <p className="mt-1 text-blue-700">{selectedAssignment.feedback}</p>
-                    <div className="mt-3">
-                      <button className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-                        View Graded Assignment
-                      </button>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="flex justify-end space-x-3">
-                    <button
-                      onClick={() => setSelectedAssignment(null)}
-                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Close
-                    </button>
-                    {selectedAssignment.status === "Graded" ? (
-                      <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        Request Regrade
-                      </button>
-                    ) : (
-                      <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        View Submission
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 };
