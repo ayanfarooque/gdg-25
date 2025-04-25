@@ -1,68 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from './Dashboardpages/Header';
 import { useNavigate } from 'react-router-dom';
+import classroomData from '../data/classroom.json';
 
 const StudentClassroom = () => {
   const [activeTab, setActiveTab] = useState('classes');
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [expandedTeacher, setExpandedTeacher] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [classrooms, setClassrooms] = useState([]);
   const navigate = useNavigate();
 
   // Sample classroom data
-  const classrooms = [
-    {
-      id: 1,
-      name: "Advanced Mathematics",
-      teacher: "Mr. Smith",
-      section: "Period 3",
-      bannerColor: "#4285F4", // Google blue
-      totalStudents: 28,
-      recentTopic: "Calculus Fundamentals",
-      unreadAnnouncements: 2
-    },
-    {
-      id: 2,
-      name: "Biology 101",
-      teacher: "Ms. Johnson",
-      section: "Period 1",
-      bannerColor: "#0F9D58", // Google green
-      totalStudents: 32,
-      recentTopic: "Cell Structure",
-      unreadAnnouncements: 0
-    },
-    {
-      id: 3,
-      name: "English Literature",
-      teacher: "Mrs. Davis",
-      section: "Period 4",
-      bannerColor: "#DB4437", // Google red
-      totalStudents: 25,
-      recentTopic: "Shakespeare Analysis",
-      unreadAnnouncements: 3
-    },
-    {
-      id: 4,
-      name: "Physics",
-      teacher: "Dr. Wilson",
-      section: "Period 2",
-      bannerColor: "#F4B400", // Google yellow
-      totalStudents: 24,
-      recentTopic: "Newton's Laws",
-      unreadAnnouncements: 1
-    },
-    {
-      id: 5,
-      name: "Computer Science",
-      teacher: "Mr. Roberts",
-      section: "Period 5",
-      bannerColor: "#673AB7", // Purple
-      totalStudents: 20,
-      recentTopic: "Object-Oriented Programming",
-      unreadAnnouncements: 0
-    }
-  ];
+  useEffect(() => {
+    console.log("Loading classroom data from JSON");
+    
+    // Process the imported classroom data
+    const formattedClassrooms = classroomData.map(classroom => ({
+      id: classroom._id,
+      name: classroom.name,
+      section: classroom.subject || 'General',
+      teacher: classroom.teacher ? `Teacher ID: ${classroom.teacher}` : 'Unknown Teacher',
+      totalStudents: classroom.students ? classroom.students.length : 0,
+      unreadAnnouncements: classroom.announcements ? classroom.announcements.length : 0,
+      recentTopic: classroom.description ? classroom.description.substring(0, 30) + '...' : 'No recent topics',
+      bannerColor: getSubjectColor(classroom.subject)
+    }));
+    
+    console.log("Formatted classroom data:", formattedClassrooms);
+    setClassrooms(formattedClassrooms);
+  }, []);
+
+
+  const getSubjectColor = (subject) => {
+    const colorMap = {
+      'Math': '#4285F4',      // Blue
+      'Science': '#0F9D58',   // Green
+      'History': '#DB4437',   // Red
+      'English': '#F4B400',   // Yellow
+      'Art': '#AA46BC',       // Purple
+      'Music': '#E91E63',     // Pink
+      'Computer Science': '#00ACC1', // Teal
+      'Foreign Language': '#FF6D00', // Orange
+      'Physical Education': '#5E35B1', // Deep Purple
+    };
+    
+    return colorMap[subject] || '#607D8B'; // Default gray if no match
+  };
+
+  // Function to handle classroom click
+  const handleClassroomClick = (classroomId) => {
+    // Navigate to the specific classroom detail page (no colon in URL)
+    navigate(`/student-classroom/${classroomId}`);
+  };
 
   // Sample data (keeping previous data for other tabs)
   const classmates = [
@@ -185,7 +176,7 @@ const StudentClassroom = () => {
                   transition={{ duration: 0.3 }}
                   whileHover={{ y: -5 }}
                   className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200"
-                  onClick={() => navigate(`/student-classroom/:${classroom.id}`)}
+                  onClick={handleClassroomClick.bind(null, classroom.id)}
                 >
                   {/* Banner */}
                   <div 
