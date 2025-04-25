@@ -185,7 +185,7 @@ const StudentClassroom = () => {
                   transition={{ duration: 0.3 }}
                   whileHover={{ y: -5 }}
                   className="overflow-hidden rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200"
-                  onClick={() => navigate('/classroom')}
+                  onClick={() => navigate(`/student-classroom/:${classroom.id}`)}
                 >
                   {/* Banner */}
                   <div 
