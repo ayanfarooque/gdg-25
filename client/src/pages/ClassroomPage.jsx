@@ -15,62 +15,48 @@ const ClassroomPage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchClassroom = async () => {
-      try {
-        setLoading(true);
-        
-        try {
-          // Try to get data from API first
-          const response = await axios.get(`/api/classrooms/${id}`);
-          setClassroom(response.data);
-          setLoading(false);
-        } catch (apiError) {
-          console.error("API error, falling back to JSON data:", apiError);
-          
-          // Use local JSON data as fallback
-          const foundClassroom = classroomData.find(room => room._id === id) || classroomData[0];
-          
-          if (foundClassroom) {
-            // Add detailed assignment data for UI display
-            foundClassroom.assignments = [
-              { _id: "a1", title: "Linear Algebra Problem Set", dueDate: "2025-04-25", status: "pending", points: 100 },
-              { _id: "a2", title: "Calculus Integration Challenge", dueDate: "2025-04-28", status: "pending", points: 75 },
-              { _id: "a3", title: "Vector Space Homework", submitDate: "2025-04-10", score: 92, points: 100, status: "completed" },
-              { _id: "a4", title: "Differential Equations Quiz", submitDate: "2025-04-05", score: 88, points: 50, status: "completed" },
-              { _id: "a5", title: "Matrix Operations Assignment", submitDate: "2025-03-28", score: 95, points: 75, status: "completed" }
-            ];
-            
-            // Add detailed students data
-            foundClassroom.students = foundClassroom.students.map((studentId, index) => ({
-              _id: studentId,
-              name: `Student ${index + 1}`,
-              email: `student${index + 1}@example.com`,
-              role: "Student"
-            }));
-
-            // Add grades data for the grades tab
-            foundClassroom.grades = [
-              { _id: "g1", title: "Midterm Exam", score: 87, maxScore: 100, date: "2025-03-15", weight: 30 },
-              { _id: "g2", title: "Quizzes Average", score: 42, maxScore: 50, date: "2025-04-01", weight: 20 },
-              { _id: "g3", title: "Homework Average", score: 92, maxScore: 100, date: "2025-04-10", weight: 25 },
-              { _id: "g4", title: "Class Participation", score: 18, maxScore: 20, date: "2025-04-15", weight: 10 },
-              { _id: "g5", title: "Final Project", score: null, maxScore: 100, date: "2025-05-01", weight: 15, status: "Upcoming" }
-            ];
-            
-            setClassroom(foundClassroom);
-          } else {
-            throw new Error("Classroom not found in JSON data");
-          }
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error("Error fetching classroom data:", err);
-        setError("Failed to load classroom data");
-        setLoading(false);
-      }
-    };
-
-    fetchClassroom();
+    // Just use local JSON data directly
+    setLoading(true);
+    
+    console.log("Available classrooms in JSON:", classroomData.map(c => c._id));
+    const foundClassroom = classroomData.find(room => room._id === id);
+    
+    // If no matching classroom is found, use the first one
+    const classroom = foundClassroom || classroomData[0];
+    
+    if (classroom) {
+      // Debug what data is present
+      console.log("Found classroom:", classroom);
+      console.log("Has announcements:", classroom.announcements?.length || 0);
+      console.log("Has resources:", classroom.resources?.length || 0);
+      
+      // Add detailed assignment data for UI display
+      classroom.assignments = [
+        { _id: "a1", title: "Linear Algebra Problem Set", dueDate: "2025-04-25", status: "pending", points: 100 },
+        { _id: "a2", title: "Calculus Integration Challenge", dueDate: "2025-04-28", status: "pending", points: 75 },
+        { _id: "a3", title: "Vector Space Homework", submitDate: "2025-04-10", score: 92, points: 100, status: "completed" }
+      ];
+      
+      // Add detailed students data
+      classroom.students = classroom.students?.map((studentId, index) => ({
+        _id: studentId,
+        name: `Student ${index + 1}`,
+        email: `student${index + 1}@example.com`,
+        role: "Student"
+      })) || [];
+  
+      // Add grades data for the grades tab
+      classroom.grades = [
+        { _id: "g1", title: "Midterm Exam", score: 87, maxScore: 100, date: "2025-03-15", weight: 30 },
+        { _id: "g2", title: "Quizzes Average", score: 42, maxScore: 50, date: "2025-04-01", weight: 20 }
+      ];
+      
+      setClassroom(classroom);
+    } else {
+      setError("Classroom not found in JSON data");
+    }
+    
+    setLoading(false);
   }, [id]);
 
   // Helper function to handle view assignment navigation
