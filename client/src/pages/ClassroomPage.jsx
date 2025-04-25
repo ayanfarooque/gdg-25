@@ -18,45 +18,88 @@ const ClassroomPage = () => {
     // Just use local JSON data directly
     setLoading(true);
     
-    console.log("Available classrooms in JSON:", classroomData.map(c => c._id));
-    const foundClassroom = classroomData.find(room => room._id === id);
+    console.log("Looking for classroom with ID:", id);
     
-    // If no matching classroom is found, use the first one
-    const classroom = foundClassroom || classroomData[0];
-    
-    if (classroom) {
-      // Debug what data is present
-      console.log("Found classroom:", classroom);
-      console.log("Has announcements:", classroom.announcements?.length || 0);
-      console.log("Has resources:", classroom.resources?.length || 0);
+    try {
+      // Check if classroomData is properly loaded
+      if (!classroomData || !Array.isArray(classroomData)) {
+        throw new Error("Classroom data is not loaded properly");
+      }
       
-      // Add detailed assignment data for UI display
-      classroom.assignments = [
-        { _id: "a1", title: "Linear Algebra Problem Set", dueDate: "2025-04-25", status: "pending", points: 100 },
-        { _id: "a2", title: "Calculus Integration Challenge", dueDate: "2025-04-28", status: "pending", points: 75 },
-        { _id: "a3", title: "Vector Space Homework", submitDate: "2025-04-10", score: 92, points: 100, status: "completed" }
-      ];
+      console.log("Available classrooms in JSON:", classroomData.map(c => c._id));
       
-      // Add detailed students data
-      classroom.students = classroom.students?.map((studentId, index) => ({
-        _id: studentId,
-        name: `Student ${index + 1}`,
-        email: `student${index + 1}@example.com`,
-        role: "Student"
-      })) || [];
-  
-      // Add grades data for the grades tab
-      classroom.grades = [
-        { _id: "g1", title: "Midterm Exam", score: 87, maxScore: 100, date: "2025-03-15", weight: 30 },
-        { _id: "g2", title: "Quizzes Average", score: 42, maxScore: 50, date: "2025-04-01", weight: 20 }
-      ];
+      // Find exact match for the ID - trim any whitespace that might be in the ID
+      const cleanId = id ? id.trim() : id;
+      const foundClassroom = classroomData.find(room => room._id === cleanId);
       
-      setClassroom(classroom);
-    } else {
-      setError("Classroom not found in JSON data");
+      if (foundClassroom) {
+        console.log("Found matching classroom:", foundClassroom.name);
+        
+        // Create a deep copy to avoid mutating the original data
+        const classroom = JSON.parse(JSON.stringify(foundClassroom));
+        
+        // Add detailed assignment data for UI display based on this specific classroom
+        classroom.assignments = [
+          { _id: `${id}-a1`, title: `${classroom.subject} Assignment 1`, dueDate: "2025-04-25", status: "pending", points: 100 },
+          { _id: `${id}-a2`, title: `${classroom.subject} Assignment 2`, dueDate: "2025-04-28", status: "pending", points: 75 },
+          { _id: `${id}-a3`, title: `${classroom.subject} Homework`, submitDate: "2025-04-10", score: 92, points: 100, status: "completed" }
+        ];
+        
+        // Add detailed students data specific to this classroom
+        classroom.students = classroom.students?.map((studentId, index) => ({
+          _id: studentId,
+          name: `${classroom.subject} Student ${index + 1}`,
+          email: `student${index + 1}@example.com`,
+          role: "Student"
+        })) || [];
+      
+        // Add grades data for the grades tab
+        classroom.grades = [
+          { _id: `${id}-g1`, title: `${classroom.subject} Midterm Exam`, score: 87, maxScore: 100, date: "2025-03-15", weight: 30 },
+          { _id: `${id}-g2`, title: `${classroom.subject} Quizzes Average`, score: 42, maxScore: 50, date: "2025-04-01", weight: 20 }
+        ];
+        
+        setClassroom(classroom);
+        setLoading(false);
+      } else {
+        console.warn("No classroom found with ID:", id);
+        
+        // Fallback to first classroom, but mark it clearly
+        if (classroomData.length > 0) {
+          const fallbackClassroom = JSON.parse(JSON.stringify(classroomData[0]));
+          console.log("Using fallback classroom:", fallbackClassroom.name);
+          
+          // Same setup as above
+          fallbackClassroom.assignments = [
+            { _id: `fallback-a1`, title: `${fallbackClassroom.subject} Assignment 1`, dueDate: "2025-04-25", status: "pending", points: 100 },
+            { _id: `fallback-a2`, title: `${fallbackClassroom.subject} Assignment 2`, dueDate: "2025-04-28", status: "pending", points: 75 },
+            { _id: `fallback-a3`, title: `${fallbackClassroom.subject} Homework`, submitDate: "2025-04-10", score: 92, points: 100, status: "completed" }
+          ];
+          
+          fallbackClassroom.students = fallbackClassroom.students?.map((studentId, index) => ({
+            _id: studentId,
+            name: `${fallbackClassroom.subject} Student ${index + 1}`,
+            email: `student${index + 1}@example.com`,
+            role: "Student"
+          })) || [];
+        
+          fallbackClassroom.grades = [
+            { _id: `fallback-g1`, title: `${fallbackClassroom.subject} Midterm Exam`, score: 87, maxScore: 100, date: "2025-03-15", weight: 30 },
+            { _id: `fallback-g2`, title: `${fallbackClassroom.subject} Quizzes Average`, score: 42, maxScore: 50, date: "2025-04-01", weight: 20 }
+          ];
+          
+          setClassroom(fallbackClassroom);
+          setError(`Classroom with ID ${id} not found. Showing default classroom instead.`);
+          setLoading(false);
+        } else {
+          throw new Error("No classrooms available in the data");
+        }
+      }
+    } catch (err) {
+      console.error("Error processing classroom data:", err);
+      setError(`Failed to load classroom data: ${err.message}`);
+      setLoading(false);
     }
-    
-    setLoading(false);
   }, [id]);
 
   // Helper function to handle view assignment navigation
