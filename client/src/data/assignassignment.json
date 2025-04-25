@@ -1,0 +1,186 @@
+[
+    {
+        "title": "Algebra Homework",
+        "description": "Solve 20 problems on linear equations and inequalities.",
+        "subject": "Math",
+        "subjectId": { "name": "Mathematics", "code": "MATH101" },
+        "teacher": "64a2c8f7d8b3e456789012ab",
+        "classroom": "64a2c8f7d8b3e456789012cd",
+        "dueDate": "2023-12-15T23:59:00",
+        "attachments": [
+            {
+                "url": "https://example.com/algebra_homework.pdf",
+                "name": "algebra_homework.pdf",
+                "type": "pdf",
+                "size": 2400000,
+                "key": "algebra-homework-key",
+                "previewUrl": "https://example.com/preview/algebra_homework.pdf"
+            }
+        ],
+        "instructions": "Submit as a single PDF file. Show all work for full credit.",
+        "points": 100,
+        "createdAt": "2023-11-28T09:00:00",
+        "updatedAt": "2023-11-28T09:00:00"
+    },
+    {
+        "title": "World War II Essay",
+        "description": "Write a 1000-word essay analyzing the causes of World War II.",
+        "subject": "History",
+        "subjectId": { "name": "History", "code": "HIST202" },
+        "teacher": "64a2c8f7d8b3e456789012ab",
+        "classroom": "64a2c8f7d8b3e456789012cd",
+        "dueDate": "2023-12-20T23:59:00",
+        "attachments": [
+            {
+                "url": "https://example.com/wwii_essay_guidelines.pdf",
+                "name": "wwii_essay_guidelines.pdf",
+                "type": "pdf",
+                "size": 1200000,
+                "key": "wwii-essay-guidelines-key",
+                "previewUrl": "https://example.com/preview/wwii_essay_guidelines.pdf"
+            }
+        ],
+        "instructions": "Use at least 3 primary sources and follow Chicago citation style.",
+        "points": 150,
+        "createdAt": "2023-11-15T10:30:00",
+        "updatedAt": "2023-11-15T10:30:00"
+    },
+    {
+        "title": "Chemical Reaction Lab Report",
+        "description": "Complete a lab report on reaction rates using the data collected in class.",
+        "subject": "Science",
+        "subjectId": { "name": "Chemistry", "code": "CHEM105" },
+        "teacher": "64a2c8f7d8b3e456789012ab",
+        "classroom": "64a2c8f7d8b3e456789012cd",
+        "dueDate": "2023-12-10T23:59:00",
+        "attachments": [
+            {
+                "url": "https://example.com/lab_manual.pdf",
+                "name": "lab_manual.pdf",
+                "type": "pdf",
+                "size": 3500000,
+                "key": "lab-manual-key",
+                "previewUrl": "https://example.com/preview/lab_manual.pdf"
+            }
+        ],
+        "instructions": "Include all sections: Abstract, Methods, Results, and Discussion.",
+        "points": 120,
+        "createdAt": "2023-11-20T14:00:00",
+        "updatedAt": "2023-11-20T14:00:00"
+    },
+    {
+        "title": "European Capitals Quiz",
+        "description": "Identify the capitals of European countries and major geographical features.",
+        "subject": "Geography",
+        "subjectId": { "name": "Geography", "code": "GEOG110" },
+        "teacher": "64a2c8f7d8b3e456789012ab",
+        "classroom": "64a2c8f7d8b3e456789012cd",
+        "dueDate": "2023-12-08T23:59:00",
+        "attachments": [
+            {
+                "url": "https://example.com/europe_quiz_study_guide.pdf",
+                "name": "europe_quiz_study_guide.pdf",
+                "type": "pdf",
+                "size": 5200000,
+                "key": "europe-quiz-study-guide-key",
+                "previewUrl": "https://example.com/preview/europe_quiz_study_guide.pdf"
+            }
+        ],
+        "instructions": "Complete the quiz on the course portal. 30-minute time limit.",
+        "points": 50,
+        "createdAt": "2023-11-25T13:45:00",
+        "updatedAt": "2023-11-25T13:45:00"
+    },
+    {
+        "title": "Python Weather Analysis Project",
+        "description": "Create a Python program to analyze weather data from provided CSV files.",
+        "subject": "Computer Science",
+        "subjectId": { "name": "Computer Science", "code": "CS201" },
+        "teacher": "64a2c8f7d8b3e456789012ab",
+        "classroom": "64a2c8f7d8b3e456789012cd",
+        "dueDate": "2023-12-22T23:59:00",
+        "attachments": [
+            {
+                "url": "https://example.com/weather_data.zip",
+                "name": "weather_data.zip",
+                "type": "zip",
+                "size": 12400000,
+                "key": "weather-data-key",
+                "previewUrl": null
+            }
+        ],
+        "instructions": "Submit both source code and a 1-page documentation PDF.",
+        "points": 200,
+        "createdAt": "2023-12-01T09:30:00",
+        "updatedAt": "2023-12-01T09:30:00"
+    },
+    {
+        "title": "Symbolism in Romantic Literature",
+        "description": "Analyze the use of symbolism in three works from the Romantic period.",
+        "subject": "English",
+        "subjectId": { "name": "English Literature", "code": "ENG220" },
+        "teacher": "64a2c8f7d8b3e456789012ab",
+        "classroom": "64a2c8f7d8b3e456789012cd",
+        "dueDate": "2023-12-05T23:59:00",
+        "attachments": [
+            {
+                "url": "https://example.com/romantic_lit_reading_list.pdf",
+                "name": "romantic_lit_reading_list.pdf",
+                "type": "pdf",
+                "size": 2100000,
+                "key": "romantic-lit-reading-list-key",
+                "previewUrl": "https://example.com/preview/romantic_lit_reading_list.pdf"
+            }
+        ],
+        "instructions": "Compare and contrast symbolic elements in at least three works.",
+        "points": 180,
+        "createdAt": "2023-11-10T11:15:00",
+        "updatedAt": "2023-11-10T11:15:00"
+    },
+    {
+        "title": "Art Portfolio Submission",
+        "description": "Submit a portfolio of your best artwork from this semester.",
+        "subject": "Art",
+        "subjectId": { "name": "Art", "code": "ART101" },
+        "teacher": "64a2c8f7d8b3e456789012ab",
+        "classroom": "64a2c8f7d8b3e456789012cd",
+        "dueDate": "2023-12-18T23:59:00",
+        "attachments": [
+            {
+                "url": "https://example.com/art_portfolio_guidelines.pdf",
+                "name": "art_portfolio_guidelines.pdf",
+                "type": "pdf",
+                "size": 1500000,
+                "key": "art-portfolio-guidelines-key",
+                "previewUrl": "https://example.com/preview/art_portfolio_guidelines.pdf"
+            }
+        ],
+        "instructions": "Submit a PDF portfolio with high-resolution images of your artwork.",
+        "points": 150,
+        "createdAt": "2023-11-18T09:00:00",
+        "updatedAt": "2023-11-18T09:00:00"
+    },
+    {
+        "title": "Music Composition Project",
+        "description": "Compose a 2-minute original piece of music using provided themes.",
+        "subject": "Music",
+        "subjectId": { "name": "Music", "code": "MUS101" },
+        "teacher": "64a2c8f7d8b3e456789012ab",
+        "classroom": "64a2c8f7d8b3e456789012cd",
+        "dueDate": "2023-12-25T23:59:00",
+        "attachments": [
+            {
+                "url": "https://example.com/music_composition_guidelines.pdf",
+                "name": "music_composition_guidelines.pdf",
+                "type": "pdf",
+                "size": 1800000,
+                "key": "music-composition-guidelines-key",
+                "previewUrl": "https://example.com/preview/music_composition_guidelines.pdf"
+            }
+        ],
+        "instructions": "Submit an MP3 file along with a written explanation of your composition.",
+        "points": 200,
+        "createdAt": "2023-11-22T10:00:00",
+        "updatedAt": "2023-11-22T10:00:00"
+    }
+]

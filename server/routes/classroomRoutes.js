@@ -28,16 +28,16 @@ const { protect, authorize } = require("../middleware/authMiddleware");
 
 
 // Public routes
-router.get("/", classroomController.getAllClassrooms);
-router.get("/:id", classroomController.getClassroom);
+router.get("/studentclassroom", classroomController.getAllClassrooms);
+router.get("/studentclassroom/:id", classroomController.getClassroom);
 
 // Protected routes (require authentication)
 router.use(protect);
 
 // Teacher/Admin restricted routes
-router.post("/", authorize("teacher", "admin"), classroomController.createClassroom);
-router.put("/:id", authorize("teacher", "admin"), classroomController.updateClassroom);
-router.delete("/:id", authorize("teacher", "admin"), classroomController.deleteClassroom);
+router.post("/",  classroomController.createClassroom);
+router.put("/:id",  classroomController.updateClassroom);
+router.delete("/:id",  classroomController.deleteClassroom);
 router.get("/",classroomController.getAllClassrooms)
 
 // Student management
@@ -51,15 +51,15 @@ router.get("/",classroomController.getAllClassrooms)
 // router.get("/:id/stats", authorize("teacher", "admin"), classroomController.getClassroomStats);
 
 // Assignment routes
-router.post("/:id/assignments", authorize("teacher"), classroomController.assignAssignment);
-router.get("/:id/assignments", authorize("teacher", "student"), classroomController.getAssignments);
-router.put("/:classroomId/assignments/:assignmentId", authorize("teacher"), classroomController.updateAssignment);
-router.delete("/:classroomId/assignments/:assignmentId", authorize("teacher"), classroomController.deleteAssignment);
+router.post("/:id/assignments",  classroomController.assignAssignment);
+router.get("/:id/assignments",  classroomController.getAssignments);
+router.put("/:classroomId/assignments/:assignmentId", classroomController.updateAssignment);
+router.delete("/:classroomId/assignments/:assignmentId",  classroomController.deleteAssignment);
 
 
 //join req
-router.post('/:id',classroomController.joinClassroomRequest);
+router.post('/student-classroom/request-join/:id',classroomController.joinClassroomRequest);
 
 //approve
-router.post('/:id/approve', classroomController.approveJoinRequest);
+router.post('/student-classroom/approve/:id', classroomController.approveJoinRequest);
 module.exports = router;

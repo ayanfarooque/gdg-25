@@ -45,7 +45,7 @@ const ClassroomPage = () => {
           { _id: `${id}-a3`, title: `${classroom.subject} Homework`, submitDate: "2025-04-10", score: 92, points: 100, status: "completed" }
         ];
         
-        // Add detailed students data specific to this classroom
+        // Add detailed studentsc data specific to this classroom
         classroom.students = classroom.students?.map((studentId, index) => ({
           _id: studentId,
           name: `${classroom.subject} Student ${index + 1}`,
@@ -300,7 +300,7 @@ const ClassroomPage = () => {
                           <motion.button 
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => handleViewAssignment(assignment._id)}
+                            onClick={() => navigate(`/assignments/${assignment._id}`)}
                             className="px-3 py-1 border border-gray-300 text-gray-700 text-sm font-medium rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
                           >
                             View Details
