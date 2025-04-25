@@ -32,14 +32,29 @@ exports.getClassroomAssignments = async (req, res, next) => {
   try {
     const { classroomId } = req.params;
 
-    const assignments = await AssignAssignment.find({ classroom: classroomId })
-      .sort({ createdAt: -1 })
-      .populate("teacher", "name email");
+    // Fetch assignments for the given classroom ID
+    const assignments = await AssignAssignment.find()
+      .sort({ createdAt: -1 }) // Sort by creation date (newest first)
+      .populate("teacher", "name email") // Populate teacher details
+      .populate("classroom", "name grade section"); // Populate classroom details
 
-    res.status(200).json({ success: true, data: assignments });
+    if (!assignments || assignments.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No assignments found for this classroom",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: assignments,
+    });
   } catch (error) {
     console.error("Error fetching classroom assignments:", error.message);
-    res.status(500).json({ success: false, message: "Error fetching assignments" });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching assignments",
+    });
   }
 };
 

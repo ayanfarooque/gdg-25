@@ -9,8 +9,10 @@ router.post("/upload", upload.single("file"), assignmentController.uploadAssignm
 // Route to get previous assignments
 router.get("/previous/:studentid", assignmentController.getpreviousassignments);
 
+
+router.get("/assignment", assignmentController.getClassroomAssignments)
 // Route to get a single assignment
-router.get("/single/:assignmentId", assignmentController.getsingleassignment);
+router.get("/assignment/:assignmentId", assignmentController.getsingleassignment);
 
 // Route to get student submissions
 router.get("/student/:studentId", assignmentController.getStudentSubmissions);
