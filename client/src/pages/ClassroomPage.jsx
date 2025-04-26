@@ -103,8 +103,8 @@ const ClassroomPage = () => {
   }, [id]);
 
   // Helper function to handle view assignment navigation
-  const handleViewAssignment = (assignmentId) => {
-    navigate(`/assignments/${assignmentId}`);
+  const Assignment = () => {
+    navigate("/Assignment", { state: { classroomId: id } });
   };
   
   // Helper function to calculate banner color based on subject
@@ -291,7 +291,7 @@ const ClassroomPage = () => {
                         
                         <div className="flex space-x-2 items-center">
                           {assignment.status === 'pending' && (
-                            <button 
+                            <button onClick={() => Assignment()}
                               className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                               Submit

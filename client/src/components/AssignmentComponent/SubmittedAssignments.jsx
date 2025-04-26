@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { FiCheckCircle, FiChevronDown, FiChevronUp, FiFileText, FiCalendar, FiAward } from 'react-icons/fi';
 
 const SubmittedAssignments = () => {
   const [expandedAssignment, setExpandedAssignment] = useState(null);
@@ -64,75 +65,99 @@ const SubmittedAssignments = () => {
   };
 
   return (
-    <div className="bg-[#49ABB0] p-6 rounded-[30px] text-white w-full max-w-md mx-auto">
-      <h2 className="text-2xl text-[#21294F] font-semibold mb-4 text-center tracking-wide">
-        Submitted Assignments
-      </h2>
+    <div className="space-y-3">
+      {assignments.map((assignment, index) => (
+        <div key={index} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all border-l-4 border-green-500 overflow-hidden">
+          <button
+            onClick={() => toggleAssignment(index)}
+            className="w-full flex items-center justify-between p-4 text-left focus:outline-none focus:ring-2 focus:ring-green-200"
+          >
+            <div className="flex items-center">
+              <FiCheckCircle className="text-green-500 mr-2" />
+              <span className="font-medium text-gray-800">{assignment.subject}</span>
+            </div>
+            {expandedAssignment === index ? (
+              <FiChevronUp className="text-gray-500" />
+            ) : (
+              <FiChevronDown className="text-gray-500" />
+            )}
+          </button>
 
-      <div className="flex flex-col gap-3">
-        {assignments.map((assignment, index) => (
-          <div key={index} className="relative">
-            <button
-              onClick={() => toggleAssignment(index)}
-              className={`bg-[rgba(33,41,79,0.3)] text-black font-medium py-3 rounded-[30px] shadow-md transition-all transform hover:scale-105 hover:shadow-xl w-full text-left px-4 ${
-                expandedAssignment === index ? "rounded-b-none" : ""
-              }`}
-            >
-              {assignment.subject}
-            </button>
-
-            {expandedAssignment === index && (
-              <div className="bg-white text-[#21294F] p-4 rounded-b-[30px] shadow-md border-t-2 border-[rgba(33,41,79,0.3)]">
-                <div className="mb-4">
-                  <h3 className="font-bold text-lg">{assignmentDetails[assignment.subject].title}</h3>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
+          {expandedAssignment === index && (
+            <div className="p-4 pt-0 border-t border-gray-100">
+              <div className="pb-3">
+                <h3 className="font-bold text-gray-800">{assignmentDetails[assignment.subject].title}</h3>
+                
+                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+                  <div className="flex items-start">
+                    <FiCalendar className="mt-0.5 text-[#3A7CA5] mr-2" size={16} />
                     <div>
-                      <p className="text-sm font-semibold">Submitted:</p>
-                      <p>{assignmentDetails[assignment.subject].submittedDate}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">Score:</p>
-                      <p>{assignmentDetails[assignment.subject].score}</p>
+                      <p className="text-xs font-medium text-gray-500">Submitted</p>
+                      <p className="text-sm">{assignmentDetails[assignment.subject].submittedDate}</p>
                     </div>
                   </div>
-                  <div className="mt-2">
-                    <p className="text-sm font-semibold">Feedback:</p>
-                    <p>{assignmentDetails[assignment.subject].feedback}</p>
+                  
+                  <div className="flex items-start">
+                    <FiAward className="mt-0.5 text-[#3A7CA5] mr-2" size={16} />
+                    <div>
+                      <p className="text-xs font-medium text-gray-500">Score</p>
+                      <p className="text-sm font-medium">{assignmentDetails[assignment.subject].score}</p>
+                    </div>
                   </div>
                 </div>
-
-                {showDetails === assignment.subject && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm font-semibold">Description:</p>
-                    <p className="text-sm mb-2">{assignmentDetails[assignment.subject].description}</p>
-                    
-                    <p className="text-sm font-semibold">Due Date:</p>
-                    <p className="text-sm mb-2">{assignmentDetails[assignment.subject].dueDate}</p>
-                    
-                    <p className="text-sm font-semibold">Attachments:</p>
-                    <p className="text-sm">{assignmentDetails[assignment.subject].attachments}</p>
+                
+                <div className="mt-3 flex items-start">
+                  <FiFileText className="mt-0.5 text-[#3A7CA5] mr-2" size={16} />
+                  <div>
+                    <p className="text-xs font-medium text-gray-500">Feedback</p>
+                    <p className="text-sm">{assignmentDetails[assignment.subject].feedback}</p>
                   </div>
-                )}
-
-                <div className="flex justify-between mt-4">
-                  <button
-                    onClick={() => handleCancelSubmission(assignment.subject)}
-                    className="px-4 py-2 bg-[#EF5350] text-white rounded-full hover:bg-[#d32f2f] transition-colors shadow"
-                  >
-                    Cancel Submission
-                  </button>
-                  <button
-                    onClick={() => toggleDetails(assignment.subject)}
-                    className="px-4 py-2 bg-[#49ABB0] text-white rounded-full hover:bg-[#3a8a8e] transition-colors shadow"
-                  >
-                    {showDetails === assignment.subject ? "Hide Details" : "View Details"}
-                  </button>
                 </div>
               </div>
-            )}
-          </div>
-        ))}
-      </div>
+
+              {showDetails === assignment.subject && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg text-sm">
+                  <div className="space-y-2">
+                    <div>
+                      <p className="font-medium text-gray-700">Description:</p>
+                      <p className="text-gray-600">{assignmentDetails[assignment.subject].description}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="font-medium text-gray-700">Due Date:</p>
+                      <p className="text-gray-600">{assignmentDetails[assignment.subject].dueDate}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="font-medium text-gray-700">Attachments:</p>
+                      <p className="text-gray-600">
+                        <a href="#" className="text-blue-500 hover:text-blue-700 hover:underline">
+                          {assignmentDetails[assignment.subject].attachments}
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-between mt-4 gap-2">
+                <button
+                  onClick={() => handleCancelSubmission(assignment.subject)}
+                  className="flex-1 py-2 px-4 bg-white border border-red-500 text-red-500 hover:bg-red-50 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-200"
+                >
+                  Cancel Submission
+                </button>
+                <button
+                  onClick={() => toggleDetails(assignment.subject)}
+                  className="flex-1 py-2 px-4 bg-white border border-[#3A7CA5] text-[#3A7CA5] hover:bg-blue-50 font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-200"
+                >
+                  {showDetails === assignment.subject ? "Hide Details" : "View Details"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
