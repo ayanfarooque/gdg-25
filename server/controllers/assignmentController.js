@@ -167,16 +167,80 @@ exports.getpreviousassignments = async (req, res) => {
 exports.getsingleassignment = async (req, res) => {
   try {
     const { assignmentId } = req.params;
-    const assignment = await Submission.findById(assignmentId).populate("assignmentId");
+    
+    // Find the assignment and populate necessary fields
+    const assignment = await AssignAssignment.findById(assignmentId)
+      .populate("assignmentId")  // Assuming this is needed for some reference
+      .populate("subjectId", "name code")  // Populate subject info with only name and code
+      .populate({
+        path: "submissions",
+        match: { studentId: req.user._id },  // Only get submissions for the current student
+        populate: {
+          path: "grading",
+          populate: {
+            path: "rubric"  // If you have rubric details
+          }
+        }
+      })
+      .lean();  // Convert to plain JavaScript object
 
     if (!assignment) {
-      return res.status(404).json({ success: false, message: "Assignment not found" });
+      return res.status(404).json({ 
+        success: false, 
+        message: "Assignment not found",
+        data: null
+      });
     }
 
-    res.status(200).json({ success: true, assignment });
+    // Transform the data to match frontend expectations
+    const responseData = {
+      _id: assignment._id,
+      title: assignment.title,
+      description: assignment.description,
+      subjectId: assignment.subjectId || { name: "N/A", code: "" },
+      dueDate: assignment.dueDate,
+      status: assignment.status,
+      points: assignment.points,
+      instructions: assignment.instructions,
+      attachments: assignment.attachments || [],
+      createdAt: assignment.createdAt
+    };
+
+    // Add submission data if exists
+    if (assignment.submissions && assignment.submissions.length > 0) {
+      const submission = assignment.submissions[0];
+      responseData.submission = {
+        file: submission.file,
+        type: submission.fileType,
+        size: submission.fileSize,
+        submittedAt: submission.submittedAt,
+        comments: submission.comments
+      };
+
+      // Add grading data if exists
+      if (submission.grading) {
+        responseData.grading = {
+          score: submission.grading.score,
+          classAverage: submission.grading.classAverage,
+          feedback: submission.grading.feedback,
+          rubric: submission.grading.rubric || []
+        };
+      }
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Assignment retrieved successfully",
+      data: responseData 
+    });
+
   } catch (error) {
     console.error("Error fetching assignment:", error.message);
-    res.status(500).json({ success: false, message: "Error fetching assignment" });
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error while fetching assignment",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
