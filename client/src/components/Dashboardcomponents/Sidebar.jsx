@@ -94,7 +94,7 @@ const Sidebar = ({ role }) => {
 
   const getBackgroundColor = () => {
     return role === "teacher" ? "bg-[#E195AB]" : 
-           role === "student" ? "bg-[#49ABB0]" : 
+           role === "student" ? "bg-gradient-to-r from-teal-500 to-teal-400" : 
            "bg-[#21294F]";
   };
 

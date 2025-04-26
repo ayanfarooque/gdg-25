@@ -1,0 +1,114 @@
+{
+  "newsData": [
+    {
+      "_id": "news001",
+      "title": "Annual Science Fair Registration Opens Next Week",
+      "content": "We're excited to announce that registration for the Annual Science Fair will begin next Monday. This year's theme is 'Innovation for Sustainability' and we're looking forward to seeing creative projects from all students. Registration forms will be available online and in the main office. Early registration is encouraged as space is limited to 150 participants. Faculty mentors will be assigned on a first-come, first-served basis.",
+      "excerpt": "Register early for this year's Science Fair focused on 'Innovation for Sustainability'",
+      "author": {
+        "_id": "user123",
+        "name": "Dr. Sarah Johnson",
+        "profilePic": "https://randomuser.me/api/portraits/women/44.jpg"
+      },
+      "targetAudience": "all",
+      "category": "announcement",
+      "imageUrl": "https://images.unsplash.com/photo-1581093199826-4c252e58f103?q=80&w=1000",
+      "tags": ["science fair", "registration", "innovation", "sustainability"],
+      "isFeatured": true,
+      "isPublished": true,
+      "publishedAt": "2025-04-15T09:00:00Z",
+      "views": 245,
+      "likes": 58,
+      "commentsCount": 12,
+      "slug": "annual-science-fair-registration-opens"
+    },
+    {
+      "_id": "news002",
+      "title": "Mathematics Department Welcomes New Faculty Member",
+      "content": "The Mathematics Department is pleased to announce that Dr. Emily Wong has joined our faculty as an Associate Professor of Applied Mathematics. Dr. Wong comes to us from Stanford University where she specialized in computational fluid dynamics. She will be teaching Advanced Calculus and Numerical Methods this semester. Please join us for a welcome reception in the Mathematics building lounge on Friday at 3:30 PM.",
+      "excerpt": "Dr. Emily Wong joins our Mathematics Department from Stanford University",
+      "author": {
+        "_id": "user124",
+        "name": "Prof. Robert Chen",
+        "profilePic": "https://randomuser.me/api/portraits/men/32.jpg"
+      },
+      "targetAudience": "all",
+      "category": "general",
+      "imageUrl": "https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?q=80&w=1000",
+      "tags": ["mathematics", "faculty", "new professor", "computational mathematics"],
+      "isFeatured": false,
+      "isPublished": true,
+      "publishedAt": "2025-04-20T14:30:00Z",
+      "views": 187,
+      "likes": 41,
+      "commentsCount": 7,
+      "slug": "mathematics-department-welcomes-new-faculty"
+    },
+    {
+      "_id": "news003",
+      "title": "Computer Science Students Win National Hackathon",
+      "content": "Congratulations to our Computer Science team who took first place at the National Collegiate Hackathon Challenge this weekend! Team members Alex Chen, Priya Patel, and Marcus Johnson developed an innovative mobile application that helps connect local food banks with donors in real-time. The team worked for 48 straight hours to create the fully functional app that impressed judges with its technical implementation and social impact. They received a $10,000 prize and an opportunity to present at the upcoming Tech for Good conference.",
+      "excerpt": "Our CS students won the National Hackathon with their food bank app",
+      "author": {
+        "_id": "user125",
+        "name": "Prof. Alan Turing",
+        "profilePic": "https://randomuser.me/api/portraits/men/41.jpg"
+      },
+      "targetAudience": "all",
+      "category": "achievement",
+      "imageUrl": "https://images.unsplash.com/photo-1591522810850-58128c5fb089?q=80&w=1000",
+      "tags": ["computer science", "hackathon", "achievement", "students", "technology"],
+      "isFeatured": true,
+      "isPublished": true,
+      "publishedAt": "2025-04-22T10:15:00Z",
+      "views": 312,
+      "likes": 97,
+      "commentsCount": 24,
+      "slug": "computer-science-students-win-national-hackathon"
+    },
+    {
+      "_id": "news004",
+      "title": "Spring Arts Festival Schedule Announced",
+      "content": "The Department of Fine Arts is pleased to announce the schedule for this year's Spring Arts Festival. The festival will run from May 10-17 and will feature student exhibitions in painting, sculpture, photography, and digital media. Live performances including theater, dance, and music will be held throughout the week. Visiting artists from around the country will conduct workshops and give presentations. The festival will conclude with the annual Alumni Showcase highlighting the work of our distinguished graduates.",
+      "excerpt": "Join us May 10-17 for exhibitions, performances, and workshops at the Spring Arts Festival",
+      "author": {
+        "_id": "user126",
+        "name": "Dr. Emily Wong",
+        "profilePic": "https://randomuser.me/api/portraits/women/22.jpg"
+      },
+      "targetAudience": "all",
+      "category": "event",
+      "imageUrl": "https://images.unsplash.com/photo-1603228254119-e6a4d095dc59?q=80&w=1000",
+      "tags": ["arts", "festival", "exhibition", "performances", "schedule"],
+      "isFeatured": false,
+      "isPublished": true,
+      "publishedAt": "2025-04-18T13:00:00Z",
+      "views": 203,
+      "likes": 38,
+      "commentsCount": 9,
+      "slug": "spring-arts-festival-schedule-announced"
+    },
+    {
+      "_id": "news005",
+      "title": "Changes to Campus Parking Regulations",
+      "content": "The Facilities Management Office would like to inform all students, faculty, and staff about important changes to campus parking regulations effective May 1, 2025. The west parking lot will be converted to faculty-only parking, while the north lot will now allow student parking with valid permits. Visitor parking fees will increase to $5 per hour with a daily maximum of $20. Electric vehicle charging stations have been added to the east and south lots, available for a nominal fee. Please update your parking permits at the transportation office before the end of April.",
+      "excerpt": "Important changes to campus parking locations and fees starting May 1",
+      "author": {
+        "_id": "user127",
+        "name": "Michael Davidson",
+        "profilePic": "https://randomuser.me/api/portraits/men/66.jpg"
+      },
+      "targetAudience": "all",
+      "category": "announcement",
+      "imageUrl": "https://images.unsplash.com/photo-1590674668114-9e9610f34404?q=80&w=1000",
+      "tags": ["parking", "campus", "regulations", "facilities"],
+      "isFeatured": false,
+      "isPublished": true,
+      "publishedAt": "2025-04-12T08:45:00Z",
+      "views": 278,
+      "likes": 14,
+      "commentsCount": 31,
+      "slug": "changes-to-campus-parking-regulations"
+    }
+  ]
+}

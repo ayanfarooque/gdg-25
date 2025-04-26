@@ -14,7 +14,7 @@ const Header = ({ title }) => {
   return (
     <>
       {/* Main Header */}
-      <header className="fixed top-0 left-0 right-0 z-30 bg-[#49ABB0] bg-opacity-50 backdrop-blur-md shadow-lg p-4 flex justify-between items-center">
+      <header className="fixed top-0 left-0 right-0 z-30 bg-gradient-to-r from-teal-500 to-teal-400 bg-opacity-50 backdrop-blur-md shadow-lg p-4 flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-100">E-LEARNING</h1>
         <div 
           className="text-teal-600 text-3xl cursor-pointer hover:opacity-80 transition-opacity"

@@ -1,0 +1,166 @@
+{
+  "resourcesData": [
+    {
+      "_id": "res001",
+      "title": "Advanced Calculus: Complete Chapter 5 Notes",
+      "description": "Comprehensive lecture notes covering advanced calculus concepts including limits, derivatives, integrals, and series with detailed examples and practice problems.",
+      "classroom": "cls101",
+      "uploadedBy": {
+        "_id": "user123",
+        "name": "Dr. Sarah Johnson",
+        "profilePic": "https://randomuser.me/api/portraits/women/44.jpg"
+      },
+      "file": {
+        "url": "https://example.com/files/math_notes.pdf",
+        "name": "Advanced_Calculus_Ch5.pdf",
+        "size": 3145728,
+        "type": "pdf",
+        "mimeType": "application/pdf",
+        "thumbnailUrl": "https://via.placeholder.com/100x140?text=PDF"
+      },
+      "tags": ["calculus", "mathematics", "chapter 5", "lecture notes"],
+      "downloads": 125,
+      "views": 342,
+      "accessLevel": "class",
+      "metadata": {
+        "subject": "Mathematics",
+        "topic": "Advanced Calculus",
+        "language": "en"
+      },
+      "averageRating": 4.8,
+      "createdAt": "2025-01-15T08:30:00Z",
+      "status": "published"
+    },
+    {
+      "_id": "res002",
+      "title": "Chemistry Lab: Acid-Base Titration Experiment",
+      "description": "Video demonstration of acid-base titration experiment with step-by-step instructions, safety procedures, and expected results analysis.",
+      "classroom": "cls102",
+      "uploadedBy": {
+        "_id": "user124",
+        "name": "Prof. Michael Chen",
+        "profilePic": "https://randomuser.me/api/portraits/men/32.jpg"
+      },
+      "file": {
+        "url": "https://example.com/files/chem_lab_video.mp4",
+        "name": "Acid_Base_Titration_Demo.mp4",
+        "size": 157286400,
+        "type": "video",
+        "mimeType": "video/mp4",
+        "thumbnailUrl": "https://via.placeholder.com/160x90?text=Video",
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        },
+        "duration": 1845
+      },
+      "tags": ["chemistry", "lab experiment", "titration", "acid-base"],
+      "downloads": 87,
+      "views": 256,
+      "accessLevel": "class",
+      "metadata": {
+        "subject": "Chemistry",
+        "topic": "Acid-Base Reactions",
+        "language": "en"
+      },
+      "averageRating": 4.5,
+      "createdAt": "2025-02-03T14:15:00Z",
+      "status": "published"
+    },
+    {
+      "_id": "res003",
+      "title": "Introduction to JavaScript Programming",
+      "description": "Comprehensive slide deck covering JavaScript fundamentals, including variables, functions, objects, and DOM manipulation with code examples.",
+      "classroom": "cls103",
+      "uploadedBy": {
+        "_id": "user125",
+        "name": "Prof. Alan Turing",
+        "profilePic": "https://randomuser.me/api/portraits/men/41.jpg"
+      },
+      "file": {
+        "url": "https://example.com/files/js_intro_slides.pptx",
+        "name": "JavaScript_Introduction.pptx",
+        "size": 5242880,
+        "type": "presentation",
+        "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "thumbnailUrl": "https://via.placeholder.com/160x90?text=Slides"
+      },
+      "tags": ["javascript", "programming", "web development", "coding"],
+      "downloads": 210,
+      "views": 389,
+      "accessLevel": "public",
+      "metadata": {
+        "subject": "Computer Science",
+        "topic": "Web Programming",
+        "language": "en"
+      },
+      "averageRating": 4.9,
+      "createdAt": "2025-01-20T10:45:00Z",
+      "status": "published",
+      "isFeatured": true
+    },
+    {
+      "_id": "res004",
+      "title": "World Literature: Analysis of Classic Novels",
+      "description": "Research paper exploring themes, character development, and literary techniques in five classic novels from different cultural contexts.",
+      "classroom": "cls104",
+      "uploadedBy": {
+        "_id": "user126",
+        "name": "Dr. Emily Wong",
+        "profilePic": "https://randomuser.me/api/portraits/women/22.jpg"
+      },
+      "file": {
+        "url": "https://example.com/files/lit_analysis.docx",
+        "name": "Classic_Literature_Analysis.docx",
+        "size": 2097152,
+        "type": "document",
+        "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "thumbnailUrl": "https://via.placeholder.com/100x140?text=DOC"
+      },
+      "tags": ["literature", "novels", "analysis", "research paper"],
+      "downloads": 78,
+      "views": 145,
+      "accessLevel": "class",
+      "metadata": {
+        "subject": "Literature",
+        "topic": "Classic Novels",
+        "language": "en"
+      },
+      "averageRating": 4.3,
+      "createdAt": "2025-02-14T16:20:00Z",
+      "status": "published"
+    },
+    {
+      "_id": "res005",
+      "title": "Physics: Laws of Motion Simulation",
+      "description": "Interactive simulation demonstrating Newton's three laws of motion with adjustable parameters and real-time graphs.",
+      "classroom": "cls105",
+      "uploadedBy": {
+        "_id": "user127",
+        "name": "Prof. Richard Feynman",
+        "profilePic": "https://randomuser.me/api/portraits/men/66.jpg"
+      },
+      "file": {
+        "url": "https://example.com/files/physics_simulation.html",
+        "name": "Laws_of_Motion.html",
+        "size": 1048576,
+        "type": "code",
+        "mimeType": "text/html",
+        "thumbnailUrl": "https://via.placeholder.com/160x90?text=Simulation"
+      },
+      "tags": ["physics", "newton", "laws of motion", "simulation", "interactive"],
+      "downloads": 156,
+      "views": 287,
+      "accessLevel": "public",
+      "metadata": {
+        "subject": "Physics",
+        "topic": "Mechanics",
+        "language": "en"
+      },
+      "averageRating": 4.7,
+      "createdAt": "2025-01-28T09:15:00Z",
+      "status": "published",
+      "isFeatured": true
+    }
+  ]
+}
