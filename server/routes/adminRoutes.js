@@ -1,42 +1,30 @@
 const express = require('express');
+const adminController = require('../controllers/adminController.js');
+
 const router = express.Router();
-const adminController = require('../controllers/adminController');
-const { protect, admin } = require('../middleware/authMiddleware');
 
 // Student Routes
-router.route('/students')
-  .get(protect, admin, adminController.getAllStudents);
+router.get('/students', adminController.getAllStudents);
 
 // Teacher Routes
-router.route('/teachers')
-  .get(protect, admin, adminController.getAllTeachers);
+router.get('/teachers',  adminController.getAllTeachers);
 
 // Classroom Routes
-router.route('/classrooms')
-  .get(protect, admin, adminController.getAllClassrooms)
-  .post(protect, admin, adminController.createClassroom);
-
-router.route('/classrooms/:id')
-  .get(protect, admin, adminController.getClassroomById)
-  .put(protect, admin, adminController.updateClassroom)
-  .delete(protect, admin, adminController.deleteClassroom);
+router.get('/classrooms',  adminController.getAllClassrooms);
+router.post('/classrooms',  adminController.createClassroom);
+router.get('/classrooms/:id',  adminController.getClassroomById);
+router.put('/classrooms/:id',  adminController.updateClassroom);
+router.delete('/classrooms/:id',  adminController.deleteClassroom);
 
 // Classroom Student Management Routes
-router.route('/classrooms/:id/available-students')
-  .get(protect, admin, adminController.getAvailableStudents);
-
-router.route('/classrooms/:id/students')
-  .post(protect, admin, adminController.addStudentToClassroom);
-
-router.route('/classrooms/:id/students/:studentId')
-  .delete(protect, admin, adminController.removeStudentFromClassroom);
+router.get('/classrooms/:id/available-students',  adminController.getAvailableStudents);
+router.post('/classrooms/:id/students',  adminController.addStudentToClassroom);
+router.delete('/classrooms/:id/students/:studentId',  adminController.removeStudentFromClassroom);
 
 // Classroom Performance Routes
-router.route('/classrooms/:id/performance')
-  .get(protect, admin, adminController.getClassroomPerformance);
+router.get('/classrooms/:id/performance',  adminController.getClassroomPerformance);
 
 // Dashboard Routes
-router.route('/dashboard')
-  .get(protect, admin, adminController.getAdminDashboardStats);
+router.get('/dashboard',  adminController.getAdminDashboardStats);
 
 module.exports = router;

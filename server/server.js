@@ -13,6 +13,7 @@ const newsRoute = require('./routes/newsRoute.js')
 const resourceRoutes = require('./routes/resourceRoutes.js')
 const classroomRoutes = require('./routes/classroomRoutes.js')
 const submission = require('./routes/submission.js')
+const adminRoutes = require('./routes/adminRoutes.js')
 require("dotenv").config();
 console.log("JWT_SECRET:", process.env.JWT_SECRET);
 connectDB();
@@ -29,6 +30,7 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
+app.use("/api/admin",adminRoutes)
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/teachers", teacherRoutes);

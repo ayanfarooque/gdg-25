@@ -3,6 +3,8 @@ const Student = require('../models/Student.js');
 const Teacher = require('../models/Teacher.js');
 const asyncHandler = require('express-async-handler');
 const { body, validationResult } = require('express-validator');
+const ObjectId = require('mongodb').ObjectId;
+const mongoose = require('mongoose');
 
 // @desc    Get all students
 // @route   GET /api/admin/students
@@ -68,21 +70,53 @@ const getAllClassrooms = asyncHandler(async (req, res) => {
 // @desc    Get classroom details
 // @route   GET /api/admin/classrooms/:id
 // @access  Private/Admin
+// @desc    Get classroom details
+// @route   GET /api/admin/classrooms/:id
+// @access  Private/Admin
 const getClassroomById = asyncHandler(async (req, res) => {
-  const classroom = await Classroom.findById(req.params.id)
-    .populate('teacher', 'name email')
-    .populate('students', 'name email performance')
-    .populate('assignments', 'title dueDate averageScore completionRate');
+  const classroomId = req.params.id;
+  console.log('Raw ID from URL:', classroomId);
+  console.log('Is valid ObjectId?', mongoose.Types.ObjectId.isValid(classroomId));
 
-  if (!classroom || !classroom.isActive) {
-    res.status(404);
-    throw new Error('Classroom not found');
+  if (!mongoose.Types.ObjectId.isValid(classroomId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid classroom ID format"
+    });
   }
 
-  res.json({
-    success: true,
-    data: classroom
-  });
+  try {
+    // Convert to ObjectId explicitly
+    const queryId = new mongoose.Types.ObjectId(classroomId);
+    console.log('Converted ObjectId:', queryId);
+
+    const classroom = await Classroom.findOne({ _id: queryId })
+      .populate("teacher", "name email")
+      .populate("students", "name email performance")
+      .populate("assignments", "title dueDate averageScore completionRate");
+
+    console.log('Query result:', classroom);
+
+    if (!classroom) {
+      return res.status(404).json({
+        success: false,
+        message: "Classroom not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      data: classroom,
+    });
+  } catch (error) {
+    console.error("Full error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+      stack: error.stack // Only for development!
+    });
+  }
 });
 
 // @desc    Create new classroom
