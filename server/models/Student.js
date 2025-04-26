@@ -89,7 +89,10 @@ const studentSchema = new mongoose.Schema(
       }
     ],
 
-
+    course_progress: {
+      type: Number,
+      default:0,
+    },
     teachers: [
       {
         teacherId: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher" },

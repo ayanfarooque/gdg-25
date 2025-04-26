@@ -3,7 +3,7 @@ const Submission = require("../models/Submission.js");
 const Classroom = require("../models/Classroom.js");
 const { uploadToCloud, deleteFromCloud } = require("../utils/cloudinary.js");
 const AppError = require("../utils/appError.js");
-
+const Grading = require('../models/gradingSchema.js')
 // Create a new assignment
 exports.createAssignment = async (req, res, next) => {
   try {
@@ -167,22 +167,15 @@ exports.getpreviousassignments = async (req, res) => {
 exports.getsingleassignment = async (req, res) => {
   try {
     const { assignmentId } = req.params;
-    
-    // Find the assignment and populate necessary fields
+    const userId = req.user._id;
+    const userRole = req.user.role;
+
+    // Find the base assignment
     const assignment = await AssignAssignment.findById(assignmentId)
-      .populate("assignmentId")  // Assuming this is needed for some reference
-      .populate("subjectId", "name code")  // Populate subject info with only name and code
-      .populate({
-        path: "submissions",
-        match: { studentId: req.user._id },  // Only get submissions for the current student
-        populate: {
-          path: "grading",
-          populate: {
-            path: "rubric"  // If you have rubric details
-          }
-        }
-      })
-      .lean();  // Convert to plain JavaScript object
+      .populate("teacher", "name email")
+      .populate("classroom", "name grade section")
+      .populate("subjectId", "name code")
+      .lean();
 
     if (!assignment) {
       return res.status(404).json({ 
@@ -192,7 +185,35 @@ exports.getsingleassignment = async (req, res) => {
       });
     }
 
-    // Transform the data to match frontend expectations
+    // Get submission data if student
+    let submissionData = {};
+    if (userRole === "student") {
+      const submission = await Submission.findOne({
+        assignment: assignmentId,
+        student: userId
+      }).populate("grading");
+
+      if (submission) {
+        submissionData = {
+          file: submission.files?.[0]?.name || null,
+          type: submission.files?.[0]?.type || null,
+          size: submission.files?.[0]?.size || null,
+          submittedAt: submission.submittedAt,
+          comments: submission.comments
+        };
+
+        if (submission.grading) {
+          submissionData.grading = {
+            score: submission.grading.score,
+            classAverage: submission.grading.classAverage,
+            feedback: submission.grading.feedback,
+            rubric: submission.grading.rubric || []
+          };
+        }
+      }
+    }
+
+    // Construct the response
     const responseData = {
       _id: assignment._id,
       title: assignment.title,
@@ -203,29 +224,19 @@ exports.getsingleassignment = async (req, res) => {
       points: assignment.points,
       instructions: assignment.instructions,
       attachments: assignment.attachments || [],
-      createdAt: assignment.createdAt
+      createdAt: assignment.createdAt,
+      ...(userRole === "student" && { 
+        submission: submissionData.file ? submissionData : null,
+        grading: submissionData.grading || null
+      })
     };
 
-    // Add submission data if exists
-    if (assignment.submissions && assignment.submissions.length > 0) {
-      const submission = assignment.submissions[0];
-      responseData.submission = {
-        file: submission.file,
-        type: submission.fileType,
-        size: submission.fileSize,
-        submittedAt: submission.submittedAt,
-        comments: submission.comments
-      };
-
-      // Add grading data if exists
-      if (submission.grading) {
-        responseData.grading = {
-          score: submission.grading.score,
-          classAverage: submission.grading.classAverage,
-          feedback: submission.grading.feedback,
-          rubric: submission.grading.rubric || []
-        };
-      }
+    // For teachers, include all submissions count
+    if (userRole === "teacher") {
+      const submissionCount = await Submission.countDocuments({ 
+        assignment: assignmentId 
+      });
+      responseData.submissionCount = submissionCount;
     }
 
     res.status(200).json({ 
