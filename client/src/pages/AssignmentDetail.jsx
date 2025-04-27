@@ -1,5 +1,5 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import {React, useState,useEffect } from 'react';
+import { useParams, useNavigate} from 'react-router-dom';
 import Header from './Dashboardpages/Header';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -11,6 +11,22 @@ const AssignmentDetail = () => {
     const { assignmentId } = useParams();
     const navigate = useNavigate();
     
+    const [assignmentnew,setassginmetnew] = useState([])
+
+    const getsingleassignment = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/assignments/assignment/${assignmentId}`);
+            setassginmetnew(response.data.data)
+            console.log(response.data.data)
+        }catch (error) { 
+            console.error("Error fetching assignment:", error);
+        }   
+    }
+    useEffect(() => {
+        getsingleassignment()
+    },[assignmentId])
+
+
     // Dummy data - in a real app, you would fetch this based on assignmentId
     const dummyAssignments = [
         {
@@ -201,6 +217,10 @@ const AssignmentDetail = () => {
         }
     ];
     const assignment = dummyAssignments.find(a => a._id === assignmentId) || dummyAssignments[0];
+
+    //when the id issue will be fixed in the database then will replace the above line with the below line 
+    //uptill using above dummy data only 
+    // const assignment = assignmentnew.find(a => a._id === assignmentId) || assignmentnew[0];
 
     const getStatusIcon = () => {
         switch(assignment.status) {
