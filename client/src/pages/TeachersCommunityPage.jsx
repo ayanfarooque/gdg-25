@@ -34,11 +34,8 @@ const TeachersCommunityPage = () => {
     <div className="min-h-screen mt-16 ml-30">
       <FacHeader />
       <div className="container mx-auto px-4 py-6">
-        {/* Welcome Banner - Pink theme for teachers */}
-        <div className="p-6 rounded-xl bg-gradient-to-r from-pink-500 to-pink-300 text-white shadow-lg">
-          <h1 className="text-3xl font-bold mb-2">Welcome to Teachers Community</h1>
-          <p className="text-lg opacity-90">Connect with other educators, share resources, and discuss teaching methods</p>
-        </div>
+        {/* Welcome Banner - Pink theme for teachers with create post capability */}
+        <WelcomeBanner username="Teacher" themeColor="pink" userRole="teacher" />
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
           {/* Left Sidebar */}

@@ -28,8 +28,8 @@ const StudentCommunityPage = () => {
     <div className="min-h-screen mt-16 ml-30">
       <Header />
       <div className="container mx-auto px-4 py-6">
-        {/* Welcome Banner */}
-        <WelcomeBanner />
+        {/* Welcome Banner with create post capability */}
+        <WelcomeBanner themeColor="teal" userRole="student" />
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-8">
           {/* Left Sidebar */}

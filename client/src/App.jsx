@@ -39,6 +39,8 @@ import CreateClassroom from './pages/CreateClssroom';
 import AddTeacherPage from './pages/AddTeacherPage';
 import AdminSettingsPage from './pages/AdminSettingsPage';
 import ClassroomPage from './pages/ClassroomPage'
+import StudentCreatePostPage from './pages/StudentCreatePostPage';
+import TeacherCreatePostPage from './pages/TeacherCreatePostPage';
 
 const App = () => {
   const [role, setRole] = useState('');
@@ -102,6 +104,8 @@ const App = () => {
           <Route path="/admin-classrooms/:id" element={<ClassroomDetail />} />
           <Route path='/add-teacher' element={<AddTeacherPage />} />
           <Route path='/admin-settings' element={<AdminSettingsPage />} />
+          <Route path="/student-create-post" element={<StudentCreatePostPage/>} />
+          <Route path="/teacher-create-post" element={<TeacherCreatePostPage/>} />
         </Routes>
       </div>
     </div>
