@@ -1,68 +1,139 @@
 import React, { useState } from "react";
-import { newsdata } from "../assets/dumy.js";
-import { recdata } from "../assets/recommend.js";
+import resourcesJson from "../data/resources.json";
+import newsJson from "../data/news.json";
+import { formatFileSize, formatDuration, getFileIcon, getTypeBadgeColor } from "../utils/resourceUtils.js";
 import FacHeader from "../pages/Dashboardpages/facheader.jsx";
+import { useNavigate } from "react-router-dom";
+import { FiDownload, FiEye, FiStar, FiClock, FiUser, FiTag, FiFileText, FiFilm, FiCode, FiBookOpen, FiSearch, FiCalendar, FiMessageCircle, FiThumbsUp, FiInfo, FiAward, FiAlertCircle } from "react-icons/fi";
 
-// Dummy resources data
-const resourcedata = [
-  {
-    "resourceId": "RES001",
-    "resourceType": "Lecture Notes",
-    "resourceDate": "2025-02-10T10:30:00Z",
-    "resourceHeading": "Mathematics Chapter 5 Notes",
-    "resourceContent": "Complete lecture notes for Chapter 5 covering advanced calculus concepts.",
-    "resourceFile": "https://example.com/math_notes.pdf",
-    "subject": "Mathematics"
-  },
-  {
-    "resourceId": "RES002",
-    "resourceType": "Video Lecture",
-    "resourceDate": "2025-02-11T15:45:00Z",
-    "resourceHeading": "Chemistry Lab Demonstration",
-    "resourceContent": "Video demonstration of the latest chemistry lab experiment procedures.",
-    "resourceFile": "https://example.com/chem_video.mp4",
-    "subject": "Chemistry"
-  },
-  {
-    "resourceId": "RES003",
-    "resourceType": "Assignment",
-    "resourceDate": "2025-02-12T08:15:00Z",
-    "resourceHeading": "History Term Paper Guidelines",
-    "resourceContent": "Detailed guidelines and requirements for the upcoming history term paper.",
-    "resourceFile": "https://example.com/history_assign.pdf",
-    "subject": "History"
-  },
-  {
-    "resourceId": "RES004",
-    "resourceType": "Practice Test",
-    "resourceDate": "2025-02-13T12:00:00Z",
-    "resourceHeading": "Physics Practice Problems",
-    "resourceContent": "Collection of practice problems for the upcoming physics midterm exam.",
-    "resourceFile": "https://example.com/physics_test.pdf",
-    "subject": "Physics"
-  },
-  {
-    "resourceId": "RES005",
-    "resourceType": "Reference Book",
-    "resourceDate": "2025-02-14T09:30:00Z",
-    "resourceHeading": "Literature Reading List",
-    "resourceContent": "Recommended reading list for the modern literature course.",
-    "resourceFile": "https://example.com/literature_books.pdf",
-    "subject": "Literature"
-  }
-]
+const FacResource = () => {
+  const [resources] = useState(resourcesJson.resourcesData);
+  const [news] = useState(newsJson.newsData);
+  const [showNews, setShowNews] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
+  const navigate = useNavigate();
 
-const ResourcePage = () => {
-  const [news] = useState(newsdata);
-  const [rec] = useState(recdata);
-  const [resources] = useState(resourcedata);
-  const [showNews, setShowNews] = useState(true); // Toggle state
+  // Filter resources by subject
+  const filterResources = () => {
+    let filtered = resources;
+    
+    // Apply search filter if search term exists
+    if (searchTerm) {
+      filtered = filtered.filter(resource => 
+        resource.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        resource.metadata.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        resource.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    
+    // Apply subject filter
+    if (activeFilter !== "all") {
+      filtered = filtered.filter(resource => 
+        resource.metadata.subject.toLowerCase() === activeFilter.toLowerCase()
+      );
+    }
+    
+    return filtered;
+  };
+
+  // Filter news by category
+  const filterNews = () => {
+    let filtered = news;
+    
+    // Apply search filter if search term exists
+    if (searchTerm) {
+      filtered = filtered.filter(item => 
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        item.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    
+    // Apply category filter
+    if (activeFilter !== "all") {
+      filtered = filtered.filter(item => 
+        item.category.toLowerCase() === activeFilter.toLowerCase()
+      );
+    }
+    
+    return filtered;
+  };
+
+  // Get unique subjects for resource filter
+  const getSubjects = () => {
+    const subjects = new Set(resources.map(resource => resource.metadata.subject));
+    return ["all", ...subjects];
+  };
+
+  // Get unique categories for news filter
+  const getCategories = () => {
+    const categories = new Set(news.map(item => item.category));
+    return ["all", ...categories];
+  };
+
+  // Get category badge color
+  const getCategoryBadgeColor = (category) => {
+    const colors = {
+      announcement: "bg-blue-100 text-blue-800",
+      event: "bg-purple-100 text-purple-800",
+      achievement: "bg-green-100 text-green-800",
+      general: "bg-gray-100 text-gray-800",
+      academic: "bg-yellow-100 text-yellow-800"
+    };
+    return colors[category] || colors.general;
+  };
+
+  // Get category icon
+  const getCategoryIcon = (category) => {
+    const icons = {
+      announcement: <FiInfo />,
+      event: <FiCalendar />,
+      achievement: <FiAward />,
+      general: <FiAlertCircle />,
+      academic: <FiBookOpen />
+    };
+    return icons[category] || <FiInfo />;
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Render star rating
+  const renderStarRating = (rating) => {
+    return (
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <FiStar 
+            key={i} 
+            className={`w-4 h-4 ${i < Math.floor(rating) ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}`} 
+          />
+        ))}
+        <span className="ml-1 text-sm text-gray-600">({rating})</span>
+      </div>
+    );
+  };
+
+  // Get icon component based on file type
+  const getTypeIcon = (type) => {
+    const icons = {
+      document: <FiFileText />,
+      video: <FiFilm />,
+      pdf: <FiBookOpen />,
+      code: <FiCode />
+    };
+    return icons[type] || <FiFileText />;
+  };
 
   return (
-    <div className="flex flex-col items-center min-h-screen w-full bg-[#ECE7CA] p-6">
-      <FacHeader/>
+    <div className="flex flex-col items-center min-h-screen w-full bg-[#ECE7CA] p-6 ml-10">
+      <FacHeader />
       <div className="pt-10 mt-10 w-full max-w-7xl">
-        {/* Toggle Switch */}
+        {/* Toggle between News and Resources */}
         <div className="flex justify-center mb-8">
           <div className="inline-flex items-center bg-white rounded-full p-1 shadow-md">
             <button
@@ -81,174 +152,290 @@ const ResourcePage = () => {
         </div>
 
         {showNews ? (
-          <div className="flex flex-row gap-x-12">
-            {/* News Section */}
-            <div className="flex-1">
-              <div className="flex flex-row items-center justify-between mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">📰 Latest News</h1>
+          /* News Section - Enhanced Design */
+          <>
+            {/* Search and Filter Bar for News */}
+            <div className="flex flex-col md:flex-row items-center justify-between mb-8 bg-white p-4 rounded-lg shadow-md">
+              <div className="relative w-full md:w-1/3 mb-4 md:mb-0">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiSearch className="text-gray-600" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search news..."
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49ABB0] text-gray-700"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {news.length > 0 ? (
-                  news.map((item) => (
-                    <div
-                      key={item._id}
-                      className="bg-[#F5F5DD] text-black shadow-lg rounded-lg p-5 transition-transform hover:scale-[1.02] duration-300"
-                    >
-                      <h2 className="text-xl font-semibold text-gray-900">{item.newsHeading}</h2>
-                      <p className="text-sm text-gray-600 mt-2">{item.newsContent}</p>
-
-                      {item.newsImage && (
-                        <div className="mt-3 flex justify-center">
-                          <img
-                            src={item.newsImage}
-                            alt="News"
-                            className="w-full max-h-60 object-cover rounded-lg"
-                          />
-                        </div>
-                      )}
-
-                      <p className="text-xs text-gray-400 mt-3">
-                        🗓 Published on: {new Date(item.newsDate).toLocaleDateString()}
-                      </p>
-
-                      <div className="mt-4 flex justify-end">
-                        <a
-                          href={`/news/${item.newsId}`}
-                          className="text-white bg-blue-500 px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-300"
-                        >
-                          Read More →
-                        </a>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-center text-lg">No news available</p>
-                )}
+              <div className="flex flex-wrap gap-2 justify-center">
+                {getCategories().map(category => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveFilter(category)}
+                    className={`px-4 py-1.5 text-sm rounded-full transition-colors ${
+                      activeFilter === category 
+                        ? 'bg-[#E195AB] text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </button>
+                ))}
               </div>
             </div>
-
-            {/* Recommended Section */}
-            <div className="w-80 flex-shrink-0">
-              <div className="bg-[#E195AB] p-5 rounded-[25px] sticky top-6">
-                <h1 className="text-2xl text-center font-bold text-gray-800 mb-6">Recommended</h1>
-                {rec.length > 0 ? (
-                  rec.map((item) => (
-                    <div
-                      key={item._id}
-                      className="bg-[#F5F5DD] text-black shadow-lg rounded-lg p-5 mb-6 transition-transform hover:scale-[1.02] duration-300"
-                    >
-                      <h2 className="text-xl font-semibold text-gray-900">{item.newsHeading}</h2>
-                      <p className="text-sm text-gray-600 mt-2">{item.newsContent}</p>
-
-                      {item.newsImage && (
-                        <div className="mt-3 flex justify-center">
-                          <img
-                            src={item.newsImage}
-                            alt="News"
-                            className="w-full max-h-60 object-cover rounded-lg"
-                          />
-                        </div>
-                      )}
-
-                      <p className="text-xs text-gray-400 mt-3">
-                        🗓 Published on: {new Date(item.newsDate).toLocaleDateString()}
-                      </p>
-
-                      <div className="mt-4 flex justify-end">
-                        <a
-                          href={`/news/${item.newsId}`}
-                          className="text-white bg-blue-500 px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-300"
-                        >
-                          Read More →
-                        </a>
+            
+            {/* News Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filterNews().map((item) => (
+                <div key={item._id} className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 text-gray-900">
+                  {/* News Image */}
+                  <div className="relative">
+                    <img 
+                      src={item.imageUrl || "https://via.placeholder.com/600x300?text=No+Image"} 
+                      alt={item.title} 
+                      className="w-full h-48 object-cover"
+                    />
+                    {item.isFeatured && (
+                      <div className="absolute top-2 left-2 bg-yellow-400 text-xs font-bold px-2 py-1 rounded">
+                        Featured
+                      </div>
+                    )}
+                    <div className={`absolute top-2 right-2 ${getCategoryBadgeColor(item.category)} text-xs font-bold px-2 py-1 rounded flex items-center`}>
+                      {getCategoryIcon(item.category)}
+                      <span className="ml-1 uppercase">{item.category}</span>
+                    </div>
+                  </div>
+                  
+                  {/* News Content */}
+                  <div className="p-5">
+                    <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">{item.title}</h2>
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-3">{item.excerpt || item.content}</p>
+                    
+                    {/* Author & Date */}
+                    <div className="mt-4 flex items-center">
+                      <img 
+                        src={item.author.profilePic || "https://via.placeholder.com/40?text=User"} 
+                        alt={item.author.name}
+                        className="w-8 h-8 rounded-full mr-2"
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{item.author.name}</p>
+                        <p className="text-xs text-gray-500">
+                          <FiCalendar className="inline mr-1" />
+                          {formatDate(item.publishedAt)}
+                        </p>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-center text-lg">No recommended news</p>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-row gap-x-12">
-            {/* Resources Section */}
-            <div className="flex-1">
-              <div className="flex flex-row items-center justify-between mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">📚 Teaching Resources</h1>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {resources.length > 0 ? (
-                  resources.map((item) => (
-                    <div
-                      key={item.resourceId}
-                      className="bg-[#F5F5DD] text-black shadow-lg rounded-lg p-5 transition-transform hover:scale-[1.02] duration-300"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h2 className="text-xl font-semibold text-gray-900">{item.resourceHeading}</h2>
-                          <span className="inline-block text-black bg-[#E195AB] bg-opacity-20  text-xs px-2 py-1 rounded-full mt-1">
-                            {item.resourceType}
-                          </span>
-                        </div>
-                        <span className="bg-[#E195AB] bg-opacity-20 text-black text-xs px-2 py-1 rounded-full">
-                          {item.subject}
+                    
+                    {/* Tags */}
+                    <div className="mt-4 flex flex-wrap gap-1">
+                      {item.tags.slice(0, 3).map((tag, index) => (
+                        <span key={index} className="inline-flex items-center px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded-full">
+                          <FiTag className="mr-1 w-3 h-3" />
+                          {tag}
                         </span>
+                      ))}
+                      {item.tags.length > 3 && (
+                        <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded-full">
+                          +{item.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Engagement Stats & Action */}
+                    <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
+                      <div className="flex items-center space-x-3 text-sm text-gray-600">
+                        <div className="flex items-center">
+                          <FiEye className="mr-1" />
+                          {item.views}
+                        </div>
+                        <div className="flex items-center">
+                          <FiThumbsUp className="mr-1" />
+                          {item.likes}
+                        </div>
+                        <div className="flex items-center">
+                          <FiMessageCircle className="mr-1" />
+                          {item.commentsCount}
+                        </div>
                       </div>
                       
-                      <p className="text-sm text-gray-600 mt-2">{item.resourceContent}</p>
+                      <button
+                        onClick={() => navigate(`/news/${item.slug}`)}
+                        className="inline-flex items-center bg-[#E195AB] text-white px-4 py-2 rounded hover:bg-[#3a8a8e] transition-colors"
+                      >
+                        Read More
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* No Results Message for News */}
+            {filterNews().length === 0 && (
+              <div className="bg-white p-8 rounded-lg shadow text-center">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-xl font-semibold mb-2">No news found</h3>
+                <p className="text-gray-600">
+                  Try adjusting your search or filter criteria
+                </p>
+              </div>
+            )}
+          </>
+        ) : (
+          /* Resources Section - Enhanced Design */
+          <>
+            {/* Search and Filter Bar for Resources */}
+            <div className="flex flex-col md:flex-row items-center justify-between mb-8 bg-white p-4 rounded-lg shadow-md">
+              <div className="relative w-full md:w-1/3 mb-4 md:mb-0">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiSearch className="text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search resources..."
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49ABB0] text-gray-700"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              
+              <div className="flex flex-wrap gap-2 justify-center">
+                {getSubjects().map(subject => (
+                  <button
+                    key={subject}
+                    onClick={() => setActiveFilter(subject)}
+                    className={`px-4 py-1.5 text-sm rounded-full transition-colors ${
+                      activeFilter === subject 
+                        ? 'bg-[#E195AB] text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {subject.charAt(0).toUpperCase() + subject.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                      <p className="text-xs text-gray-400 mt-3">
-                        🗓 Uploaded on: {new Date(item.resourceDate).toLocaleDateString()}
-                      </p>
-
-                      <div className="mt-4 flex justify-between items-center">
-                        <a
-                          href={item.resourceFile}
-                          className="text-white bg-[#E195AB] px-4 py-2 rounded-md shadow-md hover:bg-[#3a8a8f] transition duration-300"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Download File
-                        </a>
-                        <button className="text-[#E195AB] hover:text-[#c97f96]">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                          </svg>
-                        </button>
+            {/* Resource Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filterResources().map((resource) => (
+                <div key={resource._id} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  {/* Card Header with Thumbnail */}
+                  <div className="relative">
+                    <img 
+                      src={resource.file.thumbnailUrl || "https://via.placeholder.com/400x225?text=No+Preview"} 
+                      alt={resource.title}
+                      className="w-full h-48 object-cover"
+                    />
+                    {resource.isFeatured && (
+                      <div className="absolute top-2 left-2 bg-yellow-400 text-xs font-bold px-2 py-1 rounded">
+                        Featured
+                      </div>
+                    )}
+                    <div className={`absolute top-2 right-2 ${getTypeBadgeColor(resource.file.type)} text-xs font-bold px-2 py-1 rounded flex items-center`}>
+                      {getTypeIcon(resource.file.type)}
+                      <span className="ml-1 uppercase">{resource.file.type}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Card Content */}
+                  <div className="p-5">
+                    <h2 className="text-lg font-semibold text-gray-900 line-clamp-2">{resource.title}</h2>
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-3">{resource.description}</p>
+                    
+                    {/* Metadata */}
+                    <div className="mt-4 space-y-2">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <FiUser className="mr-2 text-[#49ABB0]" />
+                        <span>{resource.uploadedBy.name}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <FiBookOpen className="mr-2 text-[#49ABB0]" />
+                        <span>{resource.metadata.subject} • {resource.metadata.topic}</span>
+                      </div>
+                      {resource.file.duration && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <FiClock className="mr-2 text-[#49ABB0]" />
+                          <span>Duration: {formatDuration(resource.file.duration)}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Tags */}
+                    <div className="mt-4 flex flex-wrap gap-1">
+                      {resource.tags.slice(0, 3).map((tag, index) => (
+                        <span key={index} className="inline-flex items-center px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded-full">
+                          <FiTag className="mr-1 w-3 h-3" />
+                          {tag}
+                        </span>
+                      ))}
+                      {resource.tags.length > 3 && (
+                        <span className="inline-flex items-center px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded-full">
+                          +{resource.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {/* Divider */}
+                    <div className="border-t border-gray-200 mt-4 pt-4">
+                      <div className="flex items-center justify-between">
+                        {/* Rating */}
+                        <div>
+                          {renderStarRating(resource.averageRating)}
+                        </div>
+                        
+                        {/* Stats */}
+                        <div className="flex items-center space-x-3 text-sm text-gray-600">
+                          <div className="flex items-center">
+                            <FiEye className="mr-1" />
+                            {resource.views}
+                          </div>
+                          <div className="flex items-center">
+                            <FiDownload className="mr-1" />
+                            {resource.downloads}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-gray-500 text-center text-lg">No resources available</p>
-                )}
-              </div>
-            </div>
-
-            {/* Recommended Section - Empty for resources view */}
-            <div className="w-80 flex-shrink-0">
-              <div className="bg-[#E195AB] p-5 rounded-[25px] sticky top-6">
-                <h1 className="text-2xl text-black text-center font-bold  mb-6">Quick Links</h1>
-                <div className="space-y-4 text-black">
-                  <a href="#" className="block  bg-[#F5F5DD] p-3 rounded-lg hover:bg-opacity-90 transition">
-                    <p className="font-medium">Upload New Resource</p>
-                  </a>
-                  <a href="#" className="block bg-[#F5F5DD] p-3 rounded-lg hover:bg-opacity-90 transition">
-                    <p className="font-medium">Resource Guidelines</p>
-                  </a>
-                  <a href="#" className="block bg-[#F5F5DD] p-3 rounded-lg hover:bg-opacity-90 transition">
-                    <p className="font-medium">Shared Resources</p>
-                  </a>
+                    
+                    {/* Card Footer */}
+                    <div className="mt-4 flex justify-between items-center">
+                      <span className="text-xs text-gray-500">
+                        {formatFileSize(resource.file.size)}
+                      </span>
+                      <a 
+                        href={resource.file.url} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center bg-[#E195AB] text-white px-4 py-2 rounded hover:bg-[#3a8a8e] transition-colors"
+                      >
+                        <FiDownload className="mr-2" />
+                        Download
+                      </a>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
+            
+            {/* No Results Message for Resources */}
+            {filterResources().length === 0 && (
+              <div className="bg-white p-8 rounded-lg shadow text-center">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-xl font-semibold mb-2">No resources found</h3>
+                <p className="text-gray-600">
+                  Try adjusting your search or filter criteria
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
   );
 };
 
-export default ResourcePage;
+export default FacResource;

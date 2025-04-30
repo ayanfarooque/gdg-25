@@ -158,12 +158,12 @@ const ResourcePage = () => {
             <div className="flex flex-col md:flex-row items-center justify-between mb-8 bg-white p-4 rounded-lg shadow-md">
               <div className="relative w-full md:w-1/3 mb-4 md:mb-0">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiSearch className="text-gray-400" />
+                  <FiSearch className="text-gray-600" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search news..."
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49ABB0]"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49ABB0] text-gray-700"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -189,7 +189,7 @@ const ResourcePage = () => {
             {/* News Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filterNews().map((item) => (
-                <div key={item._id} className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div key={item._id} className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 text-gray-900">
                   {/* News Image */}
                   <div className="relative">
                     <img 
@@ -296,7 +296,7 @@ const ResourcePage = () => {
                 <input
                   type="text"
                   placeholder="Search resources..."
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49ABB0]"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#49ABB0] text-gray-700"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
