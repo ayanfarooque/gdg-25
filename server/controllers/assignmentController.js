@@ -164,11 +164,104 @@ exports.getpreviousassignments = async (req, res) => {
 };
 
 // Fetch a single assignment
+// exports.getsingleassignment = async (req, res) => {
+//   try {
+//     const { assignmentId } = req.params;
+//     const userId = req.user._id;
+//     const userRole = req.user.role;
+
+//     // Find the base assignment
+//     const assignment = await AssignAssignment.findById(assignmentId)
+//       .populate("teacher", "name email")
+//       .populate("classroom", "name grade section")
+//       .populate("subjectId", "name code")
+//       .lean();
+
+//     if (!assignment) {
+//       return res.status(404).json({ 
+//         success: false, 
+//         message: "Assignment not found",
+//         data: null
+//       });
+//     }
+
+//     // Get submission data if student
+//     let submissionData = {};
+//     if (userRole === "student") {
+//       const submission = await Submission.findOne({
+//         assignment: assignmentId,
+//         student: userId
+//       }).populate("grading");
+
+//       if (submission) {
+//         submissionData = {
+//           file: submission.files?.[0]?.name || null,
+//           type: submission.files?.[0]?.type || null,
+//           size: submission.files?.[0]?.size || null,
+//           submittedAt: submission.submittedAt,
+//           comments: submission.comments
+//         };
+
+//         if (submission.grading) {
+//           submissionData.grading = {
+//             score: submission.grading.score,
+//             classAverage: submission.grading.classAverage,
+//             feedback: submission.grading.feedback,
+//             rubric: submission.grading.rubric || []
+//           };
+//         }
+//       }
+//     }
+
+//     // Construct the response
+//     const responseData = {
+//       _id: assignment._id,
+//       title: assignment.title,
+//       description: assignment.description,
+//       subjectId: assignment.subjectId || { name: "N/A", code: "" },
+//       dueDate: assignment.dueDate,
+//       status: assignment.status,
+//       points: assignment.points,
+//       instructions: assignment.instructions,
+//       attachments: assignment.attachments || [],
+//       createdAt: assignment.createdAt,
+//       ...(userRole === "student" && { 
+//         submission: submissionData.file ? submissionData : null,
+//         grading: submissionData.grading || null
+//       })
+//     };
+
+//     // For teachers, include all submissions count
+//     if (userRole === "teacher") {
+//       const submissionCount = await Submission.countDocuments({ 
+//         assignment: assignmentId 
+//       });
+//       responseData.submissionCount = submissionCount;
+//     }
+
+//     res.status(200).json({ 
+//       success: true, 
+//       message: "Assignment retrieved successfully",
+//       data: responseData 
+//     });
+
+//   } catch (error) {
+//     console.error("Error fetching assignment:", error.message);
+//     res.status(500).json({ 
+//       success: false, 
+//       message: "Internal server error while fetching assignment",
+//       error: process.env.NODE_ENV === 'development' ? error.message : undefined
+//     });
+//   }
+// };
+
 exports.getsingleassignment = async (req, res) => {
   try {
     const { assignmentId } = req.params;
-    const userId = req.user._id;
-    const userRole = req.user.role;
+
+    // TEMPORARY: Skip user-based logic
+    // const userId = req.user._id;
+    // const userRole = req.user.role;
 
     // Find the base assignment
     const assignment = await AssignAssignment.findById(assignmentId)
@@ -178,42 +271,24 @@ exports.getsingleassignment = async (req, res) => {
       .lean();
 
     if (!assignment) {
-      return res.status(404).json({ 
-        success: false, 
+      return res.status(404).json({
+        success: false,
         message: "Assignment not found",
         data: null
       });
     }
 
-    // Get submission data if student
-    let submissionData = {};
-    if (userRole === "student") {
-      const submission = await Submission.findOne({
-        assignment: assignmentId,
-        student: userId
-      }).populate("grading");
+    // Skip student submission logic for now
+    // let submissionData = {};
+    // if (userRole === "student") {
+    //   const submission = await Submission.findOne({
+    //     assignment: assignmentId,
+    //     student: userId
+    //   }).populate("grading");
+    //   ...
+    // }
 
-      if (submission) {
-        submissionData = {
-          file: submission.files?.[0]?.name || null,
-          type: submission.files?.[0]?.type || null,
-          size: submission.files?.[0]?.size || null,
-          submittedAt: submission.submittedAt,
-          comments: submission.comments
-        };
-
-        if (submission.grading) {
-          submissionData.grading = {
-            score: submission.grading.score,
-            classAverage: submission.grading.classAverage,
-            feedback: submission.grading.feedback,
-            rubric: submission.grading.rubric || []
-          };
-        }
-      }
-    }
-
-    // Construct the response
+    // Construct response
     const responseData = {
       _id: assignment._id,
       title: assignment.title,
@@ -224,37 +299,25 @@ exports.getsingleassignment = async (req, res) => {
       points: assignment.points,
       instructions: assignment.instructions,
       attachments: assignment.attachments || [],
-      createdAt: assignment.createdAt,
-      ...(userRole === "student" && { 
-        submission: submissionData.file ? submissionData : null,
-        grading: submissionData.grading || null
-      })
+      teacher: assignment.teacher,
+      classroom: assignment.classroom
+      // submission: submissionData // omit for now
     };
 
-    // For teachers, include all submissions count
-    if (userRole === "teacher") {
-      const submissionCount = await Submission.countDocuments({ 
-        assignment: assignmentId 
-      });
-      responseData.submissionCount = submissionCount;
-    }
-
-    res.status(200).json({ 
-      success: true, 
-      message: "Assignment retrieved successfully",
-      data: responseData 
+    return res.status(200).json({
+      success: true,
+      message: "Assignment fetched successfully",
+      data: responseData
     });
-
-  } catch (error) {
-    console.error("Error fetching assignment:", error.message);
-    res.status(500).json({ 
-      success: false, 
-      message: "Internal server error while fetching assignment",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+  } catch (err) {
+    console.error("Error getting assignment:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      data: null
     });
   }
 };
-
 // Fetch submissions for a specific student
 exports.getStudentSubmissions = async (req, res) => {
   try {
