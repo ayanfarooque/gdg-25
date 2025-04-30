@@ -744,7 +744,7 @@ const TeacherAssignment = () => {
 
               {/* Grading Rubric */}
               {submissions.filter(s => s.grading?.rubric).length > 0 && (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden ml-32 mt-5">
                   <div className="bg-gradient-to-r from-[#E195AB] to-[#49ABB0] p-4">
                     <h2 className="text-xl font-bold text-white">GRADING RUBRIC</h2>
                   </div>

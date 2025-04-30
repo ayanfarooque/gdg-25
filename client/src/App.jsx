@@ -86,7 +86,7 @@ const App = () => {
           <Route path='/authstudent' element={<StudentAuth />}/>
           <Route path='/authteacher' element={<TeacherAuth />}/>
           <Route path='/facchat' element={<FacChatbot />}/>
-          <Route path='/createassignment' element={<AssignmentCreation />}/>
+          <Route path='/createassignment' element={<AssignmentCreation />} />
           <Route path='/viewall' element={<ViewAll/>}/>
           <Route path="/assignments/:assignmentId" element={<AssignmentDetail />}/>
           <Route path="/test-performance/:testCode" element={<TestPerformance />}/>
