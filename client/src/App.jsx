@@ -27,6 +27,7 @@ import TestPerformance from './pages/TestPerformance';
 import DetailedReview from './pages/DetailedReview';
 import StudentClassroom from './pages/StudentClassroom';
 import TeacherClassroom from './pages/TeacherClassroom';
+import TeacherClassroomDetails from './pages/TeacherClassroomDetails';
 import AITestCreator from './pages/AITestCreator';
 import AIGradeCardGenerator from './pages/AIGradeCardGenerator';
 import AdminAuth from './pages/tssisu/AdminAuth';
@@ -93,6 +94,7 @@ const App = () => {
           <Route path='/student-classroom' element={<StudentClassroom />} />
           <Route path='student-classroom/:id' element={<ClassroomPage/>} />
           <Route path='/teacher-classroom' element={<TeacherClassroom />} />
+          <Route path='/teacher-classroom-details/:id' element={<TeacherClassroomDetails />} />
           <Route path='/create-test' element={<AITestCreator />} />
           <Route path='/generate-reportcard' element={<AIGradeCardGenerator />} />
           <Route path='/authadmin' element={<AdminAuth />} />

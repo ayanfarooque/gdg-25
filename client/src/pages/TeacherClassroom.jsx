@@ -1,80 +1,117 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import FacHeader from './Dashboardpages/facheader';
+import axios from 'axios';
 
 const TeacherClassroom = () => {
-  const [activeTab, setActiveTab] = useState('students');
+  const [activeTab, setActiveTab] = useState('classes');
   const [showCreateAssignment, setShowCreateAssignment] = useState(false);
   const [expandedStudent, setExpandedStudent] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate()
-  // Sample data
-  const studentList = [
-    { 
-      id: 1, 
-      name: "John Doe", 
-      email: "john@example.com", 
-      submissions: 8, 
-      avgScore: 85,
-      attendance: "95%",
-      lastSubmission: "2023-11-15",
-      performanceTrend: "up",
-      avatar: "JD"
-    },
-    { 
-      id: 2, 
-      name: "Jane Smith", 
-      email: "jane@example.com", 
-      submissions: 7, 
-      avgScore: 92,
-      attendance: "98%",
-      lastSubmission: "2023-11-18",
-      performanceTrend: "up",
-      avatar: "JS"
-    },
-    { 
-      id: 3, 
-      name: "Alex Johnson", 
-      email: "alex@example.com", 
-      submissions: 5, 
-      avgScore: 78,
-      attendance: "88%",
-      lastSubmission: "2023-11-12",
-      performanceTrend: "down",
-      avatar: "AJ"
+  const [classrooms, setClassrooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showCreateClassroom, setShowCreateClassroom] = useState(false);
+  const [newClassroom, setNewClassroom] = useState({
+    name: '',
+    subject: '',
+    gradeLevel: '',
+    description: ''
+  });
+  
+  const navigate = useNavigate();
+
+  // Fetch teacher's classrooms
+  useEffect(() => {
+    const fetchClassrooms = async () => {
+      try {
+        setLoading(true);
+        // Replace with your actual API endpoint for teacher classrooms
+        const response = await axios.get("http://localhost:5000/api/classrooms/studentclassroom", {
+          params: { teacher: localStorage.getItem('teacherId') } // Assuming teacherId is stored in localStorage
+        });
+        setClassrooms(response.data.data);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching classrooms:", error);
+        setError("Failed to load classrooms. Please try again later.");
+        
+        // Use sample data from classroom.json for demo purposes
+        try {
+          const mockResponse = await axios.get('/src/data/classroom.json');
+          setClassrooms(mockResponse.data);
+        } catch (mockError) {
+          console.error("Error loading mock data:", mockError);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClassrooms();
+  }, []);
+
+  // Handle classroom click
+  const handleClassroomClick = (classroomId) => {
+    navigate(`/teacher-classroom-details/${classroomId}`);
+  };
+
+  // Handle create classroom
+  const handleCreateClassroom = async (e) => {
+    e.preventDefault();
+    
+    try {
+      setLoading(true);
+      // Replace with your actual API endpoint
+      const response = await axios.post("http://localhost:5000/api/classrooms", {
+        ...newClassroom,
+        teacher: localStorage.getItem('teacherId')
+      });
+      
+      setClassrooms([...classrooms, response.data.data]);
+      setShowCreateClassroom(false);
+      setNewClassroom({ name: '', subject: '', gradeLevel: '', description: '' });
+      alert("Classroom created successfully!");
+    } catch (error) {
+      console.error("Error creating classroom:", error);
+      alert("Failed to create classroom. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const assignments = [
-    {
-      id: 1,
-      title: "Algebra Homework",
-      subject: "Mathematics",
-      dueDate: "2023-11-15",
-      submissions: 24,
-      graded: 18
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
     }
-  ];
+  };
+  
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
 
-  const topPerformers = [...studentList]
-    .sort((a, b) => b.avgScore - a.avgScore)
-    .slice(0, 3);
-
-  const teacherAttendance = [
-    { month: "November", present: 20, absent: 0 },
-    { month: "October", present: 19, absent: 1 },
-    { month: "September", present: 18, absent: 2 }
-  ];
-
-  // Filter students based on search term
-  const filteredStudents = studentList.filter(student =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getRandomGradient = () => {
+    const gradients = [
+      "linear-gradient(to right, #4776E6, #8E54E9)",
+      "linear-gradient(to right, #11998e, #38ef7d)",
+      "linear-gradient(to right, #FF8008, #FFC837)",
+      "linear-gradient(to right, #2193b0, #6dd5ed)",
+      "linear-gradient(to right, #834d9b, #d04ed6)",
+      "linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d)"
+    ];
+    return gradients[Math.floor(Math.random() * gradients.length)];
+  };
 
   return (
     <div className="p-4 md:p-6 mt-20 text-gray-800 max-w-6xl mx-auto bg-gray-50 min-h-screen">
-        <FacHeader />
+      <FacHeader />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -83,25 +120,47 @@ const TeacherClassroom = () => {
           <p className="text-gray-600">Manage your classroom and track student progress</p>
         </div>
         <div className="flex space-x-3">
-          
-        </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="flex overflow-x-auto border-b border-gray-200 mb-6 scrollbar-hide">
-        {['students', 'attendance', 'assignments'].map((tab) => (
           <button
-            key={tab}
-            className={`px-4 py-3 whitespace-nowrap font-medium text-sm transition-colors ${
-              activeTab === tab
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+            onClick={() => setActiveTab("classes")}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              activeTab === "classes"
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
-            onClick={() => setActiveTab(tab)}
           >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            My Classes
           </button>
-        ))}
+          <button
+            onClick={() => setActiveTab("create")}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              activeTab === "create"
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Create Classroom
+          </button>
+          <button
+            onClick={() => setActiveTab("attendance")}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              activeTab === "attendance"
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Attendance
+          </button>
+          <button
+            onClick={() => setActiveTab("assignments")}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              activeTab === "assignments"
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            Assignments
+          </button>
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -112,14 +171,20 @@ const TeacherClassroom = () => {
         transition={{ duration: 0.3 }}
         className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100"
       >
-        {activeTab === 'students' && (
-          <div>
+        {activeTab === 'classes' && (
+          <motion.div
+            key="classes"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="w-full"
+          >
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-              <h2 className="text-xl md:text-2xl font-semibold">Students</h2>
+              <h2 className="text-xl md:text-2xl font-semibold">My Classrooms</h2>
               <div className="relative w-full md:w-64">
                 <input
                   type="text"
-                  placeholder="Search students..."
+                  placeholder="Search classrooms..."
                   className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -140,166 +205,199 @@ const TeacherClassroom = () => {
               </div>
             </div>
 
-            {/* Top Performers Section */}
-            <div className="mb-8">
-              <h3 className="text-lg font-medium mb-4">Top Performers</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {topPerformers.map((student, index) => (
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+              </div>
+            ) : error ? (
+              <div className="bg-red-50 p-4 rounded-lg text-red-800 text-center">
+                {error}
+              </div>
+            ) : classrooms.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">No classrooms yet</h3>
+                <p className="text-gray-500 mb-4">
+                  You haven't created any classrooms yet. Click the "Create Classroom" button to get started.
+                </p>
+                <button
+                  onClick={() => setActiveTab("create")}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Create Your First Classroom
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {classrooms
+                  .filter(classroom => 
+                    classroom.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    classroom.subject.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((classroom) => (
                   <motion.div
-                    key={student.id}
-                    whileHover={{ y: -5 }}
-                    className="p-4 border border-gray-200 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50"
+                    key={classroom._id}
+                    variants={cardVariants}
+                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                    className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all border border-gray-100 cursor-pointer"
+                    onClick={() => handleClassroomClick(classroom._id)}
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="relative">
-                        <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium">
-                          {student.avatar}
-                        </div>
-                        {index === 0 && (
-                          <div className="absolute -top-2 -right-2 bg-yellow-400 rounded-full p-1">
-                            <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="font-bold">{student.name}</h4>
-                        <p className="text-sm text-gray-600">Avg: {student.avgScore}%</p>
+                    {/* Banner with gradient background */}
+                    <div
+                      className="h-32 relative"
+                      style={{
+                        background: getRandomGradient(),
+                      }}
+                    >
+                      <div className="absolute bottom-4 left-4 text-white">
+                        <h3 className="font-bold text-xl">{classroom.name}</h3>
+                        <p className="opacity-90 text-sm">{classroom.subject}</p>
                       </div>
                     </div>
-                    <div className="mt-3 flex justify-between items-center">
-                      <span className="text-sm text-gray-600">{student.submissions} submissions</span>
-                      <button className="text-sm px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        View Work
-                      </button>
+
+                    {/* Content */}
+                    <div className="p-5">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <div className="flex items-center mt-2">
+                            <svg className="h-5 w-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <p className="text-gray-600 text-sm">
+                              {classroom.students?.length || 0} students enrolled
+                            </p>
+                          </div>
+                        </div>
+                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Active</span>
+                      </div>
+
+                      <div className="border-t border-gray-100 pt-4 mt-2">
+                        <div className="flex items-start">
+                          <svg className="h-5 w-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Description:</span>{" "}
+                            {classroom.description
+                              ? (classroom.description.length > 80 
+                                 ? classroom.description.substring(0, 80) + "..." 
+                                 : classroom.description)
+                              : "No description available"}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Performance Stats */}
+                      <div className="mt-4 border-t border-gray-100 pt-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600 font-medium">Avg Score:</span>
+                          <span className="text-sm font-medium text-blue-600">
+                            {classroom.performanceStats?.averageScore || "N/A"}%
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="text-sm text-gray-600 font-medium">Assignments:</span>
+                          <span className="text-sm">
+                            {classroom.assignments?.length || 0} total
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
               </div>
-            </div>
+            )}
+          </motion.div>
+        )}
 
-            {/* Student List */}
-            <div>
-              <h3 className="text-lg font-medium mb-4">All Students</h3>
-              {filteredStudents.length > 0 ? (
-                <div className="space-y-4">
-                  {filteredStudents.map((student) => (
-                    <motion.div
-                      key={student.id}
-                      variants={{
-                        hidden: { opacity: 0, y: 20 },
-                        visible: { opacity: 1, y: 0 }
-                      }}
-                      initial="hidden"
-                      animate="visible"
-                      transition={{ duration: 0.3 }}
-                      className="border border-gray-200 rounded-xl overflow-hidden"
-                    >
-                      <div 
-                        className="p-4 cursor-pointer flex justify-between items-center bg-white hover:bg-gray-50 transition-colors"
-                        onClick={() => setExpandedStudent(expandedStudent === student.id ? null : student.id)}
-                      >
-                        <div className="flex items-center space-x-4">
-                          <div className="flex-shrink-0">
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium">
-                              {student.avatar}
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="font-bold">{student.name}</h4>
-                            <p className="text-sm text-gray-600">{student.email}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            student.avgScore >= 90 ? 'bg-green-100 text-green-800' :
-                            student.avgScore >= 70 ? 'bg-blue-100 text-blue-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            Avg: {student.avgScore}%
-                          </span>
-                          <svg
-                            className={`ml-2 h-5 w-5 text-gray-500 transform transition-transform ${
-                              expandedStudent === student.id ? 'rotate-180' : ''
-                            }`}
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
-                      </div>
-                      
-                      {expandedStudent === student.id && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="px-4 pb-4"
-                        >
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                            <div>
-                              <h4 className="font-medium text-gray-900">Performance</h4>
-                              <div className="mt-2 flex items-center">
-                                <span className="text-sm font-medium mr-2">Trend:</span>
-                                {student.performanceTrend === "up" ? (
-                                  <span className="text-green-600 flex items-center">
-                                    <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                                    </svg>
-                                    Improving
-                                  </span>
-                                ) : (
-                                  <span className="text-red-600 flex items-center">
-                                    <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                    Declining
-                                  </span>
-                                )}
-                              </div>
-                              <p className="mt-1 text-sm">
-                                <span className="font-medium">Last Submission:</span> {student.lastSubmission}
-                              </p>
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-gray-900">Attendance</h4>
-                              <p className="mt-1 text-sm">{student.attendance}</p>
-                              <p className="mt-1 text-sm">
-                                <span className="font-medium">Submissions:</span> {student.submissions}
-                              </p>
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-gray-900">Actions</h4>
-                              <div className="mt-2 flex space-x-2">
-                                <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                                  Message
-                                </button>
-                                <button className="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50">
-                                  View Work
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </motion.div>
-                  ))}
+        {activeTab === 'create' && (
+          <motion.div
+            key="create"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="w-full"
+          >
+            <h2 className="text-xl md:text-2xl font-semibold mb-6">Create New Classroom</h2>
+            
+            <form onSubmit={handleCreateClassroom} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Classroom Name*</label>
+                <input
+                  type="text"
+                  required
+                  value={newClassroom.name}
+                  onChange={(e) => setNewClassroom({...newClassroom, name: e.target.value})}
+                  placeholder="Enter classroom name"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Subject*</label>
+                <input
+                  type="text"
+                  required
+                  value={newClassroom.subject}
+                  onChange={(e) => setNewClassroom({...newClassroom, subject: e.target.value})}
+                  placeholder="Enter subject"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+                <select
+                  value={newClassroom.gradeLevel}
+                  onChange={(e) => setNewClassroom({...newClassroom, gradeLevel: e.target.value})}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select Grade Level</option>
+                  <option value="Elementary">Elementary</option>
+                  <option value="Middle School">Middle School</option>
+                  <option value="High School">High School</option>
+                  <option value="College">College</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={newClassroom.description}
+                  onChange={(e) => setNewClassroom({...newClassroom, description: e.target.value})}
+                  placeholder="Enter classroom description"
+                  rows="4"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                ></textarea>
+              </div>
+              
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+                >
+                  {loading ? 'Creating...' : 'Create Classroom'}
+                </button>
+              </div>
+            </form>
+            
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+              <div className="flex">
+                <svg className="h-6 w-6 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h3 className="text-blue-800 font-medium">Pro Tips</h3>
+                  <p className="text-blue-700 text-sm mt-1">
+                    Create a unique, descriptive name for your classroom. After creation, you'll be able to add students, assignments, and resources.
+                  </p>
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <h3 className="mt-2 text-lg font-medium text-gray-900">No students found</h3>
-                  <p className="mt-1 text-gray-500">Try adjusting your search query</p>
-                </div>
-              )}
+              </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {activeTab === 'attendance' && (
@@ -337,7 +435,11 @@ const TeacherClassroom = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {teacherAttendance.map((record, index) => {
+                      {[
+                        { month: "November", present: 20, absent: 0 },
+                        { month: "October", present: 19, absent: 1 },
+                        { month: "September", present: 18, absent: 2 }
+                      ].map((record, index) => {
                         const percentage = Math.round((record.present / (record.present + record.absent)) * 100);
                         return (
                           <tr key={index} className="hover:bg-gray-50">
@@ -433,7 +535,32 @@ const TeacherClassroom = () => {
             </div>
             
             <div className="space-y-4">
-              {assignments.map(assignment => (
+              {[
+                {
+                  id: 1,
+                  title: "Algebra Homework",
+                  subject: "Mathematics",
+                  dueDate: "2023-11-15",
+                  submissions: 24,
+                  graded: 18
+                },
+                {
+                  id: 2,
+                  title: "Geometry Quiz",
+                  subject: "Mathematics",
+                  dueDate: "2023-11-20",
+                  submissions: 18,
+                  graded: 12
+                },
+                {
+                  id: 3,
+                  title: "Calculus Project",
+                  subject: "Mathematics",
+                  dueDate: "2023-12-05",
+                  submissions: 5,
+                  graded: 0
+                }
+              ].map(assignment => (
                 <motion.div
                   key={assignment.id}
                   whileHover={{ scale: 1.01 }}
