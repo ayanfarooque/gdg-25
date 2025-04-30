@@ -27,7 +27,7 @@ import {
   
     return (
       <div className="bg-white rounded-xl w-full p-6 ">
-        <h2 className="text-lg font-semibold mb-6">Analytics</h2>
+        <h2 className="text-lg font-semibold mb-6 text-black">Analytics</h2>
         <div className="grid md:grid-cols-2 gap-8">
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
