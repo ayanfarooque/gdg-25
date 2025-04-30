@@ -1,0 +1,441 @@
+{
+  "assignments": [
+    {
+      "_id": "645e8a3c92d87f3e56b09a12",
+      "title": "Essay on Indian Literature",
+      "description": "Write a comprehensive essay on the evolution of Hindi literature from the medieval period to modern times, focusing on key authors and their contributions.",
+      "subject": "HINDI",
+      "code": "RS2002N",
+      "date": "2025-02-17T00:00:00.000Z",
+      "dueDate": "2025-03-05T23:59:59.000Z",
+      "totalMarks": 100,
+      "status": "active",
+      "attachments": [
+        {
+          "name": "Assignment_Guidelines.pdf",
+          "url": "#",
+          "size": "1.2 MB"
+        }
+      ]
+    },
+    {
+      "_id": "645e8a3c92d87f3e56b09a13",
+      "title": "Laboratory Report on Photosynthesis",
+      "description": "Prepare a detailed laboratory report on the photosynthesis experiment conducted in class, including all observations, results, and analysis.",
+      "subject": "SCIENCE",
+      "code": "RS3001",
+      "date": "2025-03-01T00:00:00.000Z",
+      "dueDate": "2025-03-15T23:59:59.000Z",
+      "totalMarks": 80,
+      "status": "active",
+      "attachments": [
+        {
+          "name": "Lab_Report_Template.docx",
+          "url": "#",
+          "size": "540 KB"
+        },
+        {
+          "name": "Experiment_Data.xlsx",
+          "url": "#",
+          "size": "1.8 MB"
+        }
+      ]
+    },
+    {
+      "_id": "645e8a3c92d87f3e56b09a11",
+      "title": "Hindi Grammar Analysis",
+      "description": "Analyze the grammatical structures in the given text passages and identify all nouns, verbs, adjectives, and adverbs.",
+      "subject": "HINDI",
+      "code": "RS2001",
+      "date": "2025-02-01T00:00:00.000Z",
+      "dueDate": "2025-02-18T23:59:59.000Z",
+      "totalMarks": 50,
+      "status": "completed",
+      "attachments": [
+        {
+          "name": "Grammar_Text.pdf",
+          "url": "#",
+          "size": "890 KB"
+        }
+      ]
+    },
+    {
+      "_id": "645e8a3c92d87f3e56b09a10",
+      "title": "Environmental Science Report",
+      "description": "Research and write a comprehensive report on a local environmental issue, including causes, effects, and potential solutions.",
+      "subject": "SCIENCE",
+      "code": "RS3000",
+      "date": "2025-01-25T00:00:00.000Z",
+      "dueDate": "2025-02-16T23:59:59.000Z",
+      "totalMarks": 100,
+      "status": "completed",
+      "attachments": []
+    }
+  ],
+  "submissions": [
+    {
+      "_id": "646e1b5f82d87f3e56c11a01",
+      "assignment": "645e8a3c92d87f3e56b09a12",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b01",
+        "name": "Hashim Ansari",
+        "email": "hashim.ansari@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/32.jpg"
+      },
+      "submittedAt": "2025-02-28T15:30:22.000Z",
+      "status": "submitted",
+      "files": [
+        {
+          "name": "Hindi_Literature_Essay.pdf",
+          "type": "pdf",
+          "size": "2.4 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "I have focused on the Bhakti movement and its influence on modern Hindi literature."
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a02",
+      "assignment": "645e8a3c92d87f3e56b09a12",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b02",
+        "name": "Ryan Farooque",
+        "email": "ryan.farooque@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/22.jpg"
+      },
+      "submittedAt": "2025-03-02T09:45:11.000Z",
+      "status": "submitted",
+      "files": [
+        {
+          "name": "Hindi_Essay_Farooque.docx",
+          "type": "docx",
+          "size": "1.8 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "Please find my essay attached. I've included extensive references from the suggested readings."
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a03",
+      "assignment": "645e8a3c92d87f3e56b09a12",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b03",
+        "name": "Vedant Karade",
+        "email": "vedant.karade@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
+      },
+      "submittedAt": "2025-03-04T19:12:38.000Z",
+      "status": "submitted",
+      "files": [
+        {
+          "name": "Hindi_Literature_Evolution.pdf",
+          "type": "pdf",
+          "size": "3.1 MB",
+          "url": "#"
+        },
+        {
+          "name": "Timeline_Infographic.jpg",
+          "type": "image",
+          "size": "1.2 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "I've included a timeline infographic to help visualize the evolution of literature across different periods."
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a04",
+      "assignment": "645e8a3c92d87f3e56b09a12",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b04",
+        "name": "Ronit Dhose",
+        "email": "ronit.dhose@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/67.jpg"
+      },
+      "submittedAt": "2025-03-05T22:59:59.000Z",
+      "status": "late",
+      "files": [
+        {
+          "name": "Hindi_Essay_Dhose.pdf",
+          "type": "pdf",
+          "size": "1.9 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "Sorry for the last-minute submission."
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a05",
+      "assignment": "645e8a3c92d87f3e56b09a12",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b05",
+        "name": "Himanshu Mishra",
+        "email": "himanshu.mishra@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/52.jpg"
+      },
+      "submittedAt": "2025-02-27T10:15:42.000Z",
+      "status": "graded",
+      "files": [
+        {
+          "name": "Hindi_Literature_Analysis.docx",
+          "type": "docx",
+          "size": "2.2 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "I've structured my essay chronologically, with special emphasis on the colonial and post-independence periods.",
+      "grading": {
+        "score": 85,
+        "classAverage": 78,
+        "feedback": "Excellent analysis of the colonial influence on Hindi literature. Your discussion of the post-independence writers is particularly insightful.",
+        "rubric": [
+          {
+            "criterion": "Content and Research",
+            "score": 28,
+            "maxScore": 30
+          },
+          {
+            "criterion": "Organization and Structure",
+            "score": 18,
+            "maxScore": 20
+          },
+          {
+            "criterion": "Analysis and Insight",
+            "score": 25,
+            "maxScore": 30
+          },
+          {
+            "criterion": "Language and Grammar",
+            "score": 14,
+            "maxScore": 20
+          }
+        ],
+        "gradedAt": "2025-03-10T14:30:20.000Z"
+      }
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a06",
+      "assignment": "645e8a3c92d87f3e56b09a13",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b01",
+        "name": "Hashim Ansari",
+        "email": "hashim.ansari@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/32.jpg"
+      },
+      "submittedAt": "2025-03-10T16:42:18.000Z",
+      "status": "submitted",
+      "files": [
+        {
+          "name": "Photosynthesis_Lab_Report.pdf",
+          "type": "pdf",
+          "size": "3.5 MB",
+          "url": "#"
+        },
+        {
+          "name": "Experiment_Results.xlsx",
+          "type": "xlsx",
+          "size": "1.2 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "I've included all the experimental data along with the graphical representations as requested."
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a07",
+      "assignment": "645e8a3c92d87f3e56b09a13",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b03",
+        "name": "Vedant Karade",
+        "email": "vedant.karade@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/45.jpg"
+      },
+      "submittedAt": "2025-03-12T09:23:51.000Z",
+      "status": "submitted",
+      "files": [
+        {
+          "name": "Photosynthesis_Report_Karade.docx",
+          "type": "docx",
+          "size": "2.8 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "All results and observations from the experiment are documented in detail."
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a08",
+      "assignment": "645e8a3c92d87f3e56b09a11",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b02",
+        "name": "Ryan Farooque",
+        "email": "ryan.farooque@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/22.jpg"
+      },
+      "submittedAt": "2025-02-15T11:30:42.000Z",
+      "status": "graded",
+      "files": [
+        {
+          "name": "Grammar_Analysis.pdf",
+          "type": "pdf",
+          "size": "1.5 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "I've color-coded each part of speech as mentioned in the guidelines.",
+      "grading": {
+        "score": 47,
+        "classAverage": 42,
+        "feedback": "Very thorough analysis with excellent identification of complex grammatical structures. The color-coding system was particularly helpful.",
+        "rubric": [
+          {
+            "criterion": "Noun Identification",
+            "score": 12,
+            "maxScore": 12
+          },
+          {
+            "criterion": "Verb Identification",
+            "score": 12,
+            "maxScore": 13
+          },
+          {
+            "criterion": "Adjective Identification",
+            "score": 10,
+            "maxScore": 10
+          },
+          {
+            "criterion": "Adverb Identification",
+            "score": 8,
+            "maxScore": 10
+          },
+          {
+            "criterion": "Overall Accuracy",
+            "score": 5,
+            "maxScore": 5
+          }
+        ],
+        "gradedAt": "2025-02-20T13:15:10.000Z"
+      }
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a09",
+      "assignment": "645e8a3c92d87f3e56b09a11",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b04",
+        "name": "Ronit Dhose",
+        "email": "ronit.dhose@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/67.jpg"
+      },
+      "submittedAt": "2025-02-16T18:20:33.000Z",
+      "status": "graded",
+      "files": [
+        {
+          "name": "Hindi_Grammar_Analysis_Dhose.pdf",
+          "type": "pdf",
+          "size": "1.3 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "Completed all the required passages with annotations.",
+      "grading": {
+        "score": 39,
+        "classAverage": 42,
+        "feedback": "Good work overall, but there were some inconsistencies in identifying compound verbs. Please review the section on complex verb structures.",
+        "rubric": [
+          {
+            "criterion": "Noun Identification",
+            "score": 10,
+            "maxScore": 12
+          },
+          {
+            "criterion": "Verb Identification",
+            "score": 9,
+            "maxScore": 13
+          },
+          {
+            "criterion": "Adjective Identification",
+            "score": 9,
+            "maxScore": 10
+          },
+          {
+            "criterion": "Adverb Identification",
+            "score": 7,
+            "maxScore": 10
+          },
+          {
+            "criterion": "Overall Accuracy",
+            "score": 4,
+            "maxScore": 5
+          }
+        ],
+        "gradedAt": "2025-02-20T16:45:22.000Z"
+      },
+      "resubmissions": [
+        {
+          "files": [
+            {
+              "name": "Grammar_Analysis_Revised.pdf",
+              "type": "pdf",
+              "size": "1.4 MB",
+              "url": "#"
+            }
+          ],
+          "submittedAt": "2025-02-22T10:15:30.000Z",
+          "comments": "I've revised my analysis of the verb structures as suggested."
+        }
+      ]
+    },
+    {
+      "_id": "646e1b5f82d87f3e56c11a10",
+      "assignment": "645e8a3c92d87f3e56b09a10",
+      "student": {
+        "_id": "645e8a3c92d87f3e56b09b05",
+        "name": "Himanshu Mishra",
+        "email": "himanshu.mishra@example.com",
+        "avatar": "https://randomuser.me/api/portraits/men/52.jpg"
+      },
+      "submittedAt": "2025-02-12T14:30:18.000Z",
+      "status": "returned",
+      "files": [
+        {
+          "name": "Environmental_Report.pdf",
+          "type": "pdf",
+          "size": "4.2 MB",
+          "url": "#"
+        },
+        {
+          "name": "Data_Analysis.xlsx",
+          "type": "xlsx",
+          "size": "1.1 MB",
+          "url": "#"
+        }
+      ],
+      "comments": "I focused on the water pollution issue in our local river and conducted water quality tests.",
+      "grading": {
+        "score": 92,
+        "classAverage": 84,
+        "feedback": "Outstanding report with excellent field research. Your water quality testing methodology was particularly impressive, and your recommendations are practical and well-thought-out.",
+        "rubric": [
+          {
+            "criterion": "Research Quality",
+            "score": 28,
+            "maxScore": 30
+          },
+          {
+            "criterion": "Data Analysis",
+            "score": 29,
+            "maxScore": 30
+          },
+          {
+            "criterion": "Solution Proposals",
+            "score": 18,
+            "maxScore": 20
+          },
+          {
+            "criterion": "Report Structure",
+            "score": 17,
+            "maxScore": 20
+          }
+        ],
+        "gradedAt": "2025-02-18T09:20:45.000Z"
+      }
+    }
+  ]
+}
