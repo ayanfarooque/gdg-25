@@ -1,7 +1,21 @@
 import React from 'react';
 import { FaUsers, FaCheckCircle, FaChartLine, FaComments } from 'react-icons/fa';
 
-const CommunityCard = ({ community }) => {
+const CommunityCard = ({ community, themeColor = 'teal' }) => {
+  // Define color schemes based on theme
+  const colorSchemes = {
+    teal: {
+      button: 'bg-teal-500 hover:bg-teal-600',
+      verification: 'text-teal-500',
+    },
+    pink: {
+      button: 'bg-pink-500 hover:bg-pink-600',
+      verification: 'text-pink-500',
+    }
+  };
+
+  const colors = colorSchemes[themeColor] || colorSchemes.teal;
+
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
       {/* Banner Image */}
@@ -29,7 +43,7 @@ const CommunityCard = ({ community }) => {
             <div className="flex items-center">
               <h3 className="font-semibold text-lg text-gray-800">{community.name}</h3>
               {community.isVerified && (
-                <FaCheckCircle className="ml-1 text-teal-500 text-sm" />
+                <FaCheckCircle className={`ml-1 ${colors.verification} text-sm`} />
               )}
             </div>
             <p className="text-sm text-gray-600">
@@ -40,7 +54,7 @@ const CommunityCard = ({ community }) => {
         
         {/* Description */}
         <p className="text-gray-700 text-sm mb-4 line-clamp-2">
-          {community.shortDescription || community.description.substring(0, 100) + '...'}
+          {community.shortDescription || community.description?.substring(0, 100) + '...'}
         </p>
         
         {/* Stats */}
@@ -62,7 +76,7 @@ const CommunityCard = ({ community }) => {
       
       {/* Join Button */}
       <div className="px-5 pb-4">
-        <button className="w-full py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-colors duration-200">
+        <button className={`w-full py-2 ${colors.button} text-white font-medium rounded-lg transition-colors duration-200`}>
           Join Community
         </button>
       </div>

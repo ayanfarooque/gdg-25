@@ -1,6 +1,20 @@
 import React from 'react';
 
-const RecommendedCommunities = ({ communities }) => {
+const RecommendedCommunities = ({ communities, themeColor = 'teal' }) => {
+  // Define color schemes based on theme
+  const colorSchemes = {
+    teal: {
+      button: 'bg-teal-500 hover:bg-teal-600',
+      textButton: 'text-teal-500',
+    },
+    pink: {
+      button: 'bg-pink-500 hover:bg-pink-600',
+      textButton: 'text-pink-500',
+    }
+  };
+
+  const colors = colorSchemes[themeColor] || colorSchemes.teal;
+
   return (
     <div className="bg-white rounded-xl p-5 shadow-md">
       <h2 className="font-bold text-xl mb-4 text-gray-800">Recommended Communities</h2>
@@ -24,14 +38,14 @@ const RecommendedCommunities = ({ communities }) => {
               </p>
             </div>
             
-            <button className="px-3 py-1.5 bg-teal-500 hover:bg-teal-600 text-white text-xs font-medium rounded transition-colors">
+            <button className={`px-3 py-1.5 ${colors.button} text-white text-xs font-medium rounded transition-colors`}>
               Join
             </button>
           </div>
         ))}
       </div>
       
-      <button className="w-full mt-4 text-teal-500 font-medium text-sm">
+      <button className={`w-full mt-4 ${colors.textButton} font-medium text-sm`}>
         View More Recommendations
       </button>
     </div>

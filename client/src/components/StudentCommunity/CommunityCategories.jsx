@@ -12,9 +12,23 @@ const categories = [
   "My Communities"
 ];
 
-const CommunityCategories = ({ onCategorySelect, onSearch }) => {
+const CommunityCategories = ({ onCategorySelect, onSearch, themeColor = 'teal' }) => {
   const [activeCategory, setActiveCategory] = useState("All Communities");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Define color schemes based on theme
+  const colorSchemes = {
+    teal: {
+      focus: 'focus:ring-teal-500',
+      activeBg: 'bg-teal-500',
+    },
+    pink: {
+      focus: 'focus:ring-pink-500',
+      activeBg: 'bg-pink-500',
+    }
+  };
+
+  const colors = colorSchemes[themeColor] || colorSchemes.teal;
 
   const handleCategoryClick = (category) => {
     setActiveCategory(category);
@@ -36,7 +50,7 @@ const CommunityCategories = ({ onCategorySelect, onSearch }) => {
             placeholder="Search communities..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full py-2 pl-10 pr-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className={`w-full py-2 pl-10 pr-4 border rounded-lg focus:outline-none focus:ring-2 ${colors.focus} focus:border-transparent`}
           />
           <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
@@ -50,7 +64,7 @@ const CommunityCategories = ({ onCategorySelect, onSearch }) => {
             key={category}
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
               activeCategory === category
-                ? 'bg-teal-500 text-white'
+                ? `${colors.activeBg} text-white`
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => handleCategoryClick(category)}

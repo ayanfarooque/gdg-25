@@ -2,7 +2,7 @@ import React from 'react';
 import { FaHeart, FaComment, FaRegClock } from 'react-icons/fa';
 import { format } from 'date-fns';
 
-const TrendingPosts = ({ posts }) => {
+const TrendingPosts = ({ posts, themeColor = 'teal' }) => {
   // Function to format date
   const formatDate = (dateString) => {
     try {
@@ -11,6 +11,18 @@ const TrendingPosts = ({ posts }) => {
       return 'Recent';
     }
   };
+
+  // Define color schemes based on theme
+  const colorSchemes = {
+    teal: {
+      button: 'text-teal-500',
+    },
+    pink: {
+      button: 'text-pink-500',
+    }
+  };
+
+  const colors = colorSchemes[themeColor] || colorSchemes.teal;
 
   return (
     <div className="bg-white rounded-xl p-5 shadow-md">
@@ -56,7 +68,7 @@ const TrendingPosts = ({ posts }) => {
         ))}
       </div>
       
-      <button className="w-full mt-4 text-teal-500 font-medium text-sm">
+      <button className={`w-full mt-4 ${colors.button} font-medium text-sm`}>
         See All Trending Posts
       </button>
     </div>
