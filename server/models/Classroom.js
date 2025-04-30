@@ -31,6 +31,31 @@ const classroomSchema = new mongoose.Schema({
         type: String,
         enum: ["Kindergarten", "Elementary", "Middle School", "High School", "College", "Other"]
     },
+    grades: [{
+        title: {
+          type: String,
+          required: true
+        },
+        score: {
+          type: Number,
+          min: 0
+        },
+        maxScore: {
+          type: Number,
+          required: true,
+          min: 0
+        },
+        weight: {
+          type: Number,
+          required: true,
+          min: 0,
+          max: 100
+        },
+        date: {
+          type: Date,
+          required: true
+        }
+      }],
     teacher: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: "Teacher",
@@ -56,9 +81,18 @@ const classroomSchema = new mongoose.Schema({
         ref: "AssignAssignment"
     }],
     performanceStats: {
-        averageScore: Number,
-        assignmentsCompleted: Number,
-        assignmentsPending: Number
+        averageScore: {
+          type: Number,
+          default: 0
+        },
+        assignmentsPending: {
+          type: Number,
+          default: 0
+        },
+        assignmentsCompleted: {
+          type: Number,
+          default: 0
+        }
       },
     //adding this below field for sharing the resourcs in classroom also adding clodinary support till now adding files loacaly
     resources: [{

@@ -1,5 +1,5 @@
 const Classroom = require('../models/Classroom.js');
-const AssignAssignment = require('../models/AssignAssignment');
+const AssignAssignment = require('../models/AssignAssignment.js');
 const Student = require('../models/Student.js');
 const Teacher = require('../models/Teacher.js');
 const asyncHandler = require("express-async-handler");
@@ -179,12 +179,27 @@ exports.getAllClassrooms = asyncHandler(async (req, res) => {
 });
 
 // Get a single classroom by ID
+const mongoose = require("mongoose");
+
 exports.getClassroom = asyncHandler(async (req, res) => {
-    const classroom = await Classroom.findById(req.params.id)
+    const { id } = req.params;
+
+    console.log("Incoming classroom ID:", id);
+
+    // ✅ Check if ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        console.log("Invalid ID format");
+        return res.status(400).json({ success: false, error: "Invalid ID format" });
+    }
+
+    // ✅ Try findOne instead of findById
+    const classroom = await Classroom.findOne({ _id: id })
         .populate('teacher coTeachers', 'name email')
         .populate('students', 'name email')
         .populate('assignments', 'title dueDate description')
         .populate('announcements.postedBy', 'name');
+
+    console.log("Classroom from DB:", classroom);
 
     if (!classroom) {
         return res.status(404).json({
@@ -198,6 +213,7 @@ exports.getClassroom = asyncHandler(async (req, res) => {
         data: classroom
     });
 });
+
 
 // Add a student to a classroom
 exports.addStudent = asyncHandler(async (req, res) => {
