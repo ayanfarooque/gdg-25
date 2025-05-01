@@ -34,7 +34,7 @@ class TeacherHeader extends StatelessWidget {
                   TextButton(
                     child: Text('Logout'),
                     onPressed: () {
-                      Navigator.of(context).pop(true);
+                      Navigator.pushNamed(context, '/role');
                     },
                   ),
                 ],
@@ -63,7 +63,7 @@ class TeacherHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0.0, 70.0, 0.0, 20.0),
+      padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

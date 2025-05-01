@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Header extends StatelessWidget {
+class TeacherHeader extends StatelessWidget {
   final VoidCallback onProfileTap;
   final VoidCallback onNotificationTap;
   final String profileImage;
   final String welcomeText;
 
-  const Header({
+  const TeacherHeader({
     super.key,
     required this.onProfileTap,
     required this.onNotificationTap,
@@ -63,7 +63,7 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 20.0),
+      padding: const EdgeInsets.fromLTRB(0.0, 70.0, 0.0, 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -74,7 +74,7 @@ class Header extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/profile');
+                    Navigator.pushNamed(context, '/adminprofile');
                   },
                   style: ElevatedButton.styleFrom(
                     shape: const CircleBorder(),
@@ -84,7 +84,7 @@ class Header extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     radius: 20,
-                    backgroundImage: AssetImage('lib/images/image3.png'),
+                    backgroundImage: AssetImage('lib/images/admin.png'),
                   ),
                 ),
                 SizedBox(width: 12),

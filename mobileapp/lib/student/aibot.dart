@@ -156,13 +156,12 @@ class _LandingPageState extends State<AiLanding> {
                         Navigator.pushNamed(context, '/notifications');
                       },
                       profileImage: 'assets/images/image3.png',
-                      welcomeText: "WELCOME HASHIM",
+                      welcomeText: "WELCOME",
                     ),
                   ),
                   const SizedBox(height: 10),
                   Container(
                     height: 705,
-                    width: 420,
                     margin: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
                     padding: const EdgeInsets.fromLTRB(4.0, 12.0, 4.0, 12.0),
                     decoration: BoxDecoration(
@@ -198,7 +197,6 @@ class _LandingPageState extends State<AiLanding> {
                         ),
                         const SizedBox(height: 15),
                         Container(
-                          width: 330,
                           height: 250,
                           padding: EdgeInsets.all(8.0),
                           margin: EdgeInsets.all(4.0),
@@ -329,10 +327,12 @@ class _LandingPageState extends State<AiLanding> {
                                       padding: EdgeInsets.fromLTRB(
                                           12.0, 4.0, 12.0, 4.0),
                                       child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           _buildActionButton(
                                             "Concepts",
-                                            'lib/assets/images/concepts.png',
+                                            'lib/images/concepts.png',
                                             () {
                                               // Handle Concepts action
                                             },
@@ -340,7 +340,7 @@ class _LandingPageState extends State<AiLanding> {
                                           const SizedBox(width: 12),
                                           _buildActionButton(
                                             "Numericals",
-                                            'lib/assets/images/numericals.png',
+                                            'lib/images/numericals.png',
                                             () {
                                               // Handle Numericals action
                                             },
@@ -348,7 +348,7 @@ class _LandingPageState extends State<AiLanding> {
                                           const SizedBox(width: 12),
                                           _buildActionButton(
                                             "Summarize",
-                                            'lib/assets/images/summarize.png',
+                                            'lib/images/summarize.png',
                                             () {
                                               // Handle Summarize action
                                             },
@@ -460,7 +460,6 @@ class _LandingPageState extends State<AiLanding> {
       String text, String imagePath, VoidCallback onPressed) {
     return Container(
       padding: EdgeInsets.fromLTRB(4.0, 0.0, 0.0, 0.0),
-      width: 80,
       height: 25,
       decoration: BoxDecoration(
         color: Colors.white,

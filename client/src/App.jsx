@@ -86,14 +86,14 @@ const App = () => {
           <Route path='/authstudent' element={<StudentAuth />}/>
           <Route path='/authteacher' element={<TeacherAuth />}/>
           <Route path='/facchat' element={<FacChatbot />}/>
-          <Route path='/createassignment' element={<AssignmentCreation />} />
+          <Route path='/createassignment' element={<AssignmentCreation/>}/>
           <Route path='/viewall' element={<ViewAll/>}/>
-          <Route path="/assignments/:assignmentId" element={<AssignmentDetail />}/>
-          <Route path="/test-performance/:testCode" element={<TestPerformance />}/>
-          <Route path="/detailed-review" element={<DetailedReview />}/>
-          <Route path='/student-classroom' element={<StudentClassroom />} />
-          <Route path='student-classroom/:id' element={<ClassroomPage/>} />
-          <Route path='/teacher-classroom' element={<TeacherClassroom />} />
+          <Route path="/assignments/:assignmentId" element={<AssignmentDetail/>}/>
+          <Route path="/test-performance/:testCode" element={<TestPerformance/>}/>
+          <Route path="/detailed-review" element={<DetailedReview/>}/>
+          <Route path='/student-classroom' element={<StudentClassroom />}/>
+          <Route path='student-classroom/:id' element={<ClassroomPage/>}/>
+          <Route path='/teacher-classroom' element={<TeacherClassroom/>}/>
           <Route path='/teacher-classroom-details/:id' element={<TeacherClassroomDetails />} />
           <Route path='/create-test' element={<AITestCreator />} />
           <Route path='/generate-reportcard' element={<AIGradeCardGenerator />} />

@@ -85,29 +85,20 @@ class _TeacherAuthPageState extends State<TeacherAuthPage>
   }
 
   Future<void> teacherLogin(String email, String password) async {
-    final url = Uri.parse(
-        "http://192.168.0.104:5000/api/teachers/login"); // Replace with your backend URL
-
     try {
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"email": email, "password": password}),
+      // Simulate successful login without server validation
+      print("Login successful without validation");
+
+      // Navigate to home page directly without token verification
+      Navigator.pushReplacementNamed(context, '/');
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Logged in successfully!'),
+          backgroundColor: Colors.green,
+        ),
       );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data['token'];
-
-        // Save token in local storage
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('auth_token', token);
-        await prefs.setString('user_role', 'teacher');
-
-        print("Login successful. Token saved.");
-      } else {
-        print("Login failed: ${jsonDecode(response.body)['message']}");
-      }
     } catch (error) {
       print("Error: $error");
     }
@@ -127,89 +118,37 @@ class _TeacherAuthPageState extends State<TeacherAuthPage>
     required String subject,
     required String qualification,
   }) async {
-    final url = Uri.parse('http://192.168.0.104:5000/api/teachers/register');
-
-    // Log the request data for debugging
-    final requestData = {
-      "name": name,
-      "addressline1": addressLine1,
-      "addressline2": addressLine2,
-      "city": city,
-      "state": state,
-      "postalCode": postalCode,
-      "employeeId": employeeId,
-      "dob": dob,
-      "email": email,
-      "password": password,
-      "subject": subject,
-      "qualification": qualification,
-    };
-    print("Sending registration data: $requestData");
-
     try {
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(requestData),
-      );
+      // Log the registration data but don't send to server
+      final requestData = {
+        "name": name,
+        "addressline1": addressLine1,
+        "addressline2": addressLine2,
+        "city": city,
+        "state": state,
+        "postalCode": postalCode,
+        "enrollmentId": employeeId,
+        "dob": dob,
+        "email": email,
+        "password": password,
+      };
+      print("Registration data collected (not sent to server): $requestData");
 
-      print("Registration response status: ${response.statusCode}");
-      print("Registration response body: ${response.body}");
-
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        // Accept either 201 Created or 200 OK
-        try {
-          final responseData = jsonDecode(response.body);
-
-          // Check if token exists in the response
-          if (responseData.containsKey("token")) {
-            String token = responseData["token"];
-
-            // Save token in SharedPreferences
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.setString('auth_token', token);
-            await prefs.setString('user_role', 'teacher');
-
-            print("Teacher Registered Successfully! Token: $token");
-            return true; // Return success
-          } else {
-            // Successfully registered but no token in response
-            print("Registration successful but no token returned");
-            return true;
-          }
-        } catch (e) {
-          print("Error parsing response: $e");
-          return false;
-        }
-      } else {
-        // Try to parse the error message if possible
-        try {
-          final responseData = jsonDecode(response.body);
-          print(
-              "Registration error: ${responseData['message'] ?? 'Unknown error'}");
-        } catch (e) {
-          print("Registration failed with status ${response.statusCode}");
-        }
-        return false; // Return failure
-      }
+      // Return success without server validation
+      print("Student registered successfully without validation");
+      return true;
     } catch (error) {
-      print("Failed to register: $error");
-      return false; // Return failure on exception
+      print("Registration simulation error: $error");
+      return true; // Return true anyway to always succeed
     }
   }
 
   Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token');
+    return "fake-token-for-testing";
   }
 
   void checkToken() async {
-    String? token = await getToken();
-    if (token != null) {
-      print("Stored Token: $token");
-    } else {
-      print("No token found");
-    }
+    print("Using fake token for testing purposes");
   }
 
   void _toggleAuthMode() {
@@ -229,25 +168,20 @@ class _TeacherAuthPageState extends State<TeacherAuthPage>
         ),
       );
 
+      // Simplified dummy authentication logic
       if (isLogin) {
-        // Call the login function when in login mode
-        teacherLogin(_emailController.text, _passwordController.text).then((_) {
-          getToken().then((token) {
-            if (token != null) {
-              Navigator.pushReplacementNamed(context, '/teacherhome');
-            } else {
-              // Login failed, show error
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Login failed. Please check your credentials.'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          });
+        // Always navigate to teacher home regardless of credentials
+        Future.delayed(const Duration(seconds: 1), () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Logged in successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pushReplacementNamed(context, '/teacherhome');
         });
       } else {
-        // Handle registration
+        // For signup, also navigate to teacher home after a delay
         if (_selectedDate == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -258,43 +192,15 @@ class _TeacherAuthPageState extends State<TeacherAuthPage>
           return;
         }
 
-        // Format date in the required format (YYYY-MM-DD)
-        final formattedDob =
-            "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
-
-        registerTeacher(
-          name: _nameController.text,
-          addressLine1: _addressLine1Controller.text,
-          addressLine2: _addressLine2Controller.text,
-          city: _cityController.text,
-          state: _stateController.text,
-          postalCode: _postalCodeController.text,
-          employeeId: _employeeIdController.text,
-          dob: formattedDob,
-          email: _emailController.text,
-          password: _passwordController.text,
-          subject: _subjectController.text,
-          qualification: _qualificationController.text,
-        ).then((success) {
-          if (success) {
-            // Registration successful
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Registration successful!'),
-                backgroundColor: Colors.green,
-              ),
-            );
-            // Navigate to teacher home page
-            Navigator.pushReplacementNamed(context, '/teacher');
-          } else {
-            // Registration failed
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Registration failed. Please try again.'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
+        // Show success message and navigate
+        Future.delayed(const Duration(seconds: 1), () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Registration successful!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pushReplacementNamed(context, '/teacherhome');
         });
       }
     }

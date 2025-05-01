@@ -16,6 +16,7 @@ class _RolePickerScreenState extends State<RolePickerScreen>
   late Animation<double> _rotationAnimation;
   bool _isHoveringStudent = false;
   bool _isHoveringTeacher = false;
+  bool _isHoveringAdmin = false;
 
   @override
   void initState() {
@@ -42,9 +43,16 @@ class _RolePickerScreenState extends State<RolePickerScreen>
 
       // Navigate based on selected role
       if (role == 'student') {
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/studentauth');
       } else if (role == 'teacher') {
-        Navigator.pushReplacementNamed(context, '/teacherhome');
+        Navigator.pushReplacementNamed(context, '/teacherauth');
+      } else if (role == 'admin') {
+        // You'll need to create an admin auth page and route
+        Navigator.pushReplacementNamed(context, '/adminauth');
+        // If admin route doesn't exist yet, you can use this fallback:
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('Admin login coming soon')),
+        // );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -53,6 +61,8 @@ class _RolePickerScreenState extends State<RolePickerScreen>
     }
   }
 
+  @override
+  // Modified build method for _RolePickerScreenState
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -87,120 +97,121 @@ class _RolePickerScreenState extends State<RolePickerScreen>
 
           // Content
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: size.height * 0.08),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(height: size.height * 0.05),
 
-                  // Animated title
-                  Center(
-                    child: AnimatedTextKit(
-                      animatedTexts: [
-                        TypewriterAnimatedText(
-                          'Welcome',
-                          textStyle: const TextStyle(
-                            fontSize: 40.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 10.0,
-                                color: Colors.black26,
-                                offset: Offset(5.0, 5.0),
-                              ),
-                            ],
-                          ),
-                          speed: const Duration(milliseconds: 200),
-                        ),
-                      ],
-                      totalRepeatCount: 1,
-                      displayFullTextOnTap: true,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-                  Center(
-                    child: Text(
-                      "Choose your role to continue",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 5.0,
-                            color: Colors.black.withOpacity(0.3),
-                            offset: const Offset(2.0, 2.0),
+                    // Animated title
+                    Center(
+                      child: AnimatedTextKit(
+                        animatedTexts: [
+                          TypewriterAnimatedText(
+                            'Welcome',
+                            textStyle: const TextStyle(
+                              fontSize: 40.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 10.0,
+                                  color: Colors.black26,
+                                  offset: Offset(5.0, 5.0),
+                                ),
+                              ],
+                            ),
+                            speed: const Duration(milliseconds: 200),
                           ),
                         ],
+                        totalRepeatCount: 1,
+                        displayFullTextOnTap: true,
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 50),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Text(
+                        "Choose your role to continue",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 5.0,
+                              color: Colors.black.withOpacity(0.3),
+                              offset: const Offset(2.0, 2.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
 
-                  // Role selection cards
-                  Expanded(
-                    child: Row(
-                      children: [
-                        // Student Card
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _selectRole(context, 'student'),
-                            onTapDown: (_) =>
-                                setState(() => _isHoveringStudent = true),
-                            onTapUp: (_) =>
-                                setState(() => _isHoveringStudent = false),
-                            onTapCancel: () =>
-                                setState(() => _isHoveringStudent = false),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              margin:
-                                  EdgeInsets.all(_isHoveringStudent ? 10 : 20),
+                    const SizedBox(height: 30),
+
+                    // VERTICAL CARDS - Student Card
+                    GestureDetector(
+                      onTap: () => _selectRole(context, 'student'),
+                      onTapDown: (_) =>
+                          setState(() => _isHoveringStudent = true),
+                      onTapUp: (_) =>
+                          setState(() => _isHoveringStudent = false),
+                      onTapCancel: () =>
+                          setState(() => _isHoveringStudent = false),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        margin: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: _isHoveringStudent ? 10 : 20),
+                        height: 160,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF49ABB0)
+                                  .withOpacity(_isHoveringStudent ? 0.8 : 0.4),
+                              blurRadius: _isHoveringStudent ? 20 : 10,
+                              spreadRadius: _isHoveringStudent ? 5 : 1,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 20),
+                            // Student image
+                            Container(
+                              height: 100,
+                              width: 100,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFF49ABB0).withOpacity(
-                                        _isHoveringStudent ? 0.8 : 0.4),
-                                    blurRadius: _isHoveringStudent ? 20 : 10,
-                                    spreadRadius: _isHoveringStudent ? 5 : 1,
-                                  ),
-                                ],
+                                color: const Color(0xFF49ABB0).withOpacity(0.2),
+                                shape: BoxShape.circle,
                               ),
+                              child: Center(
+                                child: Image.asset(
+                                  'lib/images/image3.png',
+                                  height: 80,
+                                  width: 80,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.school,
+                                      size: 40,
+                                      color: const Color(0xFF49ABB0),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Student image
-                                  Container(
-                                    height: 100,
-                                    width: 100,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF49ABB0)
-                                          .withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Image.asset(
-                                        'lib/assets/images/student_icon.png', // Replace with your student image
-                                        height: 80,
-                                        width: 80,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Icon(
-                                            Icons.school,
-                                            size: 40,
-                                            color: const Color(0xFF49ABB0),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
                                   Text(
                                     "Student",
                                     style: TextStyle(
@@ -210,87 +221,84 @@ class _RolePickerScreenState extends State<RolePickerScreen>
                                     ),
                                   ),
                                   const SizedBox(height: 10),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Text(
-                                      "Access your classes, assignments, and track your progress",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.black54,
-                                        fontSize: 14,
-                                      ),
+                                  Text(
+                                    "Access your classes, assignments, and track your progress",
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
+                            SizedBox(width: 20),
+                          ],
                         ),
+                      ),
+                    ),
 
-                        // Connection between cards
-                        Container(
-                          width: 10,
-                          height: double.infinity,
-                          color: Colors.white.withOpacity(0.5),
+                    const SizedBox(height: 15),
+
+                    // Teacher Card
+                    GestureDetector(
+                      onTap: () => _selectRole(context, 'teacher'),
+                      onTapDown: (_) =>
+                          setState(() => _isHoveringTeacher = true),
+                      onTapUp: (_) =>
+                          setState(() => _isHoveringTeacher = false),
+                      onTapCancel: () =>
+                          setState(() => _isHoveringTeacher = false),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        margin: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: _isHoveringTeacher ? 10 : 20),
+                        height: 160,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFE195AB)
+                                  .withOpacity(_isHoveringTeacher ? 0.8 : 0.4),
+                              blurRadius: _isHoveringTeacher ? 20 : 10,
+                              spreadRadius: _isHoveringTeacher ? 5 : 1,
+                            ),
+                          ],
                         ),
-
-                        // Teacher Card
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _selectRole(context, 'teacher'),
-                            onTapDown: (_) =>
-                                setState(() => _isHoveringTeacher = true),
-                            onTapUp: (_) =>
-                                setState(() => _isHoveringTeacher = false),
-                            onTapCancel: () =>
-                                setState(() => _isHoveringTeacher = false),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              margin:
-                                  EdgeInsets.all(_isHoveringTeacher ? 10 : 20),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 20),
+                            // Teacher image
+                            Container(
+                              height: 100,
+                              width: 100,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFFE195AB).withOpacity(
-                                        _isHoveringTeacher ? 0.8 : 0.4),
-                                    blurRadius: _isHoveringTeacher ? 20 : 10,
-                                    spreadRadius: _isHoveringTeacher ? 5 : 1,
-                                  ),
-                                ],
+                                color: const Color(0xFFE195AB).withOpacity(0.2),
+                                shape: BoxShape.circle,
                               ),
+                              child: Center(
+                                child: Image.asset(
+                                  'lib/images/teacher.png',
+                                  height: 80,
+                                  width: 80,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.person,
+                                      size: 40,
+                                      color: const Color(0xFFE195AB),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            Expanded(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Teacher image
-                                  Container(
-                                    height: 100,
-                                    width: 100,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFE195AB)
-                                          .withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Image.asset(
-                                        'lib/assets/images/teacher_icon.png', // Replace with your teacher image
-                                        height: 80,
-                                        width: 80,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Icon(
-                                            Icons.person,
-                                            size: 40,
-                                            color: const Color(0xFFE195AB),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
                                   Text(
                                     "Teacher",
                                     style: TextStyle(
@@ -300,29 +308,26 @@ class _RolePickerScreenState extends State<RolePickerScreen>
                                     ),
                                   ),
                                   const SizedBox(height: 10),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20),
-                                    child: Text(
-                                      "Manage classes, create assignments, and track student progress",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.black54,
-                                        fontSize: 14,
-                                      ),
+                                  Text(
+                                    "Manage classes, create assignments, and track student progress",
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
+                            SizedBox(width: 20),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
 
-                  SizedBox(height: size.height * 0.08),
-                ],
+                    const SizedBox(height: 15),
+                    SizedBox(height: size.height * 0.05),
+                  ],
+                ),
               ),
             ),
           ),

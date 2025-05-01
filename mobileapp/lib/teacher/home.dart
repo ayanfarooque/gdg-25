@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:fl_chart/fl_chart.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import '../components/teacherheader.dart';
 import '../components/footer.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 class TeacherHomePage extends StatefulWidget {
   const TeacherHomePage({super.key});
@@ -14,7 +14,8 @@ class TeacherHomePage extends StatefulWidget {
   State<TeacherHomePage> createState() => _TeacherHomePageState();
 }
 
-class _TeacherHomePageState extends State<TeacherHomePage> {
+class _TeacherHomePageState extends State<TeacherHomePage>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
@@ -22,24 +23,65 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   List<dynamic> _assignments = [];
   List<dynamic> _pendingAssignments = [];
   String _selectedClass = 'Class A';
+  late TabController _tabController;
   final List<String> _classes = ['Class A', 'Class B', 'Class C'];
+  bool _isLoading = true;
+
+  // Define the theme colors
+  final Color teacherPrimaryColor = const Color(0xFFE195AB);
+  final Color backgroundColor = const Color(0xFFF5F5DD);
+  final Color accentColor =
+      const Color(0xFF8A6FDF); // New accent color for teacher
+  final Color textColor = Colors.black87;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     _loadAssignments();
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   void _loadAssignments() async {
-    final String response =
-        await rootBundle.loadString('lib/data/assignment.json');
-    final data = await json.decode(response);
-    setState(() {
-      _assignments = data;
-      _pendingAssignments = _assignments
-          .where((assignment) => assignment['isCompleted'] == false)
-          .toList();
-    });
+    try {
+      final String response =
+          await rootBundle.loadString('lib/data/assignment.json');
+      final data = await json.decode(response);
+      setState(() {
+        _assignments = data;
+        _pendingAssignments = [];
+        for (var assignment in _assignments) {
+          if (assignment['isCompleted'] == false) {
+            _pendingAssignments.add(assignment);
+          }
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading assignments: $e');
+      // Create mock data for testing if file loading fails
+      setState(() {
+        _assignments = [
+          {
+            'id': 'Physics Assignment',
+            'dueDate': '2025-05-15T15:30:00Z',
+            'isCompleted': false,
+          },
+          {
+            'id': 'Chemistry Lab Report',
+            'dueDate': '2025-05-10T23:59:00Z',
+            'isCompleted': false,
+          },
+        ];
+        _pendingAssignments = _assignments;
+        _isLoading = false;
+      });
+    }
   }
 
   void _onItemTapped(int index) {
@@ -50,7 +92,7 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     // Navigate to different pages based on index
     switch (index) {
       case 0:
-        Navigator.pushNamed(context, '/teacherhome');
+        Navigator.pushReplacementNamed(context, '/teacherhome');
         break;
       case 1:
         Navigator.pushNamed(context, '/teacherassignment');
@@ -70,357 +112,75 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE195AB), // Teacher background color
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(0.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TeacherHeader(
-                  onProfileTap: () {
-                    Navigator.pushNamed(context, '/teacherprofile');
-                  },
-                  onNotificationTap: () {
-                    Navigator.pushNamed(context, '/teachernotifications');
-                  },
-                  profileImage: 'lib/images/teacher.png',
-                  welcomeText: "WELCOME SENSEI",
-                ),
+      backgroundColor: teacherPrimaryColor,
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
               ),
-              const SizedBox(height: 10),
-
-              // Main box
-              Container(
-                margin: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
-                padding: const EdgeInsets.all(14.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 245, 245, 221),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 15),
-
-                    // Calendar
-                    Container(
-                      margin: const EdgeInsets.all(8.0),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE195AB), // Teacher color
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            "ACADEMIC PLANNER",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: TableCalendar(
-                              firstDay: DateTime.utc(2020, 1, 1),
-                              lastDay: DateTime.utc(2030, 12, 31),
-                              focusedDay: _focusedDay,
-                              calendarFormat: _calendarFormat,
-                              selectedDayPredicate: (day) {
-                                return isSameDay(_selectedDay, day);
-                              },
-                              onDaySelected: (selectedDay, focusedDay) {
-                                setState(() {
-                                  _selectedDay = selectedDay;
-                                  _focusedDay = focusedDay;
-                                });
-                              },
-                              onFormatChanged: (format) {
-                                if (_calendarFormat != format) {
-                                  setState(() {
-                                    _calendarFormat = format;
-                                  });
-                                }
-                              },
-                              onPageChanged: (focusedDay) {
-                                _focusedDay = focusedDay;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Pending assignments
-                    Container(
-                      margin: const EdgeInsets.all(8.0),
-                      padding:
-                          const EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 10.0),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE195AB), // Teacher color
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "ASSIGNMENTS TO GRADE",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w100,
-                              color: Colors.black,
-                            ),
-                          ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _pendingAssignments.length,
-                            itemBuilder: (context, index) {
-                              final assignment = _pendingAssignments[index];
-                              return _assignmentTile(
-                                  assignment['id'], assignment['dueDate']);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/teacherassignment');
+            )
+          : SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header section
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: TeacherHeader(
+                      onProfileTap: () {
+                        Navigator.pushNamed(context, '/teacherprofile');
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFE195AB), // Teacher color
-                        elevation: 8,
-                        shadowColor: Colors.black,
-                      ),
-                      child: const Text("REVIEW ASSIGNMENTS",
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Class Analytics
-              Container(
-                padding: EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 245, 245, 221),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 245, 245, 221),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "CLASS ANALYTICS",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Class dropdown
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: const Color(0xFFE195AB)),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedClass,
-                            isExpanded: true,
-                            icon: const Icon(Icons.keyboard_arrow_down,
-                                color: Color(0xFFE195AB)),
-                            items: _classes.map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedClass = newValue!;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 30),
-
-                      // Line chart for marks of three classes
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Performance Trend by Class",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(height: 180, child: _buildLineChart()),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Bar chart for average scores
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Average Score by Class",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(height: 180, child: _buildBarChart()),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // Test Scores by Class
-              Container(
-                padding: const EdgeInsets.all(24.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 245, 245, 221),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "CLASS TEST SCORES",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFE195AB)),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _selectedClass,
-                              icon: const Icon(Icons.keyboard_arrow_down,
-                                  color: Color(0xFFE195AB)),
-                              items: _classes.map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value,
-                                      style: TextStyle(fontSize: 12)),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedClass = newValue!;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    _studentScoreTile(
-                        "Arun Kumar", "SCIUT01", "14/15", "93%", "A+"),
-                    _studentScoreTile(
-                        "Priya Singh", "SCIUT01", "13/15", "87%", "A"),
-                    _studentScoreTile(
-                        "Rahul Sharma", "SCIUT01", "12/15", "80%", "B+"),
-                    _studentScoreTile(
-                        "Neha Patel", "SCIUT01", "15/15", "100%", "A+"),
-                    _studentScoreTile(
-                        "Arjun Verma", "SCIUT01", "11/15", "73%", "B"),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/teacher/scores');
+                      onNotificationTap: () {
+                        Navigator.pushNamed(context, '/teachernotifications');
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFE195AB), // Teacher color
-                        elevation: 8,
-                        shadowColor: Colors.black,
-                      ),
-                      child: const Text("VIEW ALL SCORES",
-                          style: TextStyle(color: Colors.white)),
+                      profileImage: 'lib/images/teacher.png',
+                      welcomeText: "WELCOME SENSEI",
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
-      // Bottom Navigation Bar
+                  // Main content
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                      child: Container(
+                        color: backgroundColor,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 24),
+
+                              // Quick Overview Cards
+                              _buildQuickOverview(),
+
+                              const SizedBox(height: 24),
+
+                              // Academic Planner
+                              _buildAcademicPlanner(),
+
+                              const SizedBox(height: 24),
+
+                              // Tabbed Content
+                              _buildTabbedContent(),
+
+                              const SizedBox(height: 24),
+
+                              // Class Performance
+                              _buildClassPerformanceSection(),
+
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
       bottomNavigationBar: Footer(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
@@ -428,353 +188,926 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     );
   }
 
-  Widget _assignmentTile(String title, String dueDate) {
-    final DateTime parsedDate = DateTime.parse(dueDate);
-    final String formattedDate =
-        DateFormat('dd MMM yyyy, hh:mm a').format(parsedDate);
+  Widget _buildQuickOverview() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Dashboard Overview",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoCard(
+                  title: "Pending Grading",
+                  value: "${_pendingAssignments.length}",
+                  icon: Icons.assignment_late,
+                  color: Colors.red,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildInfoCard(
+                  title: "Today's Classes",
+                  value: "3",
+                  icon: Icons.class_,
+                  color: accentColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoCard(
+                  title: "Students",
+                  value: "82",
+                  icon: Icons.people,
+                  color: Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildInfoCard(
+                  title: "Avg. Score",
+                  value: "78%",
+                  icon: Icons.trending_up,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            spreadRadius: 0,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAcademicPlanner() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Academic Planner",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TableCalendar(
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    focusedDay: _focusedDay,
+                    calendarFormat: _calendarFormat,
+                    headerStyle: HeaderStyle(
+                      formatButtonVisible: true,
+                      titleCentered: true,
+                      formatButtonDecoration: BoxDecoration(
+                        color: teacherPrimaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      formatButtonTextStyle:
+                          TextStyle(color: teacherPrimaryColor),
+                      titleTextStyle: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    calendarStyle: CalendarStyle(
+                      todayDecoration: BoxDecoration(
+                        color: teacherPrimaryColor.withOpacity(0.7),
+                        shape: BoxShape.circle,
+                      ),
+                      selectedDecoration: BoxDecoration(
+                        color: teacherPrimaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      markerDecoration: BoxDecoration(
+                        color: accentColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    selectedDayPredicate: (day) {
+                      return isSameDay(_selectedDay, day);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                    },
+                    onFormatChanged: (format) {
+                      if (_calendarFormat != format) {
+                        setState(() {
+                          _calendarFormat = format;
+                        });
+                      }
+                    },
+                    onPageChanged: (focusedDay) {
+                      _focusedDay = focusedDay;
+                    },
+                  ),
+                ),
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildCalendarIndicator(
+                        color: teacherPrimaryColor,
+                        label: "Class",
+                      ),
+                      _buildCalendarIndicator(
+                        color: Colors.blue,
+                        label: "Meeting",
+                      ),
+                      _buildCalendarIndicator(
+                        color: Colors.green,
+                        label: "Exam",
+                      ),
+                      _buildCalendarIndicator(
+                        color: Colors.orange,
+                        label: "Event",
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalendarIndicator({
+    required Color color,
+    required String label,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[700],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabbedContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                TabBar(
+                  controller: _tabController,
+                  labelColor: teacherPrimaryColor,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: teacherPrimaryColor,
+                  tabs: const [
+                    Tab(
+                      icon: Icon(Icons.assignment_turned_in),
+                      text: "Grading",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.schedule),
+                      text: "Schedule",
+                    ),
+                    Tab(
+                      icon: Icon(Icons.people),
+                      text: "Students",
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 300,
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildAssignmentsToGradeTab(),
+                      _buildScheduleTab(),
+                      _buildStudentsTab(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssignmentsToGradeTab() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Pending Assignments",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/teacherassignment');
+                },
+                icon: Icon(Icons.add, color: teacherPrimaryColor, size: 18),
+                label: Text(
+                  "View All",
+                  style: TextStyle(color: teacherPrimaryColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _pendingAssignments.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.task_alt,
+                          color: teacherPrimaryColor,
+                          size: 64,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "All caught up!",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "No pending assignments to grade",
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _pendingAssignments.length,
+                    itemBuilder: (context, index) {
+                      final assignment = _pendingAssignments[index];
+                      return _buildAssignmentCard(
+                        title: assignment['id'],
+                        dueDate: assignment['dueDate'],
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScheduleTab() {
+    final List<Map<String, dynamic>> todaySchedule = [
+      {
+        'time': '09:00 AM',
+        'subject': 'Mathematics',
+        'class': 'Class A',
+        'room': 'Room 101',
+      },
+      {
+        'time': '11:00 AM',
+        'subject': 'Physics',
+        'class': 'Class B',
+        'room': 'Lab 202',
+      },
+      {
+        'time': '02:00 PM',
+        'subject': 'Computer Science',
+        'class': 'Class A',
+        'room': 'Room 303',
+      },
+    ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEF5350),
-          borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Today's Schedule - ${DateFormat('EEE, MMM d').format(DateTime.now())}",
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.builder(
+              itemCount: todaySchedule.length,
+              itemBuilder: (context, index) {
+                final schedule = todaySchedule[index];
+                return _buildScheduleCard(
+                  time: schedule['time'],
+                  subject: schedule['subject'],
+                  classGroup: schedule['class'],
+                  room: schedule['room'],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStudentsTab() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                "Class: ",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedClass,
+                      isExpanded: true,
+                      icon: const Icon(Icons.arrow_drop_down),
+                      items: _classes.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedClass = newValue!;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView(
+              children: [
+                _studentPerformanceTile("Arun Kumar", "A+", 93),
+                _studentPerformanceTile("Priya Singh", "A", 87),
+                _studentPerformanceTile("Rahul Sharma", "B+", 80),
+                _studentPerformanceTile("Neha Patel", "A+", 100),
+                _studentPerformanceTile("Arjun Verma", "B", 73),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssignmentCard({
+    required String title,
+    required String dueDate,
+  }) {
+    final DateTime parsedDate = DateTime.parse(dueDate);
+    final bool isUrgent = parsedDate.difference(DateTime.now()).inDays < 3;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isUrgent ? Colors.red.withOpacity(0.5) : Colors.grey.shade200,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          "Due: ${DateFormat('MMM d, yyyy').format(parsedDate)}",
+          style: TextStyle(
+            fontSize: 12,
+            color: isUrgent ? Colors.red : Colors.grey[600],
+          ),
+        ),
+        trailing: ElevatedButton(
+          onPressed: () {
+            // Navigate to grade this assignment
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: teacherPrimaryColor,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: const Text("Grade"),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScheduleCard({
+    required String time,
+    required String subject,
+    required String classGroup,
+    required String room,
+  }) {
+    bool isCurrentClass = false;
+    // Check if this is the current class based on time
+    final now = TimeOfDay.now();
+    final classTime = TimeOfDay(
+      hour: int.parse(time.split(':')[0]),
+      minute: int.parse(time.split(':')[1].split(' ')[0]),
+    );
+
+    if (now.hour == classTime.hour) {
+      isCurrentClass = true;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isCurrentClass ? teacherPrimaryColor : Colors.grey.shade200,
+          width: isCurrentClass ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
-            Text(formattedDate, style: const TextStyle(color: Colors.white)),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: teacherPrimaryColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Text(
+                time.split(' ')[0],
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: teacherPrimaryColor,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    subject,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "$classGroup · $room",
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isCurrentClass)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: teacherPrimaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "NOW",
+                  style: TextStyle(
+                    color: teacherPrimaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _studentScoreTile(String studentName, String testId, String marks,
-      String percentage, String grade) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 3,
-              offset: const Offset(0, 2),
+  Widget _studentPerformanceTile(String name, String grade, int scorePercent) {
+    Color gradeColor;
+
+    switch (grade) {
+      case 'A+':
+        gradeColor = Colors.green[700]!;
+        break;
+      case 'A':
+        gradeColor = Colors.green;
+        break;
+      case 'B+':
+        gradeColor = Colors.blue[700]!;
+        break;
+      case 'B':
+        gradeColor = Colors.blue;
+        break;
+      default:
+        gradeColor = Colors.orange;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 6,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: CircleAvatar(
+          backgroundColor: teacherPrimaryColor.withOpacity(0.1),
+          child: Text(
+            name[0],
+            style: TextStyle(
+              color: teacherPrimaryColor,
+              fontWeight: FontWeight.bold,
             ),
-          ],
+          ),
         ),
-        child: Row(
+        title: Text(
+          name,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: LinearPercentIndicator(
+          lineHeight: 8.0,
+          percent: scorePercent / 100,
+          backgroundColor: Colors.grey.shade200,
+          progressColor: gradeColor,
+          barRadius: const Radius.circular(8),
+          padding: const EdgeInsets.only(top: 8),
+        ),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: gradeColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            grade,
+            style: TextStyle(
+              color: gradeColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClassPerformanceSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Class Performance",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Class selection
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedClass,
+                      isExpanded: true,
+                      icon: const Icon(Icons.arrow_drop_down),
+                      items: _classes.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedClass = newValue!;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Class stats
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatColumn("Average Score", "76%"),
+                    ),
+                    Expanded(
+                      child: _buildStatColumn("Attendance Rate", "92%"),
+                    ),
+                    Expanded(
+                      child: _buildStatColumn("Pass Rate", "89%"),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Performance by subject
+                const Text(
+                  "Performance by Subject",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildSubjectPerformance("Mathematics", 0.82, Colors.blue),
+                const SizedBox(height: 12),
+                _buildSubjectPerformance("Science", 0.76, Colors.green),
+                const SizedBox(height: 12),
+                _buildSubjectPerformance("English", 0.68, Colors.orange),
+                const SizedBox(height: 12),
+                _buildSubjectPerformance("History", 0.73, Colors.purple),
+
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/teacherscores');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: teacherPrimaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    minimumSize: const Size(double.infinity, 0),
+                  ),
+                  child: const Text("VIEW DETAILED REPORTS"),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatColumn(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubjectPerformance(String subject, double percent, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-                flex: 3,
-                child: Text(studentName,
-                    style: const TextStyle(fontWeight: FontWeight.bold))),
-            Expanded(flex: 2, child: Text(testId, textAlign: TextAlign.center)),
-            Expanded(flex: 1, child: Text(marks, textAlign: TextAlign.center)),
-            Expanded(
-              flex: 1,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: _getGradeColor(grade),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(grade,
-                    style: TextStyle(color: Colors.white),
-                    textAlign: TextAlign.center),
+            Text(
+              subject,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              "${(percent * 100).toInt()}%",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Color _getGradeColor(String grade) {
-    switch (grade) {
-      case 'A+':
-        return Colors.green[700]!;
-      case 'A':
-        return Colors.green;
-      case 'B+':
-        return Colors.blue[700]!;
-      case 'B':
-        return Colors.blue;
-      case 'C+':
-        return Colors.orange[700]!;
-      case 'C':
-        return Colors.orange;
-      default:
-        return Colors.red;
-    }
-  }
-
-  Widget _buildLineChart() {
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: true,
-          horizontalInterval: 10,
-          verticalInterval: 1,
+        const SizedBox(height: 8),
+        LinearPercentIndicator(
+          lineHeight: 10.0,
+          percent: percent,
+          backgroundColor: Colors.grey.shade200,
+          progressColor: color,
+          barRadius: const Radius.circular(8),
+          padding: EdgeInsets.zero,
         ),
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              getTitlesWidget: (value, meta) {
-                const style = TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                );
-                String text;
-                switch (value.toInt()) {
-                  case 0:
-                    text = 'Test 1';
-                    break;
-                  case 1:
-                    text = 'Test 2';
-                    break;
-                  case 2:
-                    text = 'Test 3';
-                    break;
-                  case 3:
-                    text = 'Test 4';
-                    break;
-                  default:
-                    return Container();
-                }
-                return SideTitleWidget(
-                  axisSide: meta.axisSide,
-                  child: Text(text, style: style),
-                );
-              },
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              interval: 20,
-              reservedSize: 40,
-              getTitlesWidget: (value, meta) {
-                return Text(
-                  '${value.toInt()}%',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                  textAlign: TextAlign.center,
-                );
-              },
-            ),
-          ),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(
-          show: true,
-          border: Border.all(color: const Color(0xff37434d)),
-        ),
-        minX: 0,
-        maxX: 3,
-        minY: 0,
-        maxY: 100,
-        lineBarsData: [
-          // Class A line
-          LineChartBarData(
-            spots: [
-              const FlSpot(0, 65),
-              const FlSpot(1, 72),
-              const FlSpot(2, 68),
-              const FlSpot(3, 75),
-            ],
-            isCurved: true,
-            color: const Color(0xFFE195AB), // Teacher color for Class A
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: FlDotData(show: true),
-            belowBarData: BarAreaData(show: false),
-          ),
-          // Class B line
-          LineChartBarData(
-            spots: [
-              const FlSpot(0, 58),
-              const FlSpot(1, 65),
-              const FlSpot(2, 64),
-              const FlSpot(3, 70),
-            ],
-            isCurved: true,
-            color: Colors.blue,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: FlDotData(show: true),
-            belowBarData: BarAreaData(show: false),
-          ),
-          // Class C line
-          LineChartBarData(
-            spots: [
-              const FlSpot(0, 72),
-              const FlSpot(1, 68),
-              const FlSpot(2, 74),
-              const FlSpot(3, 80),
-            ],
-            isCurved: true,
-            color: Colors.green,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: FlDotData(show: true),
-            belowBarData: BarAreaData(show: false),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBarChart() {
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: 100,
-        barTouchData: BarTouchData(
-          enabled: false,
-          touchTooltipData: BarTouchTooltipData(
-            tooltipBgColor: Colors.transparent,
-            tooltipPadding: const EdgeInsets.all(0),
-            tooltipMargin: 8,
-            getTooltipItem: (
-              BarChartGroupData group,
-              int groupIndex,
-              BarChartRodData rod,
-              int rodIndex,
-            ) {
-              return BarTooltipItem(
-                rod.toY.round().toString(),
-                const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              );
-            },
-          ),
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 30,
-              getTitlesWidget: (double value, TitleMeta meta) {
-                const style = TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                );
-                Widget text;
-                switch (value.toInt()) {
-                  case 0:
-                    text = const Text('Class A', style: style);
-                    break;
-                  case 1:
-                    text = const Text('Class B', style: style);
-                    break;
-                  case 2:
-                    text = const Text('Class C', style: style);
-                    break;
-                  default:
-                    text = const Text('', style: style);
-                    break;
-                }
-                return SideTitleWidget(
-                  axisSide: meta.axisSide,
-                  child: text,
-                );
-              },
-            ),
-          ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              interval: 20,
-              getTitlesWidget: (value, meta) {
-                return Text(
-                  '${value.toInt()}%',
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                );
-              },
-            ),
-          ),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(
-          show: true,
-          border: Border.all(color: const Color(0xff37434d)),
-        ),
-        gridData: FlGridData(show: true, horizontalInterval: 20),
-        barGroups: [
-          BarChartGroupData(
-            x: 0,
-            barRods: [
-              BarChartRodData(
-                toY: 75,
-                color: const Color(0xFFE195AB), // Teacher color
-                width: 22,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                ),
-              )
-            ],
-          ),
-          BarChartGroupData(
-            x: 1,
-            barRods: [
-              BarChartRodData(
-                toY: 65,
-                color: Colors.blue,
-                width: 22,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                ),
-              )
-            ],
-          ),
-          BarChartGroupData(
-            x: 2,
-            barRods: [
-              BarChartRodData(
-                toY: 80,
-                color: Colors.green,
-                width: 22,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                ),
-              )
-            ],
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

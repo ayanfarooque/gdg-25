@@ -55,19 +55,19 @@ class _ProfilePageState extends State<Profile> {
     // Navigate to different pages based on index
     switch (index) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/student');
+        Navigator.pushNamed(context, '/');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/student/assignments');
+        Navigator.pushNamed(context, '/assignment');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/student/community');
+        Navigator.pushNamed(context, '/community');
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/student/aibot');
+        Navigator.pushNamed(context, '/aibot');
         break;
       case 4:
-        // Already on profile page
+        Navigator.pushNamed(context, '/resources');
         break;
     }
   }

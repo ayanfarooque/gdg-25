@@ -68,19 +68,19 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
     // Navigate based on the tapped item
     switch (index) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/teacher');
+        Navigator.pushNamed(context, '/taecherhome');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/teacher/assignments');
+        Navigator.pushNamed(context, '/teacherassignment');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/teacher/community');
+        Navigator.pushNamed(context, '/teachercommunity');
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/teacher/aibot');
+        Navigator.pushNamed(context, '/teacherai');
         break;
       case 4:
-        // Already on profile page
+        Navigator.pushNamed(context, '/teacherresources');
         break;
     }
   }
@@ -131,7 +131,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                   TeacherHeader(
                     onProfileTap: () {},
                     onNotificationTap: () {
-                      Navigator.pushNamed(context, '/teacher/notifications');
+                      Navigator.pushNamed(context, '/teachernotifications');
                     },
                     profileImage: _teacherData["profileImage"] ??
                         'lib/images/teacher.png',
@@ -308,9 +308,6 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
                           padding: const EdgeInsets.symmetric(vertical: 20.0),
                           child: ElevatedButton(
                             onPressed: () {
-                              // Handle edit profile action
-                              Navigator.pushNamed(
-                                  context, '/teacher/edit-profile');
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFE195AB),

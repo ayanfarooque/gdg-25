@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-//import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import '../components/teacherheader.dart';
 import '../components/footer.dart';
-import 'package:http/http.dart' as http;
 
 class FacNotifications extends StatefulWidget {
   final String studentId;
@@ -25,60 +24,49 @@ class _NotificationPageState extends State<FacNotifications> {
     _loadNotifications();
   }
 
-  void _loadNotifications() async {
-    final String apiUrl =
-        "http://192.168.0.104:5000/api/notify/all-notifications";
-
+  Future<void> _loadNotifications() async {
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      // Load the JSON file from the existing location
+      final String jsonData =
+          await rootBundle.loadString('lib/data/notification.json');
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
+      // Parse the JSON data
+      final List<dynamic> notificationsData = json.decode(jsonData);
 
-        if (responseData["success"]) {
-          setState(() {
-            _notifications = responseData["notifications"];
-          });
-        } else {
-          print("Error: ${responseData['message']}");
-        }
+      // Filter notifications for this specific student if studentId is provided
+      // Otherwise show all notifications
+      if (widget.studentId.isNotEmpty) {
+        setState(() {
+          _notifications = notificationsData
+              .where((notification) =>
+                  notification['studentId'] == widget.studentId)
+              .toList();
+        });
       } else {
-        print("Failed to load notifications: ${response.statusCode}");
+        setState(() {
+          _notifications = notificationsData;
+        });
       }
+
+      // Sort notifications by time (newest first)
+      _notifications.sort((a, b) => DateTime.parse(b['notificationTime'])
+          .compareTo(DateTime.parse(a['notificationTime'])));
     } catch (e) {
-      print("Error fetching notifications: $e");
+      print("Error loading notifications from local file: $e");
+
+      // Fallback data in case the file cannot be loaded
+      setState(() {
+        _notifications = [
+          {
+            "notificationId": "error",
+            "notificationContent":
+                "Unable to load notifications. Please try again later.",
+            "notificationTime": DateTime.now().toIso8601String()
+          }
+        ];
+      });
     }
   }
-
-  // Future<void> createNotification(String content) async {
-  //   final String apiUrl = "http://10.0.0.5:5000/api/notify/create-notification";
-  //   final response = await http.post(
-  //     Uri.parse(apiUrl),
-  //     headers: {"Content-Type": "application/json"},
-  //     body: jsonEncode({
-  //       "studentId": widget.studentId,
-  //       "content": content,
-  //     }),
-  //   );
-
-  //   if (response.statusCode == 201) {
-  //     _loadNotifications(); // Refresh list after adding
-  //   } else {
-  //     print("Failed to create notification");
-  //   }
-  // }
-
-  // Future<void> deleteNotification(String notificationId) async {
-  //   final String apiUrl =
-  //       "http://10.0.0.5:5000/api/notify/delete/$notificationId";
-  //   final response = await http.delete(Uri.parse(apiUrl));
-
-  //   if (response.statusCode == 200) {
-  //     _loadNotifications(); // Refresh list after deletion
-  //   } else {
-  //     print("Failed to delete notification");
-  //   }
-  // }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -125,7 +113,7 @@ class _NotificationPageState extends State<FacNotifications> {
                     Navigator.pushNamed(context, '/teachernotifications');
                   },
                   profileImage: 'assets/images/teacher.png',
-                  welcomeText: "WELCOME HASHIM",
+                  welcomeText: "WELCOME ",
                 ),
               ),
               const SizedBox(height: 10),

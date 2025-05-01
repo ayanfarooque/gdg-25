@@ -4,70 +4,42 @@ class Footer extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
 
-  const Footer(
-      {Key? key, required this.selectedIndex, required this.onItemTapped})
-      : super(key: key);
+  const Footer({
+    Key? key,
+    required this.selectedIndex,
+    required this.onItemTapped,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        ClipPath(
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: const Color.fromARGB(255, 33, 41, 79),
-            ),
-            height: 80,
-            width: 400,
-            // Navy blue background
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(Icons.home, 0),
-                _buildNavItem(Icons.menu_book, 1),
-                _buildNavItem(Icons.group, 2),
-                _buildNavItem(Icons.memory, 3),
-                _buildNavItem(Icons.category, 4),
-              ],
-            ),
-          ),
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
         ),
-        const SizedBox(
-          height: 10,
+        BottomNavigationBarItem(
+          icon: Icon(Icons.assignment),
+          label: 'Assignments',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.people),
+          label: 'Community',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat_bubble),
+          label: 'AI Bot',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.book),
+          label: 'Resources',
         ),
       ],
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, int index) {
-    return IconButton(
-      icon: Icon(icon,
-          color: index == selectedIndex
-              ? Color.fromARGB(255, 73, 171, 176)
-              : Colors.white),
-      onPressed: () => onItemTapped(index),
+      currentIndex: selectedIndex,
+      selectedItemColor: const Color(0xFF49ABB0),
+      unselectedItemColor: Colors.grey,
+      onTap: onItemTapped,
     );
   }
 }
-
-// class NavBarClipper extends CustomClipper<Path> {
-//   @override
-//   Path getClip(Size size) {
-//     double width = size.width;
-//     double height = size.height;
-//     Path path = Path()
-//       ..moveTo(0, height)
-//       ..lineTo(width * 0.35, height)
-//       ..quadraticBezierTo(width * 0.5, height - 40, width * 0.65, height)
-//       ..lineTo(width, height)
-//       ..lineTo(width, 0)
-//       ..lineTo(0, 0)
-//       ..close();
-//     return path;
-//   }
-
-//   @override
-//   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-// }

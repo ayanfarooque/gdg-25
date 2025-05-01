@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:fl_chart/fl_chart.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import '../components/header.dart';
 import '../components/footer.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,29 +15,76 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
   List<dynamic> _assignments = [];
   List<dynamic> _pendingAssignments = [];
+  bool _isLoading = true;
+  String _greeting = '';
+
+  // Define theme colors
+  final Color primaryColor = const Color(0xFF49ABB0);
+  final Color backgroundColor = const Color(0xFFF5F5DD);
+  final Color accentColor = const Color(0xFFEF5350);
+  final Color textColor = Colors.black87;
 
   @override
   void initState() {
     super.initState();
-    _loadAssignments();
+    _setGreeting();
+    _loadData();
   }
 
-  void _loadAssignments() async {
-    final String response =
-        await rootBundle.loadString('lib/data/assignment.json');
-    final data = await json.decode(response);
-    setState(() {
-      _assignments = data;
-      _pendingAssignments = _assignments
-          .where((assignment) => assignment['isCompleted'] == false)
-          .toList();
-      print(_pendingAssignments); // Debug print to verify data
-    });
+  void _setGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      _greeting = 'Good Morning';
+    } else if (hour < 18) {
+      _greeting = 'Good Afternoon';
+    } else {
+      _greeting = 'Good Evening';
+    }
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Create mock data for testing
+      final mockData = [
+        {
+          'title': 'Mathematics Assignment',
+          'subject': 'Mathematics',
+          'dueDate': '2025-05-10',
+          'isCompleted': false
+        },
+        {
+          'title': 'Physics Lab Report',
+          'subject': 'Physics',
+          'dueDate': '2025-05-12',
+          'isCompleted': false
+        },
+        {
+          'title': 'Programming Project',
+          'subject': 'Computer Science',
+          'dueDate': '2025-05-15',
+          'isCompleted': true
+        },
+      ];
+
+      setState(() {
+        _assignments = mockData;
+        // Fixed: Use proper typecasting and for loop to avoid type issues
+        _pendingAssignments = [];
+        for (var item in mockData) {
+          if (item['isCompleted'] == false) {
+            _pendingAssignments.add(item);
+          }
+        }
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _onItemTapped(int index) {
@@ -46,10 +92,9 @@ class _HomePageState extends State<HomePage> {
       _selectedIndex = index;
     });
 
-    // Navigate to different pages based on index
     switch (index) {
       case 0:
-        Navigator.pushNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/');
         break;
       case 1:
         Navigator.pushNamed(context, '/assignment');
@@ -69,217 +114,62 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color.fromARGB(255, 73, 171, 176), // Background color
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(0.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Header(
-                  onProfileTap: () {
-                    Navigator.pushNamed(context, '/profile');
-                  },
-                  onNotificationTap: () {
-                    Navigator.pushNamed(context, '/notifications');
-                  },
-                  profileImage: 'lib/images/image3.png',
-                  welcomeText: "WELCOME HASHIM",
-                ),
+      backgroundColor: primaryColor,
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
               ),
-              const SizedBox(height: 10),
-              // Main box
-              Container(
-                margin: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
-                padding: const EdgeInsets.all(14.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 245, 245, 221),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 15),
-                    // Calendar
-                    Container(
-                      margin: const EdgeInsets.all(8.0),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF49ABB0),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            "PLANNER",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: TableCalendar(
-                              firstDay: DateTime.utc(2020, 1, 1),
-                              lastDay: DateTime.utc(2030, 12, 31),
-                              focusedDay: _focusedDay,
-                              calendarFormat: _calendarFormat,
-                              selectedDayPredicate: (day) {
-                                return isSameDay(_selectedDay, day);
-                              },
-                              onDaySelected: (selectedDay, focusedDay) {
-                                setState(() {
-                                  _selectedDay = selectedDay;
-                                  _focusedDay =
-                                      focusedDay; // update `_focusedDay` here as well
-                                });
-                              },
-                              onFormatChanged: (format) {
-                                if (_calendarFormat != format) {
-                                  setState(() {
-                                    _calendarFormat = format;
-                                  });
-                                }
-                              },
-                              onPageChanged: (focusedDay) {
-                                _focusedDay = focusedDay;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Pending assignments
-                    Container(
-                      margin: const EdgeInsets.all(8.0),
-                      padding:
-                          const EdgeInsets.fromLTRB(12.0, 20.0, 12.0, 10.0),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF49ABB0),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            "PENDING ASSIGNMENTS",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w100,
-                              color: Colors.black,
-                            ),
-                          ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: _pendingAssignments.length,
-                            itemBuilder: (context, index) {
-                              final assignment = _pendingAssignments[index];
-                              return _assignmentTile(
-                                  assignment['id'], assignment['dueDate']);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/assignment');
+            )
+          : SafeArea(
+              child: Column(
+                children: [
+                  // Header section
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Header(
+                      onProfileTap: () {
+                        Navigator.pushNamed(context, '/profile');
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF49ABB0),
-                        elevation: 8,
-                        shadowColor: Colors.black,
-                      ),
-                      child: const Text("SUBMIT",
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Personal Analytics
-              Container(
-                padding: EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 245, 245, 221),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 245, 245, 221),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "PERSONAL ANALYTICS",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 40),
-                      SizedBox(height: 100, child: _buildLineChart()),
-                      const SizedBox(height: 40),
-                      SizedBox(height: 180, child: _buildPieChart()),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Test Scores
-              Container(
-                padding: const EdgeInsets.all(24.0),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 245, 245, 221),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "TEST SCORES",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w100,
-                        color: Colors.black,
-                      ),
-                    ),
-                    _scoreTile(
-                        "22/01/25", "SSTUT01", "SST", "Vikul J Pawar", "12/15"),
-                    _scoreTile(
-                        "24/01/25", "SCIUT01", "SCI", "Sol C Sharma", "15/15"),
-                    _scoreTile(
-                        "25/01/25", "HINUT01", "HIN", "Vinit Pandey", "14/15"),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/viewscore');
+                      onNotificationTap: () {
+                        Navigator.pushNamed(context, '/notifications');
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF49ABB0),
-                        elevation: 8,
-                        shadowColor: Colors.black,
-                      ),
-                      child: const Text("VIEW ALL",
-                          style: TextStyle(color: Colors.white)),
+                      profileImage: 'lib/images/image3.png',
+                      welcomeText: "$_greeting ",
                     ),
-                  ],
-                ),
+                  ),
+
+                  // Main content
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                      child: Container(
+                        color: backgroundColor,
+                        child: RefreshIndicator(
+                          onRefresh: _loadData,
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 20),
+                                _buildStatsSection(),
+                                _buildAssignmentsSection(),
+                                _buildCoursesSection(),
+                                const SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
-      // Bottom Navigation Bar
+            ),
       bottomNavigationBar: Footer(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
@@ -287,90 +177,484 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _assignmentTile(String title, String dueDate) {
-    final DateTime parsedDate = DateTime.parse(dueDate);
-    final String formattedDate =
-        DateFormat('dd MMM yyyy, hh:mm a').format(parsedDate);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEF5350),
-          borderRadius: BorderRadius.circular(12),
+  Widget _buildWelcomeCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [primaryColor, primaryColor.withOpacity(0.8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(title,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
-            Text(formattedDate, style: const TextStyle(color: Colors.white)),
-          ],
-        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _scoreTile(
-      String date, String id, String subject, String teacher, String marks) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "$_greeting,",
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              color: Colors.white,
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(date, style: const TextStyle(fontWeight: FontWeight.normal)),
-            Text(id),
-            Text(subject),
-            Text(marks, style: const TextStyle(fontWeight: FontWeight.normal)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLineChart() {
-    return LineChart(
-      LineChartData(
-        titlesData: FlTitlesData(show: false),
-        borderData: FlBorderData(show: false),
-        gridData: FlGridData(show: true),
-        lineBarsData: [
-          LineChartBarData(
-            spots: [FlSpot(0, 40), FlSpot(1, 50), FlSpot(2, 55), FlSpot(3, 60)],
-            isCurved: true,
-            color: Colors.redAccent,
-            barWidth: 3,
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            "Hashim!",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "You have ${_pendingAssignments.length} pending assignments",
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPieChart() {
-    return PieChart(
-      PieChartData(
-        centerSpaceRadius: 40,
-        sections: [
-          PieChartSectionData(value: 25, color: Colors.red),
-          PieChartSectionData(value: 30, color: Colors.blue),
-          PieChartSectionData(value: 20, color: Colors.green),
-          PieChartSectionData(value: 25, color: Colors.yellow),
+  Widget _buildStatsSection() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Overview",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  title: "Attendance",
+                  value: "92%",
+                  icon: Icons.calendar_today,
+                  color: Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildStatCard(
+                  title: "Performance",
+                  value: "B+",
+                  icon: Icons.trending_up,
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  title: "Pending Tasks",
+                  value: "${_pendingAssignments.length}",
+                  icon: Icons.assignment,
+                  color: accentColor,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildStatCard(
+                  title: "Credits Earned",
+                  value: "18",
+                  icon: Icons.star,
+                  color: Colors.amber,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssignmentsSection() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Upcoming Assignments",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/assignment');
+                },
+                child: Text(
+                  "View All",
+                  style: TextStyle(color: primaryColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _pendingAssignments.isEmpty
+              ? _buildEmptyState("No pending assignments")
+              : Column(
+                  children: _pendingAssignments
+                      .take(3)
+                      .map<Widget>((assignment) => _buildAssignmentCard(
+                            title: assignment['title'],
+                            subject: assignment['subject'],
+                            dueDate: assignment['dueDate'],
+                          ))
+                      .toList(),
+                ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAssignmentCard({
+    required String title,
+    required String subject,
+    required String dueDate,
+  }) {
+    final daysLeft = DateTime.parse(dueDate).difference(DateTime.now()).inDays;
+    final bool isUrgent = daysLeft < 3;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isUrgent ? accentColor.withOpacity(0.3) : Colors.grey.shade200,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 40,
+            decoration: BoxDecoration(
+              color: isUrgent ? accentColor : primaryColor,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subject,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color:
+                      (isUrgent ? accentColor : primaryColor).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "Due ${DateFormat('MMM d').format(DateTime.parse(dueDate))}",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: isUrgent ? accentColor : primaryColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isUrgent ? "$daysLeft days left" : "On track",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isUrgent ? accentColor : Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoursesSection() {
+    final List<Map<String, dynamic>> courses = [
+      {
+        'name': 'Mathematics',
+        'progress': 0.75,
+        'color': Colors.blue,
+        'icon': Icons.functions,
+      },
+      {
+        'name': 'Physics',
+        'progress': 0.62,
+        'color': Colors.amber,
+        'icon': Icons.science,
+      },
+      {
+        'name': 'Computer Science',
+        'progress': 0.88,
+        'color': Colors.purple,
+        'icon': Icons.computer,
+      },
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "My Courses",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: courses.length,
+            itemBuilder: (context, index) {
+              final course = courses[index];
+              return _buildCourseCard(
+                name: course['name'],
+                progress: course['progress'],
+                color: course['color'],
+                icon: course['icon'],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/resources');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text("VIEW ALL RESOURCES"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCourseCard({
+    required String name,
+    required double progress,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Text(
+                "${(progress * 100).round()}%",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          LinearPercentIndicator(
+            lineHeight: 8.0,
+            percent: progress,
+            backgroundColor: Colors.grey.shade200,
+            progressColor: color,
+            barRadius: const Radius.circular(4),
+            padding: EdgeInsets.zero,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Fixed: Added implementation for this method which was missing
+  Widget _buildEmptyState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20),
+          Icon(
+            Icons.check_circle_outline,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

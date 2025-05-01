@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import '../components/header.dart';
 import '../components/footer.dart';
-import 'package:http/http.dart' as http;
 
 class ViewScores extends StatefulWidget {
   @override
@@ -14,7 +14,6 @@ class _ScorePageState extends State<ViewScores> {
   int _selectedIndex = 0;
   List<dynamic> _scores = [];
   Map<String, List<dynamic>> _subjectScores = {};
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -23,48 +22,20 @@ class _ScorePageState extends State<ViewScores> {
   }
 
   void _loadScores() async {
-    try {
-      final response = await http.get(
-        Uri.parse("http://192.168.0.104:5000/api/test-scores/test-results"),
-      );
-
-      print("Response Status: ${response.statusCode}");
-      print("Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        print("Response data: $data"); // Log the response data
-        setState(() {
-          _scores = data;
-          _subjectScores = {};
-          _errorMessage = null; // Clear any previous error message
-          for (var score in _scores) {
-            if (score['subjectName'] != null) {
-              String subjectName = score['subjectName'];
-              if (_subjectScores.containsKey(subjectName)) {
-                _subjectScores[subjectName]!.add(score);
-              } else {
-                _subjectScores[subjectName] = [score];
-              }
-            } else {
-              print("Invalid score data: $score");
-            }
-          }
-        });
-        print("✅ Scores loaded successfully!");
-      } else {
-        setState(() {
-          _errorMessage = "API Error: ${response.statusCode}";
-        });
-        print("❌ API Error: ${response.statusCode}");
-        print("Response body: ${response.body}");
+    final String response = await rootBundle.loadString('lib/data/scores.json');
+    final data = await json.decode(response);
+    setState(() {
+      _scores = data;
+      _subjectScores = {};
+      for (var score in _scores) {
+        String subjectName = score['subjectName'];
+        if (_subjectScores.containsKey(subjectName)) {
+          _subjectScores[subjectName]!.add(score);
+        } else {
+          _subjectScores[subjectName] = [score];
+        }
       }
-    } catch (e) {
-      setState(() {
-        _errorMessage = "⚠ Network Error: $e";
-      });
-      print("⚠ Network Error: $e");
-    }
+    });
   }
 
   void _onItemTapped(int index) {
@@ -111,19 +82,11 @@ class _ScorePageState extends State<ViewScores> {
                   onNotificationTap: () {
                     Navigator.pushNamed(context, '/notifications');
                   },
-                  profileImage: 'images/image3.png',
-                  welcomeText: "WELCOME HASHIM",
+                  profileImage: 'assets/images/image3.png',
+                  welcomeText: "WELCOME",
                 ),
               ),
               const SizedBox(height: 10),
-              if (_errorMessage != null) // Display error message if any
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    _errorMessage!,
-                    style: TextStyle(color: Colors.red, fontSize: 16),
-                  ),
-                ),
               Container(
                 margin: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
                 padding: const EdgeInsets.fromLTRB(4.0, 12.0, 4.0, 12.0),

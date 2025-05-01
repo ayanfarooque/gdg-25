@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import '../../components/header.dart';
 import '../../components/footer.dart';
 import '../../components/resourceCard.dart';
-import 'package:http/http.dart' as http;
 
 class ResourceLanding extends StatefulWidget {
   @override
@@ -31,21 +29,7 @@ class _LandingPageState extends State<ResourceLanding> {
     super.dispose();
   }
 
-  void _loadResources() async {
-    try {
-      final response = await http
-          .get(Uri.parse('http://192.168.0.104:5000/api/resources/resources'));
-      if (response.statusCode == 200) {
-        setState(() {
-          _resources = json.decode(response.body);
-        });
-      } else {
-        throw Exception('Failed to load resources');
-      }
-    } catch (e) {
-      print('Error fetching resources: $e');
-    }
-  }
+  void _loadResources(){}
 
   void _onSearchChanged() {
     setState(() {

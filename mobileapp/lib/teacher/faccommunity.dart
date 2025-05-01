@@ -97,7 +97,7 @@ class _LandingPageState extends State<FacCommunityLanding> {
                     Navigator.pushNamed(context, '/notifications');
                   },
                   profileImage: 'assets/images/teacher.png',
-                  welcomeText: "WELCOME HASHIM",
+                  welcomeText: "WELCOME",
                 ),
               ),
               const SizedBox(height: 40),

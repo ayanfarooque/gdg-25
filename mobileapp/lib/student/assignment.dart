@@ -184,7 +184,7 @@ class _LandingPageState extends State<AssignmentLanding> {
                         Navigator.pushNamed(context, '/notifications');
                       },
                       profileImage: 'assets/images/image3.png',
-                      welcomeText: "WELCOME HASHIM",
+                      welcomeText: "WELCOME",
                     ),
                   ),
                   const SizedBox(height: 10),

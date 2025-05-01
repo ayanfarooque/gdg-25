@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 import '../../components/header.dart';
 import '../../components/footer.dart';
-import '../../components/news_card.dart';
 import '../../components/resourceCard.dart';
-import 'package:http/http.dart' as http;
+import '../../components/news_card.dart';
 
 class ResourceLanding extends StatefulWidget {
   @override
@@ -14,19 +14,18 @@ class ResourceLanding extends StatefulWidget {
 class _LandingPageState extends State<ResourceLanding> {
   int _selectedIndex = 0;
   List<dynamic> _news = [];
-  List<dynamic> _resources = [];
-  List<dynamic> _filteredItems = [];
+  List<dynamic> _resources = []; // Added resources list
+  List<dynamic> _filteredItems = []; // Added filteredItems list
   TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
   bool _showRecommended = true;
-  bool _showResources = false;
-  bool _showNews = false;
+  bool _showResources = false; // Added missing variable
+  bool _showNews = false; // Added missing variable
 
   @override
   void initState() {
     super.initState();
-    _loadNews();
-    _loadResources();
+    _loadData();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -37,78 +36,73 @@ class _LandingPageState extends State<ResourceLanding> {
     super.dispose();
   }
 
-  void _loadNews() async {
+  void _loadData() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://192.168.0.104:5000/api/news/news'));
-      if (response.statusCode == 200) {
-        setState(() {
-          _news = json.decode(response.body);
-          _updateFilteredItems();
-        });
-      } else {
-        throw Exception('Failed to load news');
-      }
-    } catch (e) {
-      print('Error fetching news: $e');
-    }
-  }
+      final String newsResponse =
+          await rootBundle.loadString('lib/data/news.json');
+      final newsData = json.decode(newsResponse);
 
-  void _loadResources() async {
-    try {
-      final response = await http
-          .get(Uri.parse('http://192.168.0.104:5000/api/resources/resources'));
-      if (response.statusCode == 200) {
+      // Try to load resources data too
+      try {
+        final String resourcesResponse =
+            await rootBundle.loadString('lib/data/resources.json');
+        final resourcesData = json.decode(resourcesResponse);
+
         setState(() {
-          _resources = json.decode(response.body);
+          _news = newsData;
+          _resources = resourcesData;
+          _showRecommended = true;
+          _showResources = false;
+          _showNews = false;
           _updateFilteredItems();
         });
-      } else {
-        throw Exception('Failed to load resources');
+      } catch (e) {
+        print("Error loading resources: $e");
+        setState(() {
+          _news = newsData;
+          _resources = [];
+          _filteredItems = _news;
+        });
       }
     } catch (e) {
-      print('Error fetching resources: $e');
+      print("Error loading news: $e");
+      setState(() {
+        _news = [];
+        _resources = [];
+        _filteredItems = [];
+      });
     }
   }
 
   void _updateFilteredItems() {
     if (_showRecommended) {
-      _filteredItems = [
-        ..._news.where((news) => news['stared'] == true),
-        ..._resources.where((resource) => resource['stared'] == true)
-      ];
+      _filteredItems = [..._news, ..._resources]
+          .where((item) => item['stared'] == true)
+          .toList();
     } else if (_showResources) {
       _filteredItems = _resources;
     } else if (_showNews) {
       _filteredItems = _news;
+    } else {
+      _filteredItems = [..._news, ..._resources];
+    }
+
+    // Apply search filter if there's a query
+    if (_searchQuery.isNotEmpty) {
+      _filteredItems = _filteredItems.where((item) {
+        String title = item.containsKey('newsHeading')
+            ? item['newsHeading']
+            : (item.containsKey('resourceTitle') ? item['resourceTitle'] : '');
+
+        return title.toLowerCase().contains(_searchQuery.toLowerCase());
+      }).toList();
     }
   }
 
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text;
-      if (_showResources) {
-        _filteredItems = _resources
-            .where((resource) => resource['resourcesHeading']
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase()))
-            .toList();
-      } else if (_showNews) {
-        _filteredItems = _news
-            .where((news) => news['newsHeading']
-                .toLowerCase()
-                .contains(_searchQuery.toLowerCase()))
-            .toList();
-      } else {
-        _filteredItems = [
-          ..._news.where((news) => news['newsHeading']
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase())),
-          ..._resources.where((resource) => resource['resourcesHeading']
-              .toLowerCase()
-              .contains(_searchQuery.toLowerCase()))
-        ];
-      }
+      _updateFilteredItems();
     });
   }
 
@@ -156,6 +150,7 @@ class _LandingPageState extends State<ResourceLanding> {
   }
 
   void _showAllNews() {
+    // Added missing method
     setState(() {
       _showRecommended = false;
       _showResources = false;
@@ -170,7 +165,7 @@ class _LandingPageState extends State<ResourceLanding> {
       backgroundColor: const Color.fromARGB(255, 73, 171, 176),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -184,12 +179,12 @@ class _LandingPageState extends State<ResourceLanding> {
                     Navigator.pushNamed(context, '/notifications');
                   },
                   profileImage: 'assets/images/image3.png',
-                  welcomeText: "WELCOME HASHIM",
+                  welcomeText: "WELCOME",
                 ),
               ),
               const SizedBox(height: 10),
               Container(
-                width: 400,
+                width: double.infinity, // Changed from fixed width
                 margin: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
                 padding: const EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 12.0),
                 decoration: BoxDecoration(
@@ -198,18 +193,25 @@ class _LandingPageState extends State<ResourceLanding> {
                 ),
                 child: Column(
                   children: [
+                    // Fixed the Drawer which was empty
+                    Container(
+                      height: 1,
+                      color: Colors.black12,
+                    ),
                     Container(
                       margin: EdgeInsets.fromLTRB(30.0, 10.0, 0.0, 0.0),
-                      decoration: BoxDecoration(),
                       child: Row(
                         children: [
                           Container(
                             padding: EdgeInsets.all(0.0),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   "RESOURCES",
-                                  style: TextStyle(fontSize: 20),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   "Recommended for you",
@@ -219,29 +221,31 @@ class _LandingPageState extends State<ResourceLanding> {
                             ),
                           ),
                           const SizedBox(width: 30),
-                          Container(
-                            width: 180,
-                            height: 33,
-                            padding: EdgeInsets.fromLTRB(12.0, 2.0, 4.0, 2.0),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _searchController,
-                                    decoration: InputDecoration(
-                                      hintText: "Search",
-                                      border: InputBorder.none,
+                          Expanded(
+                            child: Container(
+                              height: 33,
+                              padding: EdgeInsets.fromLTRB(12.0, 2.0, 4.0, 2.0),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _searchController,
+                                      decoration: InputDecoration(
+                                        hintText: "Search",
+                                        border: InputBorder.none,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Icon(Icons.search, size: 25),
-                              ],
+                                  Icon(Icons.search, size: 25),
+                                ],
+                              ),
                             ),
                           ),
+                          SizedBox(width: 10),
                         ],
                       ),
                     ),
@@ -251,13 +255,15 @@ class _LandingPageState extends State<ResourceLanding> {
                       decoration: BoxDecoration(
                         color: const Color.fromARGB(255, 236, 231, 202),
                       ),
-                      child: Row(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _showRecommended
                               ? ElevatedButton(
                                   onPressed: _showRecommendedCards,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF49ABB0),
+                                    backgroundColor:
+                                        const Color.fromARGB(255, 73, 171, 176),
                                     elevation: 2,
                                     shadowColor: Colors.black,
                                   ),
@@ -270,78 +276,106 @@ class _LandingPageState extends State<ResourceLanding> {
                                   onPressed: _showRecommendedCards,
                                   style: OutlinedButton.styleFrom(
                                     side: BorderSide(
-                                        color: const Color(0xFF49ABB0)),
+                                        color: const Color.fromARGB(
+                                            255, 73, 171, 176)),
                                   ),
                                   child: const Text(
                                     "Recommended",
                                     style: TextStyle(
-                                        color: const Color(0xFF49ABB0)),
+                                        color: const Color.fromARGB(
+                                            255, 73, 171, 176)),
                                   ),
                                 ),
-                          const SizedBox(width: 8.9),
-                          _showResources
-                              ? ElevatedButton(
-                                  onPressed: _showAllResources,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF49ABB0),
-                                    elevation: 2,
-                                    shadowColor: Colors.black,
-                                  ),
-                                  child: const Text(
-                                    "Resources",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                )
-                              : OutlinedButton(
-                                  onPressed: _showAllResources,
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(
-                                        color: const Color(0xFF49ABB0)),
-                                  ),
-                                  child: const Text(
-                                    "Resources",
-                                    style: TextStyle(
-                                        color: const Color(0xFF49ABB0)),
-                                  ),
-                                ),
-                          const SizedBox(width: 8.8),
-                          _showNews
-                              ? ElevatedButton(
-                                  onPressed: _showAllNews,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF49ABB0),
-                                    elevation: 2,
-                                    shadowColor: Colors.black,
-                                  ),
-                                  child: const Text(
-                                    "News",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                )
-                              : OutlinedButton(
-                                  onPressed: _showAllNews,
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(
-                                        color: const Color(0xFF49ABB0)),
-                                  ),
-                                  child: const Text(
-                                    "News",
-                                    style: TextStyle(
-                                        color: const Color(0xFF49ABB0)),
-                                  ),
-                                ),
+                          const SizedBox(height: 10),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _showResources
+                                  ? ElevatedButton(
+                                      onPressed: _showAllResources,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 73, 171, 176),
+                                        elevation: 2,
+                                        shadowColor: Colors.black,
+                                      ),
+                                      child: const Text(
+                                        "Resources",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    )
+                                  : OutlinedButton(
+                                      onPressed: _showAllResources,
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(
+                                            color: const Color.fromARGB(
+                                                255, 73, 171, 176)),
+                                      ),
+                                      child: const Text(
+                                        "Resources",
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(
+                                                255, 73, 171, 176)),
+                                      ),
+                                    ),
+                              const SizedBox(width: 8.8),
+                              _showNews
+                                  ? ElevatedButton(
+                                      onPressed: _showAllNews,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 73, 171, 176),
+                                        elevation: 2,
+                                        shadowColor: Colors.black,
+                                      ),
+                                      child: const Text(
+                                        "News",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    )
+                                  : OutlinedButton(
+                                      onPressed: _showAllNews,
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(
+                                            color: const Color.fromARGB(
+                                                255, 73, 171, 176)),
+                                      ),
+                                      child: const Text(
+                                        "News",
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(
+                                                255, 73, 171, 176)),
+                                      ),
+                                    ),
+                            ],
+                          )
                         ],
                       ),
                     ),
                     const SizedBox(height: 10),
-                    ..._filteredItems.map((item) {
-                      if (item.containsKey('newsId')) {
-                        return NewsCard(news: item);
-                      } else if (item.containsKey('resourcesId')) {
-                        return ResourceCard(resource: item);
-                      }
-                      return Container();
-                    }).toList(),
+                    if (_filteredItems.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Center(
+                          child: Text(
+                            "No items found",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      ...(_filteredItems.map((item) {
+                        if (item.containsKey('newsId')) {
+                          return NewsCard(news: item);
+                        } else if (item.containsKey('resourcesId')) {
+                          return ResourceCard(resource: item);
+                        }
+                        return Container();
+                      }).toList()),
                   ],
                 ),
               ),

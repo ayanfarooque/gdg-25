@@ -97,7 +97,7 @@ class _LandingPageState extends State<CommunityLanding> {
                     Navigator.pushNamed(context, '/notifications');
                   },
                   profileImage: 'assets/images/image3.png',
-                  welcomeText: "WELCOME HASHIM",
+                  welcomeText: "WELCOME",
                 ),
               ),
               const SizedBox(height: 40),
@@ -207,6 +207,15 @@ class _LandingPageState extends State<CommunityLanding> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/addcommunity');
+        },
+        backgroundColor: const Color.fromARGB(255, 73, 171, 176),
+        child: const Icon(Icons.add, color: Colors.white),
+        elevation: 4,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: Footer(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,

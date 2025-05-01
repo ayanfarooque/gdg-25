@@ -19,22 +19,22 @@ import 'teacher/faccommunity.dart';
 import 'teacher/facassignment.dart';
 import 'teacher/facresources/faclanding.dart';
 import 'teacher/addassignment.dart';
+import 'student/communityadd.dart';
+import 'authorization/adminsisu.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Default to not logged in
-  bool isLoggedIn = false;
+  // Always set to true for testing purposes
+  bool isLoggedIn = true; // Changed to always be true
 
+  // Store a dummy token for testing
   try {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    // Only set to true if token exists and is not empty
-    isLoggedIn = token != null && token.isNotEmpty;
-    print("Token found: $isLoggedIn");
+    await prefs.setString('token', 'dummy-test-token');
+    print("Test token set: isLoggedIn=$isLoggedIn");
   } catch (e) {
-    print("Error checking login status: $e");
-    // Keep isLoggedIn as false on error
+    print("Error setting test token: $e");
   }
 
   runApp(MyApp(isLoggedIn: isLoggedIn));
@@ -68,10 +68,11 @@ class MyApp extends StatelessWidget {
               fontWeight: FontWeight.w100),
         ),
       ),
-      initialRoute: isLoggedIn ? '/role' : '/role',
+      initialRoute: '/role', // Always start at role picker for testing
       routes: {
         '/role': (context) => RolePickerScreen(),
         '/': (context) => const HomePage(),
+        '/adminauth': (context) => const AdminAuthPage(),
         '/addassignment': (context) => AddAssignmentPage(),
         '/teachernotifications': (context) =>
             FacNotifications(studentId: '603dcd7f1c4ae72f8c8b4571'),
@@ -87,20 +88,14 @@ class MyApp extends StatelessWidget {
         '/aibot': (context) => AiLanding(),
         '/resources': (context) => ResourceLanding(),
         '/community': (context) => CommunityLanding(),
+        '/addcommunity': (context) => AddCommunityQuestionPage(),
         '/viewscore': (context) => ViewScores(),
         '/profile': (context) => Profile(studentId: '1'),
         '/notifications': (context) =>
             ViewNotifications(studentId: '603dcd7f1c4ae72f8c8b4571'),
       },
-      onGenerateRoute: (settings) {
-        // If user is not logged in, redirect all routes except /auth to the auth page
-        if (!isLoggedIn && settings.name != '/auth') {
-          return MaterialPageRoute(
-            builder: (context) => const StudentAuthPage(),
-          );
-        }
-        return null; // Let the routes above handle the navigation
-      },
+      // Bypass auth check completely by removing onGenerateRoute override
+      // This ensures all routes work without authentication
     );
   }
 }
