@@ -186,7 +186,6 @@ exports.getClassroom = asyncHandler(async (req, res) => {
 
     console.log("Incoming classroom ID:", id);
 
-    // ✅ Check if ID is valid
     if (!mongoose.Types.ObjectId.isValid(id)) {
         console.log("Invalid ID format");
         return res.status(400).json({ success: false, error: "Invalid ID format" });
@@ -696,50 +695,39 @@ exports.getClassroomStats = asyncHandler(async (req, res) => {
     });
 });
 
+// Fix for getAssignments function
 exports.getAssignments = asyncHandler(async (req, res) => {
-    const { status, upcoming, past } = req.query;
-    const classroomId = req.params.id;
-    const userId = req.user.id;
-
-    // Check if user is part of the classroom (teacher or student)
-    const classroom = await Classroom.findOne({
-        _id: classroomId,
-        $or: [
-            { teacher: userId },
-            { students: userId }
-        ]
-    }).select('_id');
-
-    if (!classroom) {
-        return res.status(403).json({
-            success: false,
-            error: 'Not authorized to access these assignments'
+    try {
+      const { id } = req.params; // Get classroom ID from URL params
+  
+      // Validate MongoDB ObjectId
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid classroom ID format'
         });
-    }
-
-    let query = { classroom: classroomId };
-
-    if (status) {
-        query.status = status;
-    }
-
-    if (upcoming === 'true') {
-        query.dueDate = { $gt: new Date() };
-    } else if (past === 'true') {
-        query.dueDate = { $lte: new Date() };
-    }
-
-    const assignments = await AssignAssignment.find(query)
+      }
+  
+      // Find assignments for the classroom
+      const assignments = await AssignAssignment.find({ classroom: id })
         .sort({ dueDate: 1 })
-        .populate('teacher', 'name email');
-
-    res.status(200).json({
+        .populate('teacher', 'name email')
+        .lean();
+  
+      res.status(200).json({
         success: true,
         count: assignments.length,
         data: assignments
-    });
-});
-
+      });
+    } catch (error) {
+      console.error('Error fetching assignments:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching assignments',
+        error: error.message
+      });
+    }
+  });
 
 exports.deleteAssignment = asyncHandler(async (req, res) => {
     const { classroomId, assignmentId } = req.params;

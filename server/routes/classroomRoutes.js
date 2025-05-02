@@ -84,8 +84,8 @@ router.delete("/:id",  classroomController.deleteClassroom);
 router.get("/", classroomController.getAllClassrooms);
 
 // Student management
-router.post("/:id/students",  classroomController.addStudent);
-router.delete("/:id/students/:studentId",  classroomController.removeStudent);
+router.post("/studentclassroom/:id/students",  classroomController.addStudent);
+router.delete("studentclassroom/:id/students/:studentId",  classroomController.removeStudent);
 
 // Announcements
 router.post("/:id/announcements",  classroomController.addAnnouncement);
@@ -94,13 +94,13 @@ router.post("/:id/announcements",  classroomController.addAnnouncement);
 router.get("/:id/stats",  classroomController.getClassroomStats);
 
 // Assignment routes
-router.post("/:id/assignments",  classroomController.assignAssignment);
-router.get("/:id/assignments", classroomController.getAssignments);
-router.put("/:classroomId/assignments/:assignmentId",  classroomController.updateAssignment);
-router.delete("/:classroomId/assignments/:assignmentId",  classroomController.deleteAssignment);
+router.post("/studentclassroom/:id/assignments",  classroomController.assignAssignment);
+router.get("/studentclassroom/:id/assignments", classroomController.getAssignments);
+router.put("/studentclassroom/:classroomId/assignments/:assignmentId",  classroomController.updateAssignment);
+router.delete("/studentclassroom:classroomId/assignments/:assignmentId",  classroomController.deleteAssignment);
 
 // Join requests
-router.post('/student-classroom/request-join/:id', classroomController.joinClassroomRequest);
-router.post('/student-classroom/approve/:id',  classroomController.approveJoinRequest);
+router.post('/studentclassroom/request-join/:id', classroomController.joinClassroomRequest);
+router.post('/studentclassroom/approve/:id',  classroomController.approveJoinRequest);
 
 module.exports = router;

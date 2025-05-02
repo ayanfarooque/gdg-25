@@ -32,8 +32,8 @@ const StudentClassroom = () => {
   }, []);
 
   // Handle classroom click
-  const handleClassroomClick = (classroomId) => {
-    navigate(`/student-classroom/${classroomId}`);
+  const handleClassroomClick = (id) => {
+    navigate(`/student-classroom/${id}`);
   };
 
   // Handle join classroom

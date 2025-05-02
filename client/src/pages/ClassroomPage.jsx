@@ -18,45 +18,51 @@ const ClassroomPage = () => {
       setLoading(true);
       try {
         // Fetch classroom details
-        const {id} = req.params
-        const classroomResponse = await axios.get(`http://localhost:5000/api/classrooms/studentclassroom/${id}`);
+        
+        const classroomResponse = await axios.get(`http://localhost:5000/api/classrooms/studentclassroom/${id}`,{
+          headers: {
+            'Content-Type': 'application/json',
+            // Add any auth headers if required
+            // 'Authorization': `Bearer ${yourAuthToken}`
+          }
+        });
         const classroomData = classroomResponse.data.data;
 
         // Fetch assignments for this classroom
-        const assignmentsResponse = await axios.get(`http://localhost:5000/api/classrooms/${id}/assignments`);
+        const assignmentsResponse = await axios.get(`http://localhost:5000/api/classrooms/studentclassroom/${id}/assignments`);
         const assignmentsData = assignmentsResponse.data.data;
 
         // Fetch students enrolled in this classroom
-        const studentsResponse = await axios.get(`http://localhost:5000/api/classrooms/${id}/students`);
+        // const studentsResponse = await axios.get(`http://localhost:5000/api/classrooms/studentclassroom/68138fe4b3d09fa1af12f515/students`);
 
-        const studentsData = studentsResponse.data.data;
+        // const studentsData = studentsResponse.data.data;
 
-        // Fetch grades for this classroom
-        const gradesResponse = await axios.get(`http://localhost:5000/api/classrooms/${id}/grades`);
+        // // Fetch grades for this classroom
+        // const gradesResponse = await axios.get(`http://localhost:5000/api/classrooms/studentclassroom/68138fe4b3d09fa1af12f515/grades`);
 
-        const gradesData = gradesResponse.data.data;
+        // const gradesData = gradesResponse.data.data;
 
-        // Fetch resources for this classroom
-        const resourcesResponse = await axios.get(`http://localhost:5000/api/classrooms/${id}/resources`);
-        const resourcesData = resourcesResponse.data.data;
+        // // Fetch resources for this classroom
+        // const resourcesResponse = await axios.get(`http://localhost:5000/api/classrooms/studentclassroom/68138fe4b3d09fa1af12f515/resources`);
+        // const resourcesData = resourcesResponse.data.data;
 
-        // Fetch announcements for this classroom
-        const announcementsResponse = await axios.get(`http://localhost:5000/api/classrooms/${id}/announcements`);
-        const announcementsData = announcementsResponse.data.data;
+        // // Fetch announcements for this classroom
+        // const announcementsResponse = await axios.get(`http://localhost:5000/api/classrooms/studentclassroom/68138fe4b3d09fa1af12f515/announcements`);
+        // const announcementsData = announcementsResponse.data.data;
 
         // Combine all data
         const combinedData = {
           ...classroomData,
           assignments: assignmentsData,
-          students: studentsData,
-          grades: gradesData,
-          resources: resourcesData,
-          announcements: announcementsData,
-          performanceStats: {
-            averageScore: calculateAverageScore(gradesData),
-            assignmentsPending: assignmentsData.filter(a => a.status === 'pending').length,
-            assignmentsCompleted: assignmentsData.filter(a => a.status === 'completed').length
-          }
+          // students: studentsData,
+          // grades: gradesData,
+          // resources: resourcesData,
+          // announcements: announcementsData,
+          // performanceStats: {
+          //   averageScore: calculateAverageScore(gradesData),
+          //   assignmentsPending: assignmentsData.filter(a => a.status === 'pending').length,
+          //   assignmentsCompleted: assignmentsData.filter(a => a.status === 'completed').length
+          // }
         };
 
         setClassroom(combinedData);
