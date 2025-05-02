@@ -98,7 +98,7 @@ class AssignmentSidebar extends StatelessWidget {
 
           Container(
             width: 400,
-            height: 300,
+            height: 296,
             margin: EdgeInsets.all(18.0),
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 73, 171, 176),
