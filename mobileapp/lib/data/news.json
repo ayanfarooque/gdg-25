@@ -1,32 +1,102 @@
 [
   {
-    "newsId": "1",
-    "newsType": "Technology",
-    "newsDate": "2025-02-25T00:00:00Z",
-    "newsHeading": "New AI Breakthrough",
-    "newsContent": "A new AI model has been developed that can understand and generate human-like text.",
-    "newsImage": "lib/images/news/image1.jpg",
-    "stared": false,
-    "detailedContent": "In a groundbreaking development, researchers have created an AI model that can understand and generate human-like text with unprecedented accuracy. This new model, which leverages advanced machine learning techniques, has the potential to revolutionize various industries, including customer service, content creation, and more. The AI's ability to comprehend context and generate coherent responses marks a significant leap forward in the field of artificial intelligence."
+    "newsId": "news001",
+    "title": "Annual Science Fair Scheduled for Next Month",
+    "excerpt": "The annual science fair will be held on May 15-16 with exciting new categories and special prizes.",
+    "content": "The annual science fair will be held on May 15-16 in the school auditorium. This year's event will feature new categories including 'Environmental Sustainability' and 'AI & Robotics'. Students from grades 8-12 are eligible to participate. Registration is open until April 30. Special prizes will be awarded for the most innovative projects in each category.",
+    "author": {
+      "id": "user001",
+      "name": "Dr. Priya Sharma",
+      "profilePic": "https://randomuser.me/api/portraits/women/44.jpg"
+    },
+    "category": "event",
+    "publishedAt": "2025-04-10T09:30:00Z",
+    "imageUrl": "https://images.unsplash.com/photo-1530210124550-912dc1381cb8?w=800&auto=format&fit=crop",
+    "tags": ["science fair", "competition", "school event"],
+    "views": 278,
+    "likes": 42,
+    "commentsCount": 15,
+    "isFeatured": true,
+    "stared": true
   },
   {
-    "newsId": "2",
-    "newsType": "Health",
-    "newsDate": "2025-02-24T00:00:00Z",
-    "newsHeading": "Health Benefits of Yoga",
-    "newsContent": "Recent studies show that practicing yoga can significantly improve mental and physical health.",
-    "newsImage": "lib/images/news/image2.jpeg",
-    "stared": true,
-    "detailedContent": "Yoga, an ancient practice that combines physical postures, breathing exercises, and meditation, has been shown to offer numerous health benefits. Recent studies indicate that regular yoga practice can reduce stress, improve flexibility, enhance respiratory function, and promote overall well-being. Additionally, yoga has been linked to better mental health outcomes, including reduced symptoms of anxiety and depression. As more people turn to holistic approaches for health, yoga continues to gain popularity as a versatile and effective practice."
+    "newsId": "news002",
+    "title": "New Mathematics Curriculum to be Implemented",
+    "excerpt": "Starting next semester, the school will implement a revised mathematics curriculum focusing on practical applications.",
+    "content": "The school board has approved a new mathematics curriculum that will be implemented starting from the next semester. The revised curriculum places greater emphasis on practical applications of mathematical concepts and problem-solving skills. It will include more project-based assignments and real-world scenarios to help students understand the relevance of mathematics in everyday life. Teacher training workshops will be conducted throughout the summer to ensure smooth transition.",
+    "author": {
+      "id": "user002",
+      "name": "Prof. Rahul Verma",
+      "profilePic": "https://randomuser.me/api/portraits/men/32.jpg"
+    },
+    "category": "academic",
+    "publishedAt": "2025-04-12T14:15:00Z",
+    "imageUrl": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop",
+    "tags": ["curriculum", "mathematics", "education reform"],
+    "views": 312,
+    "likes": 56,
+    "commentsCount": 24,
+    "isFeatured": false,
+    "stared": true
   },
   {
-    "newsId": "3",
-    "newsType": "Science",
-    "newsDate": "2025-02-23T00:00:00Z",
-    "newsHeading": "Mars Rover Discovers Water",
-    "newsContent": "The Mars Rover has discovered evidence of water on the surface of Mars.",
-    "newsImage": "lib/images/news/image3.jpeg",
-    "stared": false,
-    "detailedContent": "In a historic discovery, the Mars Rover has found evidence of water on the surface of Mars. This finding has significant implications for the possibility of life on the Red Planet and future human exploration. The presence of water suggests that Mars may have once had conditions suitable for life and could potentially support human colonization in the future. Scientists are now analyzing the data to understand the extent and nature of the water deposits, which could provide valuable insights into the planet's history and geology."
+    "newsId": "news003",
+    "title": "Students Win National Debate Championship",
+    "excerpt": "Our school's debate team secured first place in the National Schools Debate Championship held last weekend.",
+    "content": "It is with great pride and joy that we announce our school's debate team has won the National Schools Debate Championship held in Delhi last weekend. The team comprising Aarav Mehta, Zara Khan, and Vihaan Sharma demonstrated exceptional critical thinking, research skills, and eloquence throughout the competition. They successfully argued both for and against complex motions on topics ranging from international relations to ethical dilemmas in science. This is the first time our school has secured the top position in this prestigious competition.",
+    "author": {
+      "id": "user003",
+      "name": "Ananya Gupta",
+      "profilePic": "https://randomuser.me/api/portraits/women/65.jpg"
+    },
+    "category": "achievement",
+    "publishedAt": "2025-04-14T10:45:00Z",
+    "imageUrl": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop",
+    "tags": ["debate", "championship", "student achievement"],
+    "views": 423,
+    "likes": 87,
+    "commentsCount": 32,
+    "isFeatured": true,
+    "stared": false
+  },
+  {
+    "newsId": "news004",
+    "title": "Parent-Teacher Meeting Schedule for May",
+    "excerpt": "The semester-end parent-teacher meetings will be held from May 5-7. Online booking system now open.",
+    "content": "The semester-end parent-teacher meetings have been scheduled for May 5-7, 2025. Parents can book their preferred time slots through the online booking system which is now open. Each appointment will be 15 minutes long. Teachers will provide detailed feedback on student performance, areas of strength, and opportunities for improvement. Parents are encouraged to review their child's recent assessments before the meeting to ensure productive discussions. For any technical difficulties with the booking system, please contact the IT department.",
+    "author": {
+      "id": "user004",
+      "name": "Sarah Johnson",
+      "profilePic": "https://randomuser.me/api/portraits/women/22.jpg"
+    },
+    "category": "announcement",
+    "publishedAt": "2025-04-15T16:30:00Z",
+    "imageUrl": "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&auto=format&fit=crop",
+    "tags": ["parent-teacher meeting", "school events", "academic feedback"],
+    "views": 356,
+    "likes": 28,
+    "commentsCount": 17,
+    "isFeatured": false,
+    "stared": true
+  },
+  {
+    "newsId": "news005",
+    "title": "Summer Workshop Series for Teachers",
+    "excerpt": "A series of professional development workshops will be offered during summer break focusing on innovative teaching methodologies.",
+    "content": "The school is organizing a series of professional development workshops during the summer break. These workshops will focus on innovative teaching methodologies, educational technology integration, and student-centered learning approaches. External experts and experienced educators will facilitate sessions on topics such as project-based learning, formative assessment techniques, digital tools for classroom engagement, and addressing diverse learning needs. Workshops will be held between June 10-30, 2025. Teachers can register for individual sessions or the complete series. Early registration is encouraged as seats are limited.",
+    "author": {
+      "id": "user005",
+      "name": "Arjun Malhotra",
+      "profilePic": "https://randomuser.me/api/portraits/men/54.jpg"
+    },
+    "category": "event",
+    "publishedAt": "2025-04-16T11:45:00Z",
+    "imageUrl": "https://images.unsplash.com/photo-1544531585-9847b68c8c86?w=800&auto=format&fit=crop",
+    "tags": ["professional development", "workshops", "teacher training"],
+    "views": 198,
+    "likes": 45,
+    "commentsCount": 12,
+    "isFeatured": false,
+    "stared": false
   }
 ]

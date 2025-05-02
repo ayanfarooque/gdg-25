@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
         '/addassignment': (context) => AddAssignmentPage(),
         '/teachernotifications': (context) =>
             FacNotifications(studentId: '603dcd7f1c4ae72f8c8b4571'),
-        '/teacherassignment': (context) => FacAssignmentLanding(),
+        '/teacherassignment': (context) => FacClassroomsLanding(),
         '/teacherresources': (context) => FacResourceLanding(),
         '/teacherai': (context) => TeacherAi(),
         '/teacherprofile': (context) => TeacherProfilePage(),

@@ -1,52 +1,138 @@
 [
-    {
-      "resourcesId": "res001",
-      "resourcesType": "Article",
-      "resourcesDate": "2025-03-01T09:00:00.000Z",
-      "resourcesHeading": "Understanding JavaScript Closures",
-      "resourcesContent": "A comprehensive guide to understanding closures in JavaScript.",
-      "resourcesImage": "lib/assets/images/default.jpg",
-      "stared": false,
-      "detailedContent": "This article provides an in-depth look at JavaScript closures, explaining how they work and how to use them effectively in your code. It covers various use cases and common pitfalls to avoid."
+  {
+    "resourcesId": "res001",
+    "resourceTitle": "Introduction to Quantum Physics",
+    "description": "A comprehensive guide to the fundamental principles of quantum physics, covering wave-particle duality, quantum states, and measurement theory.",
+    "uploadedBy": {
+      "id": "user001",
+      "name": "Dr. Priya Sharma"
     },
-    {
-      "resourcesId": "res002",
-      "resourcesType": "Video",
-      "resourcesDate": "2025-03-02T10:00:00.000Z",
-      "resourcesHeading": "React Hooks Tutorial",
-      "resourcesContent": "Learn how to use React Hooks in this detailed video tutorial.",
-      "resourcesImage": "lib/assets/images/default.jpg",
-      "stared": true,
-      "detailedContent": "This video tutorial walks you through the basics of React Hooks, including useState, useEffect, and custom hooks. It provides practical examples and tips for integrating hooks into your React projects."
+    "uploadedAt": "2025-04-12T10:30:00Z",
+    "metadata": {
+      "subject": "Physics",
+      "topic": "Quantum Mechanics",
+      "grade": "12"
     },
-    {
-      "resourcesId": "res003",
-      "resourcesType": "Podcast",
-      "resourcesDate": "2025-03-03T11:00:00.000Z",
-      "resourcesHeading": "The Future of Web Development",
-      "resourcesContent": "A podcast discussing the future trends in web development.",
-      "resourcesImage": "lib/assets/images/default.jpg",
-      "stared": false,
-      "detailedContent": "In this podcast episode, industry experts discuss the latest trends and future directions in web development. Topics include new frameworks, tools, and best practices for building modern web applications."
+    "file": {
+      "url": "https://example.com/files/quantum_physics_intro.pdf",
+      "type": "pdf",
+      "size": 4500000,
+      "thumbnailUrl": "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=800&auto=format&fit=crop"
     },
-    {
-      "resourcesId": "res004",
-      "resourcesType": "Article",
-      "resourcesDate": "2025-03-04T12:00:00.000Z",
-      "resourcesHeading": "CSS Grid Layout",
-      "resourcesContent": "An in-depth article on how to use CSS Grid Layout.",
-      "resourcesImage": "lib/assets/images/default.jpg",
-      "stared": true,
-      "detailedContent": "This article explores the CSS Grid Layout module, providing examples and techniques for creating complex, responsive grid-based layouts. It covers grid properties, alignment, and common layout patterns."
+    "tags": ["quantum physics", "wave function", "uncertainty principle"],
+    "views": 342,
+    "downloads": 156,
+    "averageRating": 4.7,
+    "isFeatured": true,
+    "stared": true
+  },
+  {
+    "resourcesId": "res002",
+    "resourceTitle": "Advanced Calculus Techniques",
+    "description": "This resource provides step-by-step explanations of advanced calculus techniques including multivariate calculus and differential equations.",
+    "uploadedBy": {
+      "id": "user002",
+      "name": "Prof. Rahul Verma"
     },
-    {
-      "resourcesId": "res005",
-      "resourcesType": "Video",
-      "resourcesDate": "2025-03-05T13:00:00.000Z",
-      "resourcesHeading": "Node.js Performance Tips",
-      "resourcesContent": "Tips and tricks to improve the performance of your Node.js applications.",
-      "resourcesImage": "lib/assets/images/default.jpg",
-      "stared": false,
-      "detailedContent": "This video provides performance optimization tips for Node.js applications, including best practices for memory management, asynchronous programming, and efficient use of Node.js modules."
-    }
-  ]
+    "uploadedAt": "2025-04-08T14:45:00Z",
+    "metadata": {
+      "subject": "Mathematics",
+      "topic": "Calculus",
+      "grade": "11"
+    },
+    "file": {
+      "url": "https://example.com/files/advanced_calculus.pdf",
+      "type": "pdf",
+      "size": 3200000,
+      "thumbnailUrl": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop"
+    },
+    "tags": ["calculus", "mathematics", "differential equations"],
+    "views": 289,
+    "downloads": 134,
+    "averageRating": 4.5,
+    "isFeatured": false,
+    "stared": true
+  },
+  {
+    "resourcesId": "res003",
+    "resourceTitle": "Chemical Bonding Tutorial",
+    "description": "An interactive video tutorial that explains different types of chemical bonds, their properties, and applications in chemical reactions.",
+    "uploadedBy": {
+      "id": "user003",
+      "name": "Dr. Ananya Gupta"
+    },
+    "uploadedAt": "2025-04-15T09:15:00Z",
+    "metadata": {
+      "subject": "Chemistry",
+      "topic": "Chemical Bonding",
+      "grade": "10"
+    },
+    "file": {
+      "url": "https://example.com/files/chemical_bonding.mp4",
+      "type": "video",
+      "size": 75000000,
+      "duration": 1260,
+      "thumbnailUrl": "https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=800&auto=format&fit=crop"
+    },
+    "tags": ["chemistry", "chemical bonds", "covalent", "ionic"],
+    "views": 215,
+    "downloads": 98,
+    "averageRating": 4.8,
+    "isFeatured": true,
+    "stared": false
+  },
+  {
+    "resourcesId": "res004",
+    "resourceTitle": "English Literature Analysis Framework",
+    "description": "A structured approach to analyzing literary works including character development, themes, narrative techniques, and contextual factors.",
+    "uploadedBy": {
+      "id": "user004",
+      "name": "Sarah Johnson"
+    },
+    "uploadedAt": "2025-04-10T13:20:00Z",
+    "metadata": {
+      "subject": "English",
+      "topic": "Literature Analysis",
+      "grade": "11"
+    },
+    "file": {
+      "url": "https://example.com/files/literature_analysis.docx",
+      "type": "document",
+      "size": 2100000,
+      "thumbnailUrl": "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&auto=format&fit=crop"
+    },
+    "tags": ["English literature", "analysis", "critical thinking"],
+    "views": 178,
+    "downloads": 87,
+    "averageRating": 4.3,
+    "isFeatured": false,
+    "stared": true
+  },
+  {
+    "resourcesId": "res005",
+    "resourceTitle": "Introduction to Python Programming",
+    "description": "A beginner-friendly tutorial on Python programming covering basic syntax, data types, control structures, and simple applications.",
+    "uploadedBy": {
+      "id": "user005",
+      "name": "Arjun Malhotra"
+    },
+    "uploadedAt": "2025-04-18T16:30:00Z",
+    "metadata": {
+      "subject": "Computer Science",
+      "topic": "Programming",
+      "grade": "10"
+    },
+    "file": {
+      "url": "https://example.com/files/python_intro.zip",
+      "type": "code",
+      "size": 5800000,
+      "thumbnailUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop"
+    },
+    "tags": ["python", "programming", "coding", "beginners"],
+    "views": 412,
+    "downloads": 223,
+    "averageRating": 4.9,
+    "isFeatured": true,
+    "stared": false
+  }
+]

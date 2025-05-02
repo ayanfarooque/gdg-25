@@ -1,32 +1,220 @@
 [
-    {
-        "name": "Classroom A",
-        "teacher": "603dcd7f1c4ae72f8c8b5678",
-        "students": ["603dcd7f1c4ae72f8c8b4567", "603dcd7f1c4ae72f8c8b4568"],
-        "assignments": ["603dcd7f1c4ae72f8c8b9101", "603dcd7f1c4ae72f8c8b9102"]
-    },
-    {
-        "name": "Classroom B",
-        "teacher": "603dcd7f1c4ae72f8c8b5679",
-        "students": ["603dcd7f1c4ae72f8c8b4569", "603dcd7f1c4ae72f8c8b4570"],
-        "assignments": ["603dcd7f1c4ae72f8c8b9103", "603dcd7f1c4ae72f8c8b9104"]
-    },
-    {
-        "name": "Classroom C",
-        "teacher": "603dcd7f1c4ae72f8c8b5680",
-        "students": ["603dcd7f1c4ae72f8c8b4571", "603dcd7f1c4ae72f8c8b4567"],
-        "assignments": ["603dcd7f1c4ae72f8c8b9105", "603dcd7f1c4ae72f8c8b9106"]
-    },
-    {
-        "name": "Classroom D",
-        "teacher": "603dcd7f1c4ae72f8c8b5681",
-        "students": ["603dcd7f1c4ae72f8c8b4568", "603dcd7f1c4ae72f8c8b4569"],
-        "assignments": ["603dcd7f1c4ae72f8c8b9107", "603dcd7f1c4ae72f8c8b9108"]
-    },
-    {
-        "name": "Classroom E",
-        "teacher": "603dcd7f1c4ae72f8c8b5682",
-        "students": ["603dcd7f1c4ae72f8c8b4570", "603dcd7f1c4ae72f8c8b4571"],
-        "assignments": ["603dcd7f1c4ae72f8c8b9109", "603dcd7f1c4ae72f8c8b9110"]
-    }
+  {
+      "_id": "65a2c8f7d8b3e456789012ab",
+      "name": "Advanced Mathematics",
+      "code": "MATH123",
+      "description": "This course covers advanced concepts in calculus, linear algebra, and differential equations.",
+      "subject": "Math",
+      "gradeLevel": "College",
+      "teacher": "65a2c8f7d8b3e456789012cd",
+      "coTeachers": ["65a2c8f7d8b3e456789012ef", "65a2c8f7d8b3e456789012ff"],
+      "students": [
+          "65a2c8f7d8b3e456789013ab",
+          "65a2c8f7d8b3e456789013ac",
+          "65a2c8f7d8b3e456789013ad",
+          "65a2c8f7d8b3e456789013ae"
+      ],
+      "assignments": [
+          "1", 
+          "2"  
+      ],
+      "performanceStats": {
+          "averageScore": 86,
+          "assignmentsCompleted": 15,
+          "assignmentsPending": 3
+      },
+      "resources": [
+          {
+              "title": "Calculus Textbook PDF",
+              "url": "https://example.com/resources/calculus.pdf",
+              "type": "Document",
+              "addedBy": "65a2c8f7d8b3e456789012cd",
+              "addedByModel": "Teacher",
+              "addedAt": "2025-01-15T09:00:00.000Z"
+          },
+          {
+              "title": "Linear Algebra Video Lectures",
+              "url": "https://example.com/resources/linear-algebra-videos",
+              "type": "Video",
+              "addedBy": "65a2c8f7d8b3e456789012cd",
+              "addedByModel": "Teacher",
+              "addedAt": "2025-01-20T14:30:00.000Z"
+          }
+      ],
+      "announcements": [
+          {
+              "content": "Remember to submit your Linear Algebra Problem Set by Friday!",
+              "postedBy": "65a2c8f7d8b3e456789012cd",
+              "createdAt": "2025-02-10T08:15:00.000Z",
+              "isPinned": true
+          },
+          {
+              "content": "Office hours are extended this week to help with midterm preparation.",
+              "postedBy": "65a2c8f7d8b3e456789012cd",
+              "createdAt": "2025-02-08T10:30:00.000Z",
+              "isPinned": false
+          }
+      ],
+      "settings": {
+          "allowStudentPosts": true,
+          "studentJoinApproval": true,
+          "visibility": "Private"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-02-15T12:00:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+          "url": "https://example.com/images/math-classroom-cover.jpg",
+          "thumbnailUrl": "https://example.com/images/math-classroom-cover-thumb.jpg",
+          "altText": "Mathematics classroom banner"
+      }
+  },
+  {
+      "_id": "65a2c8f7d8b3e456789022ab",
+      "name": "Introduction to Biology",
+      "code": "BIO101",
+      "description": "Fundamental principles of biology including cell structure, genetics, evolution, and ecology.",
+      "subject": "Science",
+      "gradeLevel": "High School",
+      "teacher": "65a2c8f7d8b3e456789022cd",
+      "coTeachers": [],
+      "students": [
+          "65a2c8f7d8b3e456789023ab",
+          "65a2c8f7d8b3e456789023ac",
+          "65a2c8f7d8b3e456789023ad",
+          "65a2c8f7d8b3e456789023ae",
+          "65a2c8f7d8b3e456789023af"
+      ],
+      "assignments": [
+          "3", 
+          "4"  
+      ],
+      "performanceStats": {
+          "averageScore": 78,
+          "assignmentsCompleted": 8,
+          "assignmentsPending": 2
+      },
+      "resources": [
+          {
+              "title": "Cell Structure Diagram",
+              "url": "https://example.com/resources/cell-structure.jpg",
+              "type": "Document",
+              "addedBy": "65a2c8f7d8b3e456789022cd",
+              "addedByModel": "Teacher",
+              "addedAt": "2025-01-18T11:20:00.000Z"
+          },
+          {
+              "title": "Evolution Documentary",
+              "url": "https://example.com/resources/evolution-documentary",
+              "type": "Video",
+              "addedBy": "65a2c8f7d8b3e456789022cd",
+              "addedByModel": "Teacher",
+              "addedAt": "2025-01-25T15:45:00.000Z"
+          },
+          {
+              "title": "Interactive Genetics Lab",
+              "url": "https://example.com/resources/genetics-lab",
+              "type": "Link",
+              "addedBy": "65a2c8f7d8b3e456789023ab",
+              "addedByModel": "Student",
+              "addedAt": "2025-02-05T16:10:00.000Z"
+          }
+      ],
+      "announcements": [
+          {
+              "content": "Lab session on Thursday will focus on microscope techniques.",
+              "postedBy": "65a2c8f7d8b3e456789022cd",
+              "createdAt": "2025-02-12T09:00:00.000Z",
+              "isPinned": true
+          }
+      ],
+      "settings": {
+          "allowStudentPosts": true,
+          "studentJoinApproval": true,
+          "visibility": "Public"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-05T00:00:00.000Z",
+      "updatedAt": "2025-02-12T09:00:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+          "url": "https://example.com/images/biology-classroom-cover.jpg",
+          "thumbnailUrl": "https://example.com/images/biology-classroom-cover-thumb.jpg",
+          "altText": "Biology classroom banner"
+      }
+  },
+  {
+      "_id": "65a2c8f7d8b3e456789032ab",
+      "name": "World History",
+      "code": "HIST202",
+      "description": "An exploration of world history from ancient civilizations to modern times, focusing on key events that shaped our world.",
+      "subject": "History",
+      "gradeLevel": "High School",
+      "teacher": "65a2c8f7d8b3e456789032cd",
+      "coTeachers": ["65a2c8f7d8b3e456789032ef"],
+      "students": [
+          "65a2c8f7d8b3e456789033ab",
+          "65a2c8f7d8b3e456789033ac",
+          "65a2c8f7d8b3e456789033ad",
+          "65a2c8f7d8b3e456789033ae",
+          "65a2c8f7d8b3e456789033af",
+          "65a2c8f7d8b3e456789033ag"
+      ],
+      "assignments": [
+          "5", 
+          "6"  
+      ],
+      "performanceStats": {
+          "averageScore": 82,
+          "assignmentsCompleted": 12,
+          "assignmentsPending": 2
+      },
+      "resources": [
+          {
+              "title": "Ancient Rome Timeline",
+              "url": "https://example.com/resources/rome-timeline.pdf",
+              "type": "Document",
+              "addedBy": "65a2c8f7d8b3e456789032cd",
+              "addedByModel": "Teacher",
+              "addedAt": "2025-01-10T13:40:00.000Z"
+          },
+          {
+              "title": "Industrial Revolution Presentation",
+              "url": "https://example.com/resources/industrial-revolution.ppt",
+              "type": "Presentation",
+              "addedBy": "65a2c8f7d8b3e456789032ef",
+              "addedByModel": "Teacher",
+              "addedAt": "2025-01-22T09:15:00.000Z"
+          }
+      ],
+      "announcements": [
+          {
+              "content": "Field trip to the history museum scheduled for March 15. Permission slips due by March 1.",
+              "postedBy": "65a2c8f7d8b3e456789032cd",
+              "createdAt": "2025-02-15T11:30:00.000Z",
+              "isPinned": true
+          },
+          {
+              "content": "Please complete the reading on World War I before Thursday's class.",
+              "postedBy": "65a2c8f7d8b3e456789032ef",
+              "createdAt": "2025-02-10T14:20:00.000Z",
+              "isPinned": false
+          }
+      ],
+      "settings": {
+          "allowStudentPosts": false,
+          "studentJoinApproval": true,
+          "visibility": "Private"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-03T00:00:00.000Z",
+      "updatedAt": "2025-02-15T11:30:00.000Z",
+      "academicYear": "2024-2025",
+      "coverImage": {
+          "url": "https://example.com/images/history-classroom-cover.jpg",
+          "thumbnailUrl": "https://example.com/images/history-classroom-cover-thumb.jpg",
+          "altText": "History classroom banner"
+      }
+  }
 ]
