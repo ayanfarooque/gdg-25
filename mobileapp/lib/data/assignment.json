@@ -1,62 +1,73 @@
 [
-    {
-      "id": "MABS1",
-      "title": "Math Assignment 1",
-      "description": "Solve the given problems on algebra.",
-      "subjectId": "60d21b4667d0d8992e610c85",
-      "teacherId": "60d21b4967d0d8992e610c86",
-      "classroomId": "60d21b4b67d0d8992e610c87",
-      "dueDate": "2025-03-01T00:00:00.000Z",
-      "attachments": [
-        "https://example.com/attachments/algebra.pdf"
-      ],
-      "isCompleted": false,
-      "gradingCriteria": "Accuracy and completeness",
-      "submissions": [
-        "60d21b4e67d0d8992e610c88",
-        "60d21b5067d0d8992e610c89"
-      ],
-      "createdAt": "2025-02-01T00:00:00.000Z",
-      "updatedAt": "2025-02-01T00:00:00.000Z"
-    },
-    {
-      "id": "SCBS1",
-      "title": "Science Project",
-      "description": "Create a model of the solar system.",
-      "subjectId": "60d21b5167d0d8992e610c8a",
-      "teacherId": "60d21b5367d0d8992e610c8b",
-      "classroomId": "60d21b5567d0d8992e610c8c",
-      "dueDate": "2025-03-15T00:00:00.000Z",
-      "attachments": [
-        "https://example.com/attachments/solar_system.pdf"
-      ],
-      "isCompleted": false,
-      "gradingCriteria": "Creativity and accuracy",
-      "submissions": [
-        "60d21b5767d0d8992e610c8d",
-        "60d21b5967d0d8992e610c8e"
-      ],
-      "createdAt": "2025-02-05T00:00:00.000Z",
-      "updatedAt": "2025-02-05T00:00:00.000Z"
-    },
-    {
-      "id": "SSTBS1",  
-      "title": "History Essay",
-      "description": "Write an essay on the causes of World War II.",
-      "subjectId": "60d21b5b67d0d8992e610c8f",
-      "teacherId": "60d21b5d67d0d8992e610c90",
-      "classroomId": "60d21b5f67d0d8992e610c91",
-      "dueDate": "2025-03-10T00:00:00.000Z",
-      "attachments": [
-        "https://example.com/attachments/ww2_essay.pdf"
-      ],
-      "isCompleted": false,
-      "gradingCriteria": "Depth of analysis and clarity",
-      "submissions": [
-        "60d21b6167d0d8992e610c92",
-        "60d21b6367d0d8992e610c93"
-      ],
-      "createdAt": "2025-02-10T00:00:00.000Z",
-      "updatedAt": "2025-02-10T00:00:00.000Z"
-    }
-  ]
+  {
+    "submissionId": "sub001",
+    "assignmentId": "assignment001",
+    "studentId": "student001",
+    "submittedDate": "2025-05-12T14:30:00Z",
+    "status": "graded",
+    "score": 92,
+    "feedback": "Excellent work on the examples and explanations.",
+    "attachments": [
+      {"name": "assignment1_arjun.pdf", "size": 2400000, "type": "pdf"}
+    ]
+  },
+  {
+    "submissionId": "sub002",
+    "assignmentId": "assignment001",
+    "studentId": "student002",
+    "submittedDate": "2025-05-11T16:45:00Z",
+    "status": "graded",
+    "score": 85,
+    "feedback": "Good work, but could improve on section 3.",
+    "attachments": [
+      {"name": "priya_homework.docx", "size": 1800000, "type": "document"}
+    ]
+  },
+  {
+    "submissionId": "sub003",
+    "assignmentId": "assignment001",
+    "studentId": "student003",
+    "submittedDate": "2025-05-13T10:15:00Z",
+    "status": "submitted",
+    "attachments": [
+      {"name": "raj_assignment.pdf", "size": 3200000, "type": "pdf"}
+    ]
+  },
+  {
+    "submissionId": "sub004",
+    "assignmentId": "assignment002",
+    "studentId": "student001",
+    "submittedDate": "2025-05-14T09:25:00Z",
+    "status": "graded",
+    "score": 88,
+    "feedback": "Great job on solving the complex problems.",
+    "attachments": [
+      {"name": "linear_algebra_arjun.pdf", "size": 3100000, "type": "pdf"}
+    ]
+  },
+  {
+    "submissionId": "sub005",
+    "assignmentId": "assignment002",
+    "studentId": "student002",
+    "submittedDate": "2025-05-14T17:10:00Z",
+    "status": "graded",
+    "score": 94,
+    "feedback": "Outstanding work. Very clear explanations of the solutions.",
+    "attachments": [
+      {"name": "priya_matrices.pdf", "size": 2800000, "type": "pdf"}
+    ]
+  },
+  {
+    "submissionId": "sub006",
+    "assignmentId": "assignment003",
+    "studentId": "student003",
+    "submittedDate": "2025-05-16T11:30:00Z",
+    "status": "graded",
+    "score": 78,
+    "feedback": "Good cell diagrams, but missing some labels on organelles.",
+    "attachments": [
+      {"name": "cell_diagram.jpg", "size": 4200000, "type": "image"},
+      {"name": "explanations.docx", "size": 1500000, "type": "document"}
+    ]
+  }
+]
