@@ -5,66 +5,81 @@ const catchAsync = require('../utils/catchAsync.js');
 const Student = require('../models/Student.js');
 const Teacher = require('../models/Teacher.js');
 
+const asyncHandler = require('express-async-handler');
 
-exports.getAllCommunities = catchAsync(async (req, res, next) => {
-    const filter = {};
-
-    let user;
-    //here i am not directly using user schema i am first selecting role from user and then switching to student/teacher schema 
-    if (req.user.role === 'student') {
-        user = await Student.findById(req.user.id).select('grade');
-        filter.grade = user.grade;
-    } else if (req.user.role === 'teacher') {
-        user = await Teacher.findById(req.user.id).select('gradesTaught subjects');
-        filter.$or = [
-            { grade: { $in: user.gradesTaught } },
-            { subject: { $in: user.subjects.map(s => s.subjectName) } }
-        ];
-    }
-
-    //no community for admin ofc
-
-    const communities = await Community.find(filter)
-        .populate({
-            path: 'members',
-            select: 'name email profilePicture', 
-            model: req.user.role === 'student' ? 'Student' : 'Teacher'
-        })
-        .populate({
-            path: 'moderators',
-            select: 'name email profilePicture',
-            model: 'Teacher' //will later change it to admin
-        });
-
-    res.status(200).json({
-        status: 'success',
-        results: communities.length,
-        data: { 
-            communities
-        }
+exports.getAllCommunities = asyncHandler(async (req, res) => {
+    const communities = await Community.find({});
+    
+    res.json({
+      success: true,
+      data: communities
     });
-});
+  });
 
-exports.createCommunity = catchAsync(async (req, res, next) => {
-    if (req.user.role !== 'admin') {
-        return next(new AppError('Only admins can create communities', 403)); 
-    }
-
-    const newCommunity = await Community.create({
-        ...req.body,
-        createdBy: req.user.id,
-        moderators: [req.user.id]
+  exports.getTrendingPosts = asyncHandler(async (req, res) => {
+    const posts = await Post.find({ isTrending: true })
+      .populate('author', 'name avatar')
+      .populate('community', 'name')
+      .sort('-views -createdAt')
+      .limit(5);
+  
+    res.json({
+      success: true,
+      data: posts
     });
+  });
 
+
+  exports.getRecommendedCommunities = asyncHandler(async (req, res) => {
+    const communities = await Community.find()
+      .sort('-memberCount')
+      .limit(3);
+  
+    res.json({
+      success: true,
+      data: communities
+    });
+  });
+
+// exports.createCommunity = catchAsync(async (req, res, next) => {
+//     if (req.user.role !== 'admin') {
+//         return next(new AppError('Only admins can create communities', 403)); 
+//     }
+
+//     const newCommunity = await Community.create({
+//         ...req.body,
+//         createdBy: req.user.id,
+//         moderators: [req.user.id]
+//     });
+
+//     res.status(201).json({
+//         status: 'success',
+//         data: {
+//             community: newCommunity
+//         }
+//     });
+// });
+
+
+exports.createCommunity = asyncHandler(async (req, res) => {
+    const { name, description, subject, categories, isPrivate } = req.body;
+  
+    const community = await Community.create({
+      name,
+      description,
+      subject,
+      categories,
+      isPrivate,
+      createdBy: req.user._id
+    });
+  
     res.status(201).json({
-        status: 'success',
-        data: {
-            community: newCommunity
-        }
+      success: true,
+      data: community
     });
-});
+  });
 
-exports.joinCommunityRequest = catchAsync(async (req, res, next) => {
+exports.joinCommunity = catchAsync(async (req, res, next) => {
     const community = await Community.findById(req.params.id); // Fixed: was req.user.id
 
     if (!community) {
