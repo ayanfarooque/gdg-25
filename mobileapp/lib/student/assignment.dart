@@ -106,16 +106,19 @@ class _LandingPageState extends State<AssignmentLanding> {
         Navigator.pushReplacementNamed(context, '/');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/assignment');
+        Navigator.pushNamed(context, '/assignment');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/community');
+        Navigator.pushNamed(context, '/community');
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/aibot');
+        Navigator.pushNamed(context, '/aibot');
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/resources');
+        Navigator.pushNamed(context, '/resources');
+        break;
+      case 5:
+        Navigator.pushNamed(context, '/classroom');
         break;
     }
   }

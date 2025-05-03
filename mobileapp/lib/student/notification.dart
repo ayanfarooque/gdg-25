@@ -76,7 +76,7 @@ class _NotificationPageState extends State<ViewNotifications> {
     // Navigate to different pages based on index
     switch (index) {
       case 0:
-        Navigator.pushNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/');
         break;
       case 1:
         Navigator.pushNamed(context, '/assignment');
@@ -89,6 +89,9 @@ class _NotificationPageState extends State<ViewNotifications> {
         break;
       case 4:
         Navigator.pushNamed(context, '/resources');
+        break;
+      case 5:
+        Navigator.pushNamed(context, '/classroom');
         break;
     }
   }

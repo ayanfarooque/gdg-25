@@ -108,6 +108,9 @@ class _HomePageState extends State<HomePage> {
       case 4:
         Navigator.pushNamed(context, '/resources');
         break;
+      case 5:
+        Navigator.pushNamed(context, '/classroom');
+        break;
     }
   }
 

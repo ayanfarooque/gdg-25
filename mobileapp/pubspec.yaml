@@ -46,6 +46,7 @@ flutter:
     - lib/data/resource.json
     - lib/images/default.jpg
     - lib/data/submissions.json
+    - lib/data/classroom.json
 
   fonts:
     - family: CustomFont

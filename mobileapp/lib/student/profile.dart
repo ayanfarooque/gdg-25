@@ -55,7 +55,7 @@ class _ProfilePageState extends State<Profile> {
     // Navigate to different pages based on index
     switch (index) {
       case 0:
-        Navigator.pushNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/');
         break;
       case 1:
         Navigator.pushNamed(context, '/assignment');
@@ -68,6 +68,9 @@ class _ProfilePageState extends State<Profile> {
         break;
       case 4:
         Navigator.pushNamed(context, '/resources');
+        break;
+      case 5:
+        Navigator.pushNamed(context, '/classroom');
         break;
     }
   }

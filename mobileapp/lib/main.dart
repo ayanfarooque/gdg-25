@@ -21,6 +21,10 @@ import 'teacher/facresources/faclanding.dart';
 import 'teacher/addassignment.dart';
 import 'student/communityadd.dart';
 import 'authorization/adminsisu.dart';
+import 'student/classroom.dart';
+import 'student/ClassroomDetailScreen.dart';
+import 'student/createpostpage.dart';
+import 'teacher/create_post.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +76,25 @@ class MyApp extends StatelessWidget {
       routes: {
         '/role': (context) => RolePickerScreen(),
         '/': (context) => const HomePage(),
+        '/studentauth': (context) => const StudentAuthPage(),
+        '/assignment': (context) => AssignmentLanding(),
+        '/aibot': (context) => AiLanding(),
+        '/resources': (context) => ResourceLanding(),
+        '/community': (context) => CommunityLanding(),
+        '/addcommunity': (context) => AddCommunityQuestionPage(),
+        '/viewscore': (context) => ViewScores(),
+        '/profile': (context) => Profile(studentId: '1'),
+        '/notifications': (context) =>
+            ViewNotifications(studentId: '603dcd7f1c4ae72f8c8b4571'),
+        '/classroom': (context) => ClassroomLanding(),
+        '/classroom_detail': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+          return ClassroomDetailScreen(
+            classroomId: args?['classroomId'] ?? '',
+          );
+        },
+        '/createpost': (context) => CreatePostPage(),
         '/adminauth': (context) => const AdminAuthPage(),
         '/addassignment': (context) => AddAssignmentPage(),
         '/teachernotifications': (context) =>
@@ -83,16 +106,7 @@ class MyApp extends StatelessWidget {
         '/teacherhome': (context) => const TeacherHomePage(),
         '/teachercommunity': (context) => FacCommunityLanding(),
         '/teacherauth': (context) => const TeacherAuthPage(),
-        '/studentauth': (context) => const StudentAuthPage(),
-        '/assignment': (context) => AssignmentLanding(),
-        '/aibot': (context) => AiLanding(),
-        '/resources': (context) => ResourceLanding(),
-        '/community': (context) => CommunityLanding(),
-        '/addcommunity': (context) => AddCommunityQuestionPage(),
-        '/viewscore': (context) => ViewScores(),
-        '/profile': (context) => Profile(studentId: '1'),
-        '/notifications': (context) =>
-            ViewNotifications(studentId: '603dcd7f1c4ae72f8c8b4571'),
+        '/teachercreatepost': (context) => FacCreatePostPage(),
       },
       // Bypass auth check completely by removing onGenerateRoute override
       // This ensures all routes work without authentication

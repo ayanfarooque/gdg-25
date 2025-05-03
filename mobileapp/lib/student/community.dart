@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'dart:math';
 import '../components/header.dart';
 import '../components/footer.dart';
+import 'createpostpage.dart';
 
 class CommunityLanding extends StatefulWidget {
   @override
@@ -199,16 +200,19 @@ class _LandingPageState extends State<CommunityLanding>
         Navigator.pushReplacementNamed(context, '/');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/assignment');
+        Navigator.pushNamed(context, '/assignment');
         break;
       case 2:
-        Navigator.pushReplacementNamed(context, '/community');
+        Navigator.pushNamed(context, '/community');
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/aibot');
+        Navigator.pushNamed(context, '/aibot');
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/resources');
+        Navigator.pushNamed(context, '/resources');
+        break;
+      case 5:
+        Navigator.pushNamed(context, '/classroom');
         break;
     }
   }
@@ -990,116 +994,14 @@ class _LandingPageState extends State<CommunityLanding>
   }
 
   void _showAskQuestionDialog() {
-    final TextEditingController questionController = TextEditingController();
-    String selectedSubject = "General";
+    // Close the bottom sheet
+    Navigator.pop(context);
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Ask a Question",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: questionController,
-                  decoration: InputDecoration(
-                    hintText: "What's your question?",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  maxLines: 3,
-                ),
-                SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedSubject,
-                  decoration: InputDecoration(
-                    labelText: "Subject",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  items: [
-                    "General",
-                    "Mathematics",
-                    "Physics",
-                    "Chemistry",
-                    "Biology",
-                    "Computer Science",
-                    "History",
-                    "Geography",
-                    "English Literature",
-                    "Other"
-                  ].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedSubject = newValue!;
-                    });
-                  },
-                ),
-                SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text("CANCEL"),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.grey[700],
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (questionController.text.trim().isNotEmpty) {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text("Question posted successfully")),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Please enter a question")),
-                          );
-                        }
-                      },
-                      child: Text("POST"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: studentPrimaryColor,
-                        foregroundColor: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+    // Navigate to the create post page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreatePostPage(),
       ),
     );
   }

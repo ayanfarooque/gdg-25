@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../components/teacherheader.dart';
 import '../components/footer.dart';
 import 'dart:math';
+import 'create_post.dart';
 
 class FacCommunityLanding extends StatefulWidget {
   @override
@@ -883,6 +884,8 @@ class _FacCommunityLandingState extends State<FacCommunityLanding>
     );
   }
 
+  // Update the _showCreateOptions method in the _FacCommunityLandingState class
+
   void _showCreateOptions() {
     showModalBottomSheet(
       context: context,
@@ -912,6 +915,12 @@ class _FacCommunityLandingState extends State<FacCommunityLanding>
               onTap: () {
                 Navigator.pop(context);
                 // Navigate to create post page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FacCreatePostPage(),
+                  ),
+                );
               },
             ),
             ListTile(
@@ -924,6 +933,11 @@ class _FacCommunityLandingState extends State<FacCommunityLanding>
               onTap: () {
                 Navigator.pop(context);
                 // Navigate to create community page
+                // For now, we'll just show a snackbar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Creating a community is coming soon!')),
+                );
               },
             ),
           ],

@@ -46,7 +46,7 @@ class _ScorePageState extends State<ViewScores> {
     // Navigate to different pages based on index
     switch (index) {
       case 0:
-        Navigator.pushNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/');
         break;
       case 1:
         Navigator.pushNamed(context, '/assignment');
@@ -59,6 +59,9 @@ class _ScorePageState extends State<ViewScores> {
         break;
       case 4:
         Navigator.pushNamed(context, '/resources');
+        break;
+      case 5:
+        Navigator.pushNamed(context, '/classroom');
         break;
     }
   }

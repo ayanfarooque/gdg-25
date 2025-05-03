@@ -35,6 +35,10 @@ class Footer extends StatelessWidget {
           icon: Icon(Icons.book),
           label: 'Resources',
         ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.school),
+          label: 'Classroom',
+        ),
       ],
       currentIndex: selectedIndex,
       selectedItemColor: const Color(0xFF49ABB0),
