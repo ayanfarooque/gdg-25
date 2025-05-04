@@ -15,6 +15,8 @@ const classroomRoutes = require('./routes/classroomRoutes.js')
 const submission = require('./routes/submission.js')
 const adminRoutes = require('./routes/adminRoutes.js')
 const communityRoutes = require('./routes/communityRoutes.js')
+const postRoutes = require('./routes/postRoutes.js')
+const chatbot = require('./routes/chatbot.js')
 require("dotenv").config();
 console.log("JWT_SECRET:", process.env.JWT_SECRET);
 connectDB();
@@ -43,7 +45,8 @@ app.use('/api/resources',resourceRoutes)
 app.use("/api/classrooms", classroomRoutes);
 app.use("/api/submissions", submission)
 app.use("/api/communities",communityRoutes)
-
+app.use('/api/post',postRoutes)
+app.use('/api/chatbot',chatbot)
 app.use((req, res, next) => {
     res.status(404).json({ message: 'Route not found' });
 });
