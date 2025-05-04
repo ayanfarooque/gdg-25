@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Header from './Dashboardpages/Header';
 import { FaImage, FaVideo, FaLink, FaPoll, FaChevronLeft } from 'react-icons/fa';
-import { communities } from '../data/communityData';
 
 const StudentCreatePostPage = () => {
   const navigate = useNavigate();
@@ -11,28 +11,66 @@ const StudentCreatePostPage = () => {
   const [selectedCommunity, setSelectedCommunity] = useState('');
   const [attachmentType, setAttachmentType] = useState(null);
   const [attachmentUrl, setAttachmentUrl] = useState('');
+  const [communities, setCommunities] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Function to handle form submission
-  const handleSubmit = (e) => {
+  // Fetch communities when component mounts
+  // useEffect(() => {
+  //   const fetchCommunities = async () => {
+  //     try {
+  //       const response = await axios.get('http://localhost:5000/api/post/communities');
+  //       setCommunities(response.data.data);
+  //     } catch (error) {
+  //       console.error('Error fetching communities:', error);
+  //       setError('Failed to load communities');
+  //     }
+  //   };
+
+  //   fetchCommunities();
+  // }, []);
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Here you would typically handle the API call to create a new post
-    console.log({
-      title,
-      content,
-      communityId: selectedCommunity,
-      attachmentType,
-      attachmentUrl
-    });
-    
-    // Redirect back to the community page after submission
-    navigate('/Community');
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/post/posts', {
+        title,
+        content,
+        communityId: selectedCommunity,
+        attachmentType,
+        attachmentUrl
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      console.log('Post created:', response.data);
+      // navigate(`/community/${selectedCommunity}`);
+    } catch (error) {
+      console.error('Error creating post:', error);
+      setError(error.response?.data?.message || 'Failed to create post');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Function to handle going back
   const handleGoBack = () => {
     navigate('/Community');
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen mt-16 ml-30">
@@ -48,6 +86,22 @@ const StudentCreatePostPage = () => {
           </button>
         </div>
         
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Form Section */}
@@ -58,7 +112,7 @@ const StudentCreatePostPage = () => {
               <form onSubmit={handleSubmit}>
                 {/* Community Selection */}
                 <div className="mb-6">
-                  <label className="block text-gray-700 font-medium mb-2" htmlFor="community">
+                  {/* <label className="block text-gray-700 font-medium mb-2" htmlFor="community">
                     Select Community
                   </label>
                   <select
@@ -74,7 +128,7 @@ const StudentCreatePostPage = () => {
                         {community.name}
                       </option>
                     ))}
-                  </select>
+                  </select> */}
                 </div>
                 
                 {/* Post Title */}
@@ -112,46 +166,28 @@ const StudentCreatePostPage = () => {
                 <div className="mb-6">
                   <p className="text-gray-700 font-medium mb-2">Add Attachment (Optional)</p>
                   <div className="flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      className={`flex items-center px-4 py-2 rounded-lg ${
-                        attachmentType === 'image' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      } transition-colors`}
-                      onClick={() => setAttachmentType(attachmentType === 'image' ? null : 'image')}
-                    >
-                      <FaImage className="mr-2" /> Image
-                    </button>
-                    <button
-                      type="button"
-                      className={`flex items-center px-4 py-2 rounded-lg ${
-                        attachmentType === 'video' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      } transition-colors`}
-                      onClick={() => setAttachmentType(attachmentType === 'video' ? null : 'video')}
-                    >
-                      <FaVideo className="mr-2" /> Video
-                    </button>
-                    <button
-                      type="button"
-                      className={`flex items-center px-4 py-2 rounded-lg ${
-                        attachmentType === 'link' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      } transition-colors`}
-                      onClick={() => setAttachmentType(attachmentType === 'link' ? null : 'link')}
-                    >
-                      <FaLink className="mr-2" /> Link
-                    </button>
-                    <button
-                      type="button"
-                      className={`flex items-center px-4 py-2 rounded-lg ${
-                        attachmentType === 'poll' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      } transition-colors`}
-                      onClick={() => setAttachmentType(attachmentType === 'poll' ? null : 'poll')}
-                    >
-                      <FaPoll className="mr-2" /> Poll
-                    </button>
+                    {['image', 'video', 'link', 'poll'].map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        className={`flex items-center px-4 py-2 rounded-lg ${
+                          attachmentType === type 
+                            ? 'bg-teal-500 text-white' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        } transition-colors`}
+                        onClick={() => setAttachmentType(attachmentType === type ? null : type)}
+                      >
+                        {type === 'image' && <FaImage className="mr-2" />}
+                        {type === 'video' && <FaVideo className="mr-2" />}
+                        {type === 'link' && <FaLink className="mr-2" />}
+                        {type === 'poll' && <FaPoll className="mr-2" />}
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 
-                {/* Conditional input based on attachment type */}
+                {/* Attachment Input */}
                 {attachmentType && (
                   <div className="mb-6">
                     <label className="block text-gray-700 font-medium mb-2" htmlFor="attachment">
@@ -185,9 +221,12 @@ const StudentCreatePostPage = () => {
                 <div className="flex justify-end mt-8">
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg shadow-sm transition-colors"
+                    disabled={loading}
+                    className={`px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg shadow-sm transition-colors ${
+                      loading ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                   >
-                    Post to Community
+                    {loading ? 'Creating Post...' : 'Post to Community'}
                   </button>
                 </div>
               </form>

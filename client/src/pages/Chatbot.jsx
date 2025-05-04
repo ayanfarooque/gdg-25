@@ -127,6 +127,9 @@ const Chatbot = () => {
     }
   };
 
+
+  //this is alternative for the handlesendmessage2 below 
+  //below function is connectect with the askdoubt route in the chatbot routes
   const handleSendMessage = async () => {
     if (prompt.trim() === "" && !file) return;
     
@@ -207,6 +210,55 @@ const Chatbot = () => {
     }
   };
 
+  const handleSubmitMessage2 = async (e) => {
+    
+    
+    if (!prompt.trim()) return;
+
+    try {
+        // Add user message to chat
+        const userMessage = {
+            text: messages,
+            type: 'user',
+            timestamp: new Date()
+        };
+        setMessages(prev => [...prev, userMessage]);
+        setMessages('');
+
+        // Send question to backend
+        const response = await axios.post('http://localhost:5000/api/chatbot/askdoubt', {
+            question: messages,
+            //subjectId: currentSubject._id ,
+            response: messages,
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.data.success) {
+            // Add bot response to chat
+            const botMessage = {
+                text: response.data.data.userPrompt,
+                type: 'bot',
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, botMessage]);
+        } else {
+            throw new Error(response.data.message);
+        }
+
+    } catch (error) {
+        console.error('Error sending message:', error);
+        // Add error message to chat
+        const errorMessage = {
+            text: 'Sorry, there was an error processing your question. Please try again.',
+            type: 'error',
+            timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+    }
+};
   const handleFileSelect = (e) => {
     if (e.target.files[0]) {
       setFile(e.target.files[0]);
@@ -247,6 +299,12 @@ const Chatbot = () => {
       if (!currentChatId) createNewChat();
     }
   };
+
+
+  // useEffect(() => {
+  //   handleSubmitMessage2();
+  // },[messages])
+
 
   return (
     <div className="flex w-full h-screen bg-[#ECE7CA]">
