@@ -3,52 +3,101 @@ const Doubtchat = require('../models/Doubtchat.js');
 const aiservices = require('../services/mlService.js')
 const DoubtChat = require('../models/Doubtchat');
 const asyncHandler = require('express-async-handler');
+const GeminiService = require('../services/GeminiService.js')
+
+
+// exports.askDoubt = asyncHandler(async (req, res) => {
+//     try {
+//         const { question, subjectId, fileUrl } = req.body;
+//        // const userId = req.params // Assuming you're using auth middleware
+
+//         // Validate required fields
+//         if (!question) {
+//             return res.status(400).json({ 
+//                 success: false, 
+//                 message: "Please provide a question" 
+//             });
+//         }
+
+//         // if (!subjectId) {
+//         //     return res.status(400).json({ 
+//         //         success: false, 
+//         //         message: "Please provide a subject" 
+//         //     });
+//         // }
+
+//         // Create new chat
+//         const chat = new DoubtChat({
+//             chatId: `chat_${Date.now()}`,
+//            // userId: userId,
+//             subjectId: subjectId,
+//             userPrompt: question,
+//             responses: [] // Initialize empty responses array
+//         });
+
+//         if (fileUrl) {
+//             chat.userPrompt.fileUrl = fileUrl;
+//         }
+
+//         // Save the chat
+//         const savedChat = await chat.save();
+
+//         // Fetch the populated chat
+//         const populatedChat = await DoubtChat.find()
+//             .populate('userId', 'name email')
+//             .populate('subjectId', 'name');
+
+//         res.status(201).json({
+//             success: true,
+//             message: "Question saved successfully",
+//             data: populatedChat
+//         });
+
+//     } catch (error) {
+//         console.error('Error in askDoubt:', error);
+//         res.status(500).json({
+//             success: false,
+//             message: "Error processing your question",
+//             error: error.message
+//         });
+//     }
+// });
+
 
 exports.askDoubt = asyncHandler(async (req, res) => {
     try {
-        const { question, subjectId, fileUrl } = req.body;
-       // const userId = req.params // Assuming you're using auth middleware
+        const { question } = req.body;
 
-        // Validate required fields
         if (!question) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Please provide a question" 
+            return res.status(400).json({
+                success: false,
+                message: "Please provide a question"
             });
         }
 
-        // if (!subjectId) {
-        //     return res.status(400).json({ 
-        //         success: false, 
-        //         message: "Please provide a subject" 
-        //     });
-        // }
+        // Get response from Gemini
+        const geminiResponse = await GeminiService.processQuestion(question);
 
-        // Create new chat
-        const chat = new DoubtChat({
+        // Create new chat entry
+        const chat = new Doubtchat({
             chatId: `chat_${Date.now()}`,
-           // userId: userId,
-            subjectId: subjectId,
             userPrompt: question,
-            responses: [] // Initialize empty responses array
+            responses: [{
+                responseId: `resp_${Date.now()}`,
+                prompt: question,
+                output: geminiResponse
+            }]
         });
 
-        if (fileUrl) {
-            chat.userPrompt.fileUrl = fileUrl;
-        }
+        await chat.save();
 
-        // Save the chat
-        const savedChat = await chat.save();
-
-        // Fetch the populated chat
-        const populatedChat = await DoubtChat.find()
-            .populate('userId', 'name email')
-            .populate('subjectId', 'name');
-
-        res.status(201).json({
+        res.status(200).json({
             success: true,
-            message: "Question saved successfully",
-            data: populatedChat
+            data: {
+                userPrompt: question,
+                response: geminiResponse,
+                chatId: chat.chatId
+            }
         });
 
     } catch (error) {
@@ -60,6 +109,7 @@ exports.askDoubt = asyncHandler(async (req, res) => {
         });
     }
 });
+
 exports.getPreviousChats = async (req, res) => {
     try {
         //after authentication going to add /:id and will get previous chats for user accordingly
