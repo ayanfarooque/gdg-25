@@ -946,25 +946,25 @@ class _LandingPageState extends State<AiLanding>
               ),
 
               // New chat button
-              // Padding(
-              //   padding: const EdgeInsets.all(16),
-              //   child: ElevatedButton.icon(
-              //     onPressed: () {
-              //       _createNewChat();
-              //       _toggleSidebar();
-              //     },
-              //     icon: Icon(Icons.add),
-              //     label: Text('New Chat'),
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: studentPrimaryColor,
-              //       foregroundColor: Colors.white,
-              //       minimumSize: Size(double.infinity, 48),
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(12),
-              //       ),
-              //     ),
-              //   ),
-              // ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    _createNewChat();
+                    _toggleSidebar();
+                  },
+                  icon: Icon(Icons.add),
+                  label: Text('New Chat'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: studentPrimaryColor,
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
