@@ -1,0 +1,39 @@
+{
+    "title": "Grade 9 Kinematics Test",
+    "questions": [
+        {
+            "type": "multiple_choice",
+            "question": "A projectile is launched at an angle of 30 degrees with an initial velocity of 20 m/s from the top of a building 45 meters high. Ignoring air resistance, what is the horizontal range of the projectile when it hits the ground?",
+            "options": [
+                "Approximately 65 m",
+                "Approximately 74 m",
+                "Approximately 83 m",
+                "Approximately 92 m"
+            ],
+            "answer": "Approximately 83 m",
+            "difficulty": "hard"
+        },
+        {
+            "type": "multiple_choice",
+            "question": "A car starts from rest and accelerates uniformly at 2 m/s² for 5 seconds. It then maintains a constant velocity for 10 seconds before decelerating uniformly at 1 m/s² until it comes to a complete stop. What is the total distance travelled by the car?",
+            "options": [
+                "200 m",
+                "225 m",
+                "250 m",
+                "275 m"
+            ],
+            "answer": "225 m",
+            "difficulty": "hard"
+        },
+        {
+            "type": "essay",
+            "question": "Two objects, A and B, are dropped simultaneously from the same height. Object A is dropped with no initial velocity. Object B is thrown downward with an initial velocity. Explain how the time it takes each object to reach the ground compares, considering air resistance is negligible. Then, explain how the final velocity of each object compares just before hitting the ground. Justify your answers using kinematic equations and provide a brief discussion on how air resistance would change your conclusions.",
+            "answer": " (Grading Rubric: 5 marks for correct comparison of time, justification with equations; 5 marks for correct comparison of final velocity, justification with equations; 5 marks for discussion of air resistance effects)",
+            "difficulty": "hard"
+        }
+    ],
+    "answer_key": "1. Approximately 83 m \n2. 225 m\n3. See answer in the 'answer' field for grading rubric.",
+    "estimated_time": "20",
+    "total_marks": "17",
+    "instructions": "Read each question carefully. For multiple-choice questions, select the best answer. For the essay question, provide a comprehensive and well-reasoned response. Show your work where applicable. Calculators are permitted."
+}

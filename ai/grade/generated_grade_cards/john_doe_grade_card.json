@@ -1,0 +1,45 @@
+{
+  "student": {
+    "name": "John Doe",
+    "grade": "9",
+    "avatar": "JD",
+    "avgScore": 85
+  },
+  "subjects": [
+    {
+      "name": "Mathematics",
+      "score": "88%",
+      "trend": "up",
+      "grade": "A"
+    },
+    {
+      "name": "Science",
+      "score": "85%",
+      "trend": "up",
+      "grade": "A"
+    },
+    {
+      "name": "English",
+      "score": "92%",
+      "trend": "stable",
+      "grade": "A+"
+    },
+    {
+      "name": "History",
+      "score": "78%",
+      "trend": "down",
+      "grade": "B"
+    }
+  ],
+  "overall_grade": "A",
+  "attendance": "94%",
+  "teacher_comments": "has shown significant improvement in English is consistently performing well in Mathematics has room for improvement in History shows great potential and is eager to learn.",
+  "generated_on": "May 10, 2025",
+  "strengths": [
+    "English",
+    "Mathematics"
+  ],
+  "areas_for_improvement": [
+    "History"
+  ]
+}
