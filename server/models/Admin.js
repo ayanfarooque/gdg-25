@@ -3,6 +3,22 @@ const User = require('../models/User.js');
 
 const adminSchema = new Schema({
   // Extended contact information
+  name : {
+    type:String,
+  },
+  email : {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  adminid: {
+    type: String,
+    required: true,
+  },
   contactInfo: {
     officeNumber: { 
       type: String,
@@ -73,7 +89,6 @@ const adminSchema = new Schema({
   activityLog: [{
     action: { 
       type: String,
-      required: true 
     },
     entityType: String,
     entityId: Schema.Types.ObjectId,
@@ -134,54 +149,26 @@ const adminSchema = new Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes for performance
-adminSchema.index({ 'adminMetadata.accessLevel': 1 });
-adminSchema.index({ 'permissions.userManagement': 1 });
-adminSchema.index({ 'activityLog.timestamp': -1 });
 
 // Virtual for full admin title
-adminSchema.virtual('adminTitle').get(function() {
-  return `${this.department} Administrator`;
-});
+// adminSchema.virtual('adminTitle').get(function() {
+//   return `${this.department} Administrator`;
+// });
 
-// Pre-save hook for security
-adminSchema.pre('save', function(next) {
-  if (this.isModified('security.failedLoginAttempts') ){
-    if (this.security.failedLoginAttempts >= 5) {
-      this.security.loginLocked = true;
-      this.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
-    }
-  }
-  next();
-});
+// // Pre-save hook for security
+// adminSchema.pre('save', function(next) {
+//   if (this.isModified('security.failedLoginAttempts') ){
+//     if (this.security.failedLoginAttempts >= 5) {
+//       this.security.loginLocked = true;
+//       this.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+//     }
+//   }
+//   next();
+// });
 
-// Static methods
-adminSchema.statics.findByDepartment = function(department) {
-  return this.find({ 'contactInfo.department': department });
-};
-
-// Instance methods
-adminSchema.methods.hasPermission = function(permissionPath) {
-  const paths = permissionPath.split('.');
-  let current = this.permissions;
-  
-  for (const path of paths) {
-    if (current[path] === undefined) return false;
-    current = current[path];
-    if (typeof current === 'boolean') return current;
-  }
-  
-  return false;
-};
-
-adminSchema.methods.logActivity = function(action, metadata = {}) {
-  this.activityLog.push({
-    action,
-    ...metadata,
-    ipAddress: metadata.ipAddress || 'system',
-    timestamp: new Date()
-  });
-  return this.save();
-};
+// // Static methods
+// adminSchema.statics.findByDepartment = function(department) {
+//   return this.find({ 'contactInfo.department': department });
+// };
 
 module.exports = User.discriminator('Admin', adminSchema);

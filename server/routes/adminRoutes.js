@@ -1,7 +1,16 @@
 const express = require('express');
 const adminController = require('../controllers/adminController.js');
-
+const authController = require('../controllers/authController.js')
 const router = express.Router();
+
+
+//signin signup for admin
+
+router.post('/login',authController.adminLogin);
+
+router.post('/signup',authController.adminSignup)
+
+
 
 // Student Routes
 router.get('/students', adminController.getAllStudents);
