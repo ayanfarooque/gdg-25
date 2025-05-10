@@ -892,11 +892,7 @@ class _FacClassroomDetailState extends State<FacClassroomDetail>
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                        content: Text("Create assignment feature coming soon")),
-                  );
+                  Navigator.pushNamed(context, '/createassignment');
                 },
                 child: Text("CREATE"),
                 style: ElevatedButton.styleFrom(

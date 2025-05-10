@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../components/teacherheader.dart';
-import '../components/footer.dart';
+import '../components/teacherFooter.dart';
 import '../components/facaisidebar.dart';
 
 class TeacherAi extends StatefulWidget {
@@ -171,6 +171,8 @@ class _LandingPageState extends State<TeacherAi>
         break;
       case 4:
         Navigator.pushNamed(context, '/teacherresources');
+      case 5:
+        Navigator.pushNamed(context, '/teacherclassroom');
         break;
     }
   }
@@ -358,7 +360,7 @@ class _LandingPageState extends State<TeacherAi>
             ),
         ],
       ),
-      bottomNavigationBar: Footer(
+      bottomNavigationBar: TeacherFooter(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),

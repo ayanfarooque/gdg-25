@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import '../components/teacherheader.dart';
-import '../components/footer.dart';
+import '../components/teacherFooter.dart';
 import 'dart:math';
 import 'create_post.dart';
 
@@ -170,6 +170,8 @@ class _FacCommunityLandingState extends State<FacCommunityLanding>
         break;
       case 4:
         Navigator.pushNamed(context, '/teacherresources');
+      case 5:
+        Navigator.pushNamed(context, '/teacherclassroom');
         break;
     }
   }
@@ -395,7 +397,7 @@ class _FacCommunityLandingState extends State<FacCommunityLanding>
                 ],
               ),
             ),
-      bottomNavigationBar: Footer(
+      bottomNavigationBar: TeacherFooter(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),

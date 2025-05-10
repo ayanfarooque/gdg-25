@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import '../components/teacherheader.dart';
-import '../components/footer.dart';
+import '../components/teacherFooter.dart';
 import 'FacClassroomDetail.dart';
 
 class FacClassroomsLanding extends StatefulWidget {
@@ -106,6 +106,8 @@ class _FacClassroomsLandingState extends State<FacClassroomsLanding> {
         break;
       case 4:
         Navigator.pushNamed(context, '/teacherresources');
+      case 5:
+        Navigator.pushReplacementNamed(context, '/teacherclassroom');
         break;
     }
   }
@@ -227,7 +229,7 @@ class _FacClassroomsLandingState extends State<FacClassroomsLanding> {
                 ],
               ),
             ),
-      bottomNavigationBar: Footer(
+      bottomNavigationBar: TeacherFooter(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),

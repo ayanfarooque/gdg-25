@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 //import 'dart:convert';
 import '../components/teacherheader.dart';
-import '../components/footer.dart';
+import '../components/teacherFooter.dart';
 
 class TeacherProfilePage extends StatefulWidget {
   const TeacherProfilePage({Key? key}) : super(key: key);
@@ -81,6 +81,8 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
         break;
       case 4:
         Navigator.pushNamed(context, '/teacherresources');
+      case 5:
+        Navigator.pushNamed(context, '/teacherclassroom');
         break;
     }
   }
@@ -337,7 +339,7 @@ class _TeacherProfilePageState extends State<TeacherProfilePage> {
               ),
             ),
       // Bottom Navigation Bar
-      bottomNavigationBar: Footer(
+      bottomNavigationBar: TeacherFooter(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),

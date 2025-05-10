@@ -25,6 +25,7 @@ import 'student/classroom.dart';
 import 'student/ClassroomDetailScreen.dart';
 import 'student/createpostpage.dart';
 import 'teacher/create_post.dart';
+import 'teacher/faccreateassignment.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -99,8 +100,9 @@ class MyApp extends StatelessWidget {
         '/addassignment': (context) => AddAssignmentPage(),
         '/teachernotifications': (context) =>
             FacNotifications(studentId: '603dcd7f1c4ae72f8c8b4571'),
-        '/teacherassignment': (context) => FacClassroomsLanding(),
+        '/teacherclassroom': (context) => FacClassroomsLanding(),
         '/teacherresources': (context) => FacResourceLanding(),
+        '/createassignment': (context) => FacCreateAssignment(),
         '/teacherai': (context) => TeacherAi(),
         '/teacherprofile': (context) => TeacherProfilePage(),
         '/teacherhome': (context) => const TeacherHomePage(),

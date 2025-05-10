@@ -4,7 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import '../components/teacherheader.dart';
-import '../components/footer.dart';
+import '../components/teacherFooter.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class TeacherHomePage extends StatefulWidget {
@@ -105,6 +105,8 @@ class _TeacherHomePageState extends State<TeacherHomePage>
         break;
       case 4:
         Navigator.pushNamed(context, '/teacherresources');
+      case 5:
+        Navigator.pushNamed(context, '/teacherclassroom');
         break;
     }
   }
@@ -181,7 +183,7 @@ class _TeacherHomePageState extends State<TeacherHomePage>
                 ],
               ),
             ),
-      bottomNavigationBar: Footer(
+      bottomNavigationBar: TeacherFooter(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),

@@ -325,12 +325,12 @@ class _LandingPageState extends State<AssignmentLanding> {
                                 // Page title and menu button
                                 Row(
                                   children: [
-                                    IconButton(
-                                      icon: Icon(Icons.menu_rounded),
-                                      onPressed: _toggleSidebar,
-                                      color: primaryColor,
-                                      iconSize: 28,
-                                    ),
+                                    // IconButton(
+                                    //   icon: Icon(Icons.menu_rounded),
+                                    //   onPressed: _toggleSidebar,
+                                    //   color: primaryColor,
+                                    //   iconSize: 28,
+                                    // ),
                                     SizedBox(width: 8),
                                     Text(
                                       "Assignment Dashboard",
@@ -978,22 +978,25 @@ class _LandingPageState extends State<AssignmentLanding> {
                   ),
                 ),
                 Spacer(),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.amber[50],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${_pendingAssignments.length} pending',
-                    style: TextStyle(
-                      color: Colors.amber[900],
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
               ],
+            ),
+
+            SizedBox(height: 16),
+
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.amber[50],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${_pendingAssignments.length} pending',
+                style: TextStyle(
+                  color: Colors.amber[900],
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
 
             SizedBox(height: 16),
@@ -1200,22 +1203,25 @@ class _LandingPageState extends State<AssignmentLanding> {
                   ),
                 ),
                 Spacer(),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.green[50],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${_submittedAssignments.length} completed',
-                    style: TextStyle(
-                      color: Colors.green[700],
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
               ],
+            ),
+
+            SizedBox(height: 16),
+
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '${_submittedAssignments.length} completed',
+                style: TextStyle(
+                  color: Colors.green[700],
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
 
             SizedBox(height: 16),

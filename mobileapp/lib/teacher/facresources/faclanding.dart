@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import '../../components/teacherheader.dart';
-import '../../components/footer.dart';
+import '../../components/teacherFooter.dart';
 import '../../components/news_card.dart';
 import '../../components/resourceCard.dart';
 
@@ -238,6 +238,8 @@ class _LandingPageState extends State<FacResourceLanding>
         break;
       case 4:
         Navigator.pushReplacementNamed(context, '/teacherresources');
+      case 5:
+        Navigator.pushReplacementNamed(context, '/teacherclassroom');
         break;
     }
   }
@@ -572,7 +574,7 @@ class _LandingPageState extends State<FacResourceLanding>
                 ],
               ),
             ),
-      bottomNavigationBar: Footer(
+      bottomNavigationBar: TeacherFooter(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
