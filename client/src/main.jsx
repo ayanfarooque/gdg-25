@@ -5,11 +5,14 @@ import App from './App.jsx'
 import { HashRouter as Router } from "react-router-dom";
 import { RoleProvider } from './context/RoleContext.jsx'
 import StudentContextProvider from './context/StudentContext.jsx';
+import TeacherContextProvider from './context/TeacherContext.jsx';
 createRoot(document.getElementById('root')).render(
   <Router>
   <RoleProvider>
     <StudentContextProvider>
-    <App />
+      <TeacherContextProvider>
+         <App />
+      </TeacherContextProvider>
     </StudentContextProvider>
   </RoleProvider>
   </Router>
