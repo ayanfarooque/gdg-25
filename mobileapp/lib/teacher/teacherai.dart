@@ -26,7 +26,7 @@ class _LandingPageState extends State<TeacherAi>
     "Chemistry"
   ];
   List<String> _difficulties = ["Easy", "Medium", "Hard"];
-  List<String> _questionTypes = ["MCQ", "Short Answer", "Essay", "Mixed"];
+  List<String> _questionTypes = ["MCQ", "Short Answer", "Essay", "Full Paper"];
   List<String> _gradeLevels = [
     "Grade 1",
     "Grade 2",
@@ -42,6 +42,102 @@ class _LandingPageState extends State<TeacherAi>
     "Grade 12"
   ];
 
+  Map<String, List<String>> _chapters = {
+    "Math": [
+      "Chapter 1: Numbers",
+      "Chapter 2: Algebra",
+      "Chapter 3: Geometry",
+      "Chapter 4: Statistics"
+    ],
+    "Science": [
+      "Chapter 1: Matter",
+      "Chapter 2: Energy",
+      "Chapter 3: Living Things",
+      "Chapter 4: Earth & Space"
+    ],
+    "History": [
+      "Chapter 1: Ancient History",
+      "Chapter 2: Medieval Period",
+      "Chapter 3: Modern Era",
+      "Chapter 4: World Wars"
+    ],
+    "English": [
+      "Chapter 1: Grammar",
+      "Chapter 2: Literature",
+      "Chapter 3: Writing Skills",
+      "Chapter 4: Comprehension"
+    ],
+    "Geography": [
+      "Chapter 1: Physical Geography",
+      "Chapter 2: Climate",
+      "Chapter 3: Resources",
+      "Chapter 4: Population"
+    ],
+    "Physics": [
+      "Chapter 1: Mechanics",
+      "Chapter 2: Thermodynamics",
+      "Chapter 3: Electricity",
+      "Chapter 4: Optics"
+    ],
+    "Chemistry": [
+      "Chapter 1: Elements",
+      "Chapter 2: Compounds",
+      "Chapter 3: Reactions",
+      "Chapter 4: Organic Chemistry"
+    ]
+  };
+
+  Map<String, Map<String, List<String>>> _topics = {
+    "Math": {
+      "Chapter 1: Numbers": [
+        "Integers",
+        "Fractions",
+        "Decimals",
+        "Real Numbers"
+      ],
+      "Chapter 2: Algebra": [
+        "Equations",
+        "Inequalities",
+        "Functions",
+        "Polynomials"
+      ],
+      "Chapter 3: Geometry": [
+        "Lines & Angles",
+        "Triangles",
+        "Circles",
+        "Coordinate Geometry"
+      ],
+      "Chapter 4: Statistics": [
+        "Mean, Median & Mode",
+        "Probability",
+        "Data Representation",
+        "Standard Deviation"
+      ]
+    },
+    "Science": {
+      "Chapter 1: Matter": [
+        "States of Matter",
+        "Elements & Compounds",
+        "Mixtures",
+        "Physical Changes"
+      ],
+      "Chapter 2: Energy": [
+        "Forms of Energy",
+        "Energy Transfer",
+        "Conservation of Energy",
+        "Renewable Energy"
+      ],
+      "Chapter 3: Living Things": ["Cells", "Plants", "Animals", "Ecosystems"],
+      "Chapter 4: Earth & Space": [
+        "Solar System",
+        "Weather",
+        "Natural Resources",
+        "Climate Change"
+      ]
+    },
+    // Add topics for other subjects similarly
+  };
+
   bool _isSidebarVisible = false;
   TabController? _tabController;
   String? _selectedDifficulty;
@@ -49,6 +145,8 @@ class _LandingPageState extends State<TeacherAi>
   String? _selectedQuestionType = "MCQ";
   int _numberOfQuestions = 10;
   int _timeLimit = 30;
+  String? _selectedChapter;
+  String? _selectedTopic;
 
   // Test generator controllers
   TextEditingController _numberOfQuestionsController =
@@ -88,6 +186,22 @@ class _LandingPageState extends State<TeacherAi>
     _numberOfQuestionsController.dispose();
     _timeLimitController.dispose();
     super.dispose();
+  }
+
+  void _updateSubject(String? newValue) {
+    setState(() {
+      _selectedSubject = newValue;
+      _selectedChapter = null;
+      _selectedTopic = null;
+    });
+  }
+
+  // Reset topic when chapter changes
+  void _updateChapter(String? newValue) {
+    setState(() {
+      _selectedChapter = newValue;
+      _selectedTopic = null;
+    });
   }
 
   // Method to load chat data from JSON
@@ -185,8 +299,10 @@ class _LandingPageState extends State<TeacherAi>
 
   void _generateTest() {
     // Validate inputs
-    if (_selectedSubject == null ||
-        _selectedGradeLevel == null ||
+    if (_selectedGradeLevel == null ||
+        _selectedSubject == null ||
+        _selectedChapter == null ||
+        _selectedTopic == null ||
         _selectedQuestionType == null ||
         _selectedDifficulty == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -367,6 +483,7 @@ class _LandingPageState extends State<TeacherAi>
     );
   }
 
+  // Number of Questions and Time Limit inputs for the test generator
   Widget _buildTestGeneratorTab() {
     return SingleChildScrollView(
       child: Container(
@@ -383,49 +500,7 @@ class _LandingPageState extends State<TeacherAi>
             ),
             const SizedBox(height: 20),
 
-            // Subject Selection
-            const Text(
-              'Subject',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  value: _selectedSubject,
-                  hint: Text("Select Subject"),
-                  icon: Icon(Icons.arrow_drop_down),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.black),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedSubject = newValue;
-                    });
-                  },
-                  items:
-                      _subjects.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Grade Level
+            // 1. Grade Level - Now first
             const Text(
               'Grade Level',
               style: TextStyle(
@@ -467,7 +542,132 @@ class _LandingPageState extends State<TeacherAi>
             ),
             const SizedBox(height: 20),
 
-            // Question Type
+            // 2. Subject - Now second
+            const Text(
+              'Subject',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  value: _selectedSubject,
+                  hint: Text("Select Subject"),
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.black),
+                  onChanged: _updateSubject,
+                  items:
+                      _subjects.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // 3. Chapter - New addition
+            const Text(
+              'Chapter',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  value: _selectedChapter,
+                  hint: Text("Select Chapter"),
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.black),
+                  onChanged: _selectedSubject != null ? _updateChapter : null,
+                  items: _selectedSubject != null
+                      ? (_chapters[_selectedSubject] ?? [])
+                          .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList()
+                      : [],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // 4. Topic - New addition
+            const Text(
+              'Topic',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  value: _selectedTopic,
+                  hint: Text("Select Topic"),
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.black),
+                  onChanged:
+                      (_selectedSubject != null && _selectedChapter != null)
+                          ? (String? newValue) {
+                              setState(() {
+                                _selectedTopic = newValue;
+                              });
+                            }
+                          : null,
+                  items: (_selectedSubject != null && _selectedChapter != null)
+                      ? (_topics[_selectedSubject]?[_selectedChapter] ?? [])
+                          .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList()
+                      : [],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Question Type - Now as dropdown instead of chips
             const Text(
               'Question Type',
               style: TextStyle(
@@ -477,30 +677,34 @@ class _LandingPageState extends State<TeacherAi>
             ),
             const SizedBox(height: 8),
             Container(
-              height: 50,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: _questionTypes.map((type) {
-                  return Padding(
-                    padding: EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(type),
-                      selected: _selectedQuestionType == type,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedQuestionType = type;
-                        });
-                      },
-                      backgroundColor: Colors.white,
-                      selectedColor: const Color(0xFFE195AB),
-                      labelStyle: TextStyle(
-                        color: _selectedQuestionType == type
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
-                  );
-                }).toList(),
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  value: _selectedQuestionType,
+                  hint: Text("Select Question Type"),
+                  icon: Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.black),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedQuestionType = newValue;
+                    });
+                  },
+                  items: _questionTypes
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -563,30 +767,32 @@ class _LandingPageState extends State<TeacherAi>
                         ),
                       ),
                       const SizedBox(height: 8),
-                      TextField(
-                        controller: _numberOfQuestionsController,
-                        decoration: InputDecoration(
-                          hintText: "10",
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          if (value.isNotEmpty) {
-                            _numberOfQuestions = int.parse(value);
-                          }
-                        },
+                        child: TextField(
+                          controller: _numberOfQuestionsController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 14),
+                            border: InputBorder.none,
+                            hintText: "10",
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _numberOfQuestions = int.tryParse(value) ?? 10;
+                            });
+                          },
+                        ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 // Time Limit
                 Expanded(
                   child: Column(
@@ -600,25 +806,27 @@ class _LandingPageState extends State<TeacherAi>
                         ),
                       ),
                       const SizedBox(height: 8),
-                      TextField(
-                        controller: _timeLimitController,
-                        decoration: InputDecoration(
-                          hintText: "30",
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          if (value.isNotEmpty) {
-                            _timeLimit = int.parse(value);
-                          }
-                        },
+                        child: TextField(
+                          controller: _timeLimitController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 14),
+                            border: InputBorder.none,
+                            hintText: "30",
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _timeLimit = int.tryParse(value) ?? 30;
+                            });
+                          },
+                        ),
                       ),
                     ],
                   ),
