@@ -1,70 +1,121 @@
-import React, { useState,useContext } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaUserGraduate, FaLock, FaArrowLeft, FaIdCard, FaUser, FaChalkboardTeacher } from "react-icons/fa";
-import { MdEmail, MdDateRange } from "react-icons/md";
+import { FaUserGraduate, FaLock, FaArrowLeft, FaIdCard, FaUser } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import StudentContextProvider, { StudentContext } from "../../context/StudentContext";
+import { StudentContext } from "../../context/StudentContext";
+
 function StudentAuth() {
   const [activeTab, setActiveTab] = useState("login");
-  const [loginData, setLoginData] = useState({ email: "", password: "" });
-  // const [signupData, setSignupData] = useState({
-  //   fullName: "",
-  //   email: "",
-  //   studentId: "",
-  //   password: "",
-  //   confirmPassword: ""
-  // });
-  const [email,setemail] = useState("");
-  const [password,setpassword] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [studentId, setStudentId] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [name,setname] = useState("")
-  const [studentId,setstudentId] = ("")
-  const { setstoken, backendUrl } = useContext(StudentContext)
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const { setstoken } = useContext(StudentContext);
   const navigate = useNavigate();
-  // const handleLoginSubmit = (e) => {
-  //   e.preventDefault();
-  //   console.log("Student login:", loginData);
-  //   navigate("/student/dashboard");
-  // };
 
-  // const handleSignupSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (signupData.password !== signupData.confirmPassword) {
-  //     setError("Passwords don't match");
-  //     return;
-  //   }
-  //   console.log("Student signup:", signupData);
-  //   navigate("/student-home");
-  // };
-
-  const onSubmitHandler = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Submitting to:", `http://localhost:5000/api/Students/login`);
-    console.log("Email:", email, "Password:", password);
-     try {
-            const response = await axios.post(`http://localhost:5000/api/students/login`, { email, password });
+    setIsLoading(true);
+    setError("");
     
-            console.log("Full API Response:", response); // Log full response
-            console.log("Response Data:", response.data); // Log response data only
-    
-            if (response.data.token) { // Ensure token exists
-                localStorage.setItem("sToken", response.data.token);
-                setstoken(response.data.token);
-                toast.success("Login successful!");
-                navigate("/Stu-Dash");
-            } else {
-                toast.error(response.data.message || "Invalid credentials");
-            }
-        } catch (error) {
-            console.error("Error logging in:", error.response?.data || error.message);
-            toast.error("An error occurred during login. Please try again.");
+    try {
+      const response = await axios.post("http://localhost:5000/api/students/login", { 
+        email, 
+        password 
+      });
+
+      if (response.data.token) {
+        // Success - save token and redirect
+        localStorage.setItem("sToken", response.data.token);
+        setstoken(response.data.token);
+        toast.success("Login successful! Redirecting...");
+        
+        // Short delay for toast to be visible
+        setTimeout(() => {
+          navigate("/Stu-Dash");
+        }, 1000);
+      } else {
+        // No token in response
+        toast.error(response.data.message || "Login failed. Please check your credentials.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      
+      // Show appropriate error messages based on response
+      if (error.response) {
+        if (error.response.status === 401) {
+          toast.error("Invalid email or password");
+        } else if (error.response.status === 404) {
+          toast.error("Student account not found");
+        } else {
+          toast.error(error.response.data.message || "Login failed. Please try again.");
         }
-  }
+      } else {
+        toast.error("Network error. Please check your connection.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      toast.error("Passwords don't match");
+      return;
+    }
+    
+    setIsLoading(true);
+    setError("");
+    
+    try {
+      const response = await axios.post("http://localhost:5000/api/students/register", {
+        name,
+        email,
+        studentId,
+        password
+      });
+
+      if (response.data.success) {
+        toast.success("Account created successfully! Please login.");
+        setActiveTab("login");
+      } else {
+        toast.error(response.data.message || "Registration failed");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      
+      if (error.response) {
+        if (error.response.status === 400) {
+          toast.error(error.response.data.message || "Invalid registration data");
+        } else if (error.response.status === 409) {
+          toast.error("Email already in use");
+        } else {
+          toast.error("Registration failed. Please try again.");
+        }
+      } else {
+        toast.error("Network error. Please check your connection.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen text-black bg-gradient-to-br from-[#49ABB0] to-[#21294F] flex items-center justify-center p-4">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -107,7 +158,7 @@ function StudentAuth() {
           </div>
 
           {activeTab === "login" ? (
-            <form onSubmit={onSubmitHandler} className="p-8">
+            <form onSubmit={handleLogin} className="p-8">
               {error && (
                 <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
                   {error}
@@ -122,8 +173,8 @@ function StudentAuth() {
                     type="email"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="student@university.edu"
-                    value={email.email}
-                    onChange={(e) => setemail(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -137,8 +188,8 @@ function StudentAuth() {
                     type="password"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="••••••••"
-                    value={password.password}
-                    onChange={(e) => setpassword(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
@@ -162,11 +213,12 @@ function StudentAuth() {
 
               <button
                 type="submit"
-                className="w-full bg-[#49ABB0] hover:bg-[#3a8a8f] text-white py-3 px-4 rounded-lg font-medium transition duration-200"
-                //onClick={() => (navigate('/student-home'))}
-                
+                disabled={isLoading}
+                className={`w-full bg-[#49ABB0] hover:bg-[#3a8a8f] text-white py-3 px-4 rounded-lg font-medium transition duration-200 ${
+                  isLoading ? "opacity-70 cursor-not-allowed" : ""
+                }`}
               >
-                Login to Student Portal
+                {isLoading ? "Logging in..." : "Login to Student Portal"}
               </button>
 
               <p className="mt-6 text-center text-gray-600">
@@ -181,7 +233,7 @@ function StudentAuth() {
               </p>
             </form>
           ) : (
-            <form onSubmit={onSubmitHandler} className="p-8">
+            <form onSubmit={handleSignup} className="p-8">
               {error && (
                 <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
                   {error}
@@ -196,8 +248,8 @@ function StudentAuth() {
                     type="text"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="John Doe"
-                    value={name.fullName}
-                    onChange={(e) => setname(e.target.value)}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>
@@ -211,8 +263,8 @@ function StudentAuth() {
                     type="email"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="student@university.edu"
-                    value={email.email}
-                    onChange={(e) => setemail(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -226,8 +278,8 @@ function StudentAuth() {
                     type="text"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="20230001"
-                    value={studentId.studentId}
-                    onChange={(e) => setstudentId(e.target.value)}
+                    value={studentId}
+                    onChange={(e) => setStudentId(e.target.value)}
                     required
                   />
                 </div>
@@ -241,8 +293,8 @@ function StudentAuth() {
                     type="password"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="••••••••"
-                    value={password.password}
-                    onChange={(e) => setpassword(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength="8"
                   />
@@ -257,8 +309,8 @@ function StudentAuth() {
                     type="password"
                     className="w-full text-black pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="••••••••"
-                    value={password.confirmPassword}
-                    onChange={(e) => setpassword(e.target.value)}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength="8"
                   />
@@ -267,9 +319,12 @@ function StudentAuth() {
 
               <button
                 type="submit"
-                className="w-full bg-[#49ABB0] hover:bg-[#3a8a8f] text-white py-3 px-4 rounded-lg font-medium transition duration-200"
+                disabled={isLoading}
+                className={`w-full bg-[#49ABB0] hover:bg-[#3a8a8f] text-white py-3 px-4 rounded-lg font-medium transition duration-200 ${
+                  isLoading ? "opacity-70 cursor-not-allowed" : ""
+                }`}
               >
-                Create Student Account
+                {isLoading ? "Creating Account..." : "Create Student Account"}
               </button>
 
               <p className="mt-6 text-center text-gray-600">
