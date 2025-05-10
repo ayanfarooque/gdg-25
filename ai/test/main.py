@@ -4,6 +4,11 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
+import sys
+
+# Add path to qs-gen.py
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agents'))
+from qs_gen import generate_question_paper, setup_agents_and_crew
 
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -130,6 +135,39 @@ def process_test_content(test_content):
     return test_content  # Return original content if all processing attempts fail
 
 def generate_test(subject, grade_level, topic, question_types, difficulty, number_of_questions, time_limit):
+    # Convert finalanswer to final_answer for qs-gen compatibility
+    question_types = ['final_answer' if qt == 'finalanswer' else qt for qt in question_types]
+    
+    if "final_answer" in question_types:
+        try:
+            # Get result from qs-gen
+            result = generate_question_paper(subject)
+            
+            # Extract content and format for frontend
+            content = result.get('content', '')
+            
+            # Create a structured response matching frontend expectations
+            test_json = {
+                "title": f"{subject.title()} Final Answer Test - Grade {grade_level}",
+                "questions": [
+                    {
+                        "id": f"q{i+1}",
+                        "type": "finalanswer",  # Changed to match frontend
+                        "question": q.strip(),
+                        "marks": 0  # Default marks
+                    } for i, q in enumerate(content.split('\n')) if q.strip()
+                ],
+                "answer_key": "See individual sections for marks allocation",
+                "estimated_time": time_limit,
+                "total_marks": number_of_questions * 10,  # Default marks calculation
+                "instructions": "Answer questions according to the given instructions"
+            }
+            
+            return json.dumps(test_json)
+        except Exception as e:
+            raise Exception(f"Error generating final answer test: {str(e)}")
+    
+    # Original Gemini prompt for other question types
     prompt = f"""Generate a {subject} test for Grade {grade_level} with the following specifications:
     Topic: {topic}
     Question Types: {', '.join(question_types)}
@@ -166,6 +204,40 @@ def generate_test(subject, grade_level, topic, question_types, difficulty, numbe
     except Exception as e:
         raise Exception(f"Error generating test: {str(e)}")
 
+def parse_final_answer_content(content):
+    """Parse the crew-generated content into structured JSON sections"""
+    sections = []
+    current_section = None
+    
+    # Split content into lines and process
+    lines = content.split('\n')
+    for line in lines:
+        if line.startswith('Section') or 'Answer any' in line:
+            if current_section:
+                sections.append(current_section)
+            current_section = {
+                "type": "final_answer",
+                "heading": line.strip(),
+                "questions": [],
+                "instructions": "",
+                "total_marks": 0
+            }
+        elif current_section and line.strip():
+            if '(' in line and 'marks' in line.lower():
+                # Extract marks from the line
+                marks = int(''.join(filter(str.isdigit, line)))
+                current_section["total_marks"] += marks
+            
+            current_section["questions"].append({
+                "type": "final_answer",
+                "question": line.strip(),
+                "marks": marks if 'marks' in locals() else 0
+            })
+    
+    if current_section:
+        sections.append(current_section)
+    
+    return sections
 
 @app.route('/api/download-test', methods=['POST'])
 def download_test_route():
