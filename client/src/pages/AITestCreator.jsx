@@ -91,7 +91,7 @@ const AITestCreator = () => {
       console.log("Sending request to generate test:", requestData);
       
       // Call the API endpoint
-      const response = await axios.post('http://localhost:5000/api/generate-test', requestData);
+      const response = await axios.post('http://127.0.0.1:5000/api/generate-test', requestData);
       
       // Process the response, expecting a JSON string in the response.data.test_content
       if (response.data && response.data.test_content) {

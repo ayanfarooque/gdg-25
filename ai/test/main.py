@@ -16,7 +16,7 @@ model = genai.GenerativeModel('models/gemini-2.0-flash')
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-@app.route('http://localhost:5000/api/generate-test', methods=['POST'])
+@app.route('/api/generate-test', methods=['POST'])
 def generate_test_route():
     data = request.json
     print(f"Received request from AITestCreator: {data}")
@@ -167,7 +167,7 @@ def generate_test(subject, grade_level, topic, question_types, difficulty, numbe
         raise Exception(f"Error generating test: {str(e)}")
 
 
-@app.route('http://localhost:5000/api/download-test', methods=['POST'])
+@app.route('/api/download-test', methods=['POST'])
 def download_test_route():
     data = request.json
     try:
@@ -237,70 +237,16 @@ def save_test_to_json(test_data, subject, filename=None):
     except Exception as e:
         raise Exception(f"Error saving JSON file: {str(e)}")
 
-def main(config_file=None):
-    print("Welcome to the Gemini Test Generator!")
+def main():
+    """Main function that runs the Flask server to accept inputs from AITestCreator.jsx frontend"""
+    print("Starting the Gemini Test Generator API server...")
+    print("Waiting for requests from AITestCreator frontend...")
     
-    test_configs = []
-    
-    # Try to load test configuration from file first (if provided from frontend)
-    if config_file and os.path.exists(config_file):
-        try:
-            with open(config_file, 'r') as f:
-                frontend_configs = json.load(f)
-                if isinstance(frontend_configs, list):
-                    test_configs = frontend_configs
-                else:
-                    test_configs = [frontend_configs]  # Convert single config to list
-                print(f"Loaded {len(test_configs)} test configurations from {config_file}")
-        except Exception as e:
-            print(f"Error loading config file: {e}")
-    
-    # If no configs were loaded from file, use default examples
-    if not test_configs:
-        print("Using default test configurations")
-        # Test configuration 1 - Mathematics
-        test_configs = [{
-            "subject": "Mathematics",
-            "grade_level": 10,
-            "topic": "Quadratic Equations",
-            "question_types": ["multiple_choice", "short_answer"],
-            "difficulty": "medium",
-            "number_of_questions": 5,
-            "time_limit": 30
-        },
-        # Test configuration 2 - Science
-        {
-            "subject": "Science",
-            "grade_level": 9,
-            "topic": "Kinematics",
-            "question_types": ["multiple_choice", "essay"],
-            "difficulty": "hard",
-            "number_of_questions": 3,
-            "time_limit": 20
-        }]
-
+    # No default configurations - only process requests from frontend
     try:
-        # Process each test configuration
-        for config in test_configs:
-            subject = config.get("subject", "General")
-            print(f"\nGenerating {subject} Test...")
-            test = generate_test(**config)
-            print(f"\n{subject} Test:")
-            print(test)
-            test_file = save_test_to_json(test, subject)
-            print(f"{subject} test saved to: {test_file}")
-
+        app.run(debug=True, port=5000)
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        print(f"Error starting server: {str(e)}")
 
 if __name__ == "__main__":
-    # Choose behavior based on how the script is run
-    if os.environ.get('FLASK_ENV') == 'development':
-        app.run(debug=True, port=5000)
-    else:
-        # Check for config file from command line args
-        import sys
-        config_file = None
-        if len(sys.argv) > 1:
-            config_file = sys.argv[1]
-        main(config_file)  # Run with config file if provided
+    main()  # Always run in server mode to receive frontend requests
