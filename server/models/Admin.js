@@ -1,41 +1,26 @@
-const { Schema } = require('mongoose');
-const User = require('../models/User.js');
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const adminSchema = new Schema({
-  // Extended contact information
-  name : {
-    type:String,
+  // Admin fields
+  name: {
+    type: String,
+    required: true
   },
-  email : {
+  email: {
     type: String,
     required: true,
     unique: true
   },
   password: {
     type: String,
-    required: true,
+    required: true
   },
   adminid: {
     type: String,
-    required: true,
+    required: true
   },
-  contactInfo: {
-    officeNumber: { 
-      type: String,
-      validate: {
-        validator: function(v) {
-          return /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(v);
-        },
-        message: props => `${props.value} is not a valid phone number!`
-      }
-    },
-    emergencyContact: {
-      name: String,
-      relationship: String,
-      phone: String
-    },
-  },
-
+  
   // Enhanced permissions system
   permissions: {
     userManagement: {
@@ -65,7 +50,6 @@ const adminSchema = new Schema({
     auditLogs: {
       view: { type: Boolean, default: true }
     },
-    // Custom permissions can be added dynamically
     customPermissions: Schema.Types.Mixed
   },
 
@@ -144,31 +128,19 @@ const adminSchema = new Schema({
     }
   }
 }, {
-  // Removed timestamps here to avoid conflict with discriminator
+  timestamps: true, // Add timestamps
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
+// Method to compare password
+adminSchema.methods.comparePassword = async function(candidatePassword) {
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    throw new Error('Password comparison failed');
+  }
+};
 
-// Virtual for full admin title
-// adminSchema.virtual('adminTitle').get(function() {
-//   return `${this.department} Administrator`;
-// });
-
-// // Pre-save hook for security
-// adminSchema.pre('save', function(next) {
-//   if (this.isModified('security.failedLoginAttempts') ){
-//     if (this.security.failedLoginAttempts >= 5) {
-//       this.security.loginLocked = true;
-//       this.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
-//     }
-//   }
-//   next();
-// });
-
-// // Static methods
-// adminSchema.statics.findByDepartment = function(department) {
-//   return this.find({ 'contactInfo.department': department });
-// };
-
-module.exports = User.discriminator('Admin', adminSchema);
+// Create a standalone model instead of a discriminator
+module.exports = mongoose.model('Admin', adminSchema);

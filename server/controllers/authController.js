@@ -108,85 +108,142 @@ exports.teacherLogin = async (req, res) => {
     }
 };
 
-exports.adminLogin = async (req,res) => {
-    try{
-        const {email,password} = req.body;
-        const admin = await Admin.findOne({email});
+exports.adminSignup = async (req, res) => {
+    try {
+        const { name, email, password, adminid } = req.body;
 
-    if(!admin){
-        return res.status(404).json({message: "Admin not found"});
-    }
-    const isMatch = await bcrypt.compare(password, admin.password);
-        console.log("Entered Password:", password);
-        console.log("Stored Hashed Password:", admin.password);
-        console.log("Password Match:", isMatch);
-        if (!isMatch) {
-            return res.status(401).json({ message: "Invalid credentials" });
+        if (!name || !email || !password || !adminid) {
+            return res.status(400).json({ 
+                success: false,
+                message: "All fields are required" 
+            });
         }
 
-        const token = generatetoken(admin, "admin");
-        res.header("Authorization", `Bearer ${token}`).status(200).json({ message: "Admin logged in", token });
-    }catch (error){
-        res.status(500).json({ message: "Error in teacher login", error: error.message });
-    }
-}
+        const admin1 = await Admin.findOne({ email });
+        if (admin1) {
+            return res.status(400).json({ 
+                success: false,
+                message: "Admin already exists" 
+            });
+        }
 
-exports.adminSignup = async (req, res) => {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Create with new schema structure
+        const admin = new Admin({ 
+            name, 
+            email, 
+            password: hashedPassword,
+            adminid
+        });
+
+        await admin.save();
+        const token = generatetoken(admin, "admin");
+
+        res.header("Authorization", `Bearer ${token}`)
+           .status(201)
+           .json({ 
+               success: true,
+               message: "Admin registered successfully", 
+               token 
+            });
+    } catch (error) {
+        console.error("Admin signup error:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Error in admin signup", 
+            error: error.message 
+        });
+    }
+};
+
+exports.adminLogin = async (req, res) => {
   try {
-    const { name, email, password, adminid } = req.body;
+    const { email, password } = req.body;
     
-    // Validate required fields
-    if (!name || !email || !password || !adminid) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Please provide all required fields" 
+    // Validate inputs
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide email and password"
       });
     }
     
-    // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ email });
-    if (existingAdmin) {
-      return res.status(409).json({  // Changed from 404 to 409 (Conflict) which is more appropriate
-        success: false, 
-        message: "Admin with this email already exists" 
+    // Find admin with standalone model
+    const admin = await Admin.findOne({ email });
+    
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found"
       });
     }
     
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Compare passwords (regular await instead of callback)
+    const isMatch = await bcrypt.compare(password, admin.password);
     
-    // Create new admin - setting both firstName and lastName to satisfy model requirements
-    // but using name as the main identifier
-    // Update admin creation in your adminSignup controller
-    const admin = new Admin({
-    firstName: name.split(' ')[0],  // First word of name
-    lastName: name.split(' ').length > 1 ? name.split(' ').slice(1).join(' ') : "Admin",  // Rest of name or "Admin" as fallback
-    name: name,       
-    email,
-    password: hashedPassword,
-    adminid: adminid,
-    createdAt: new Date()
-    });
-    
-    await admin.save();
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password"
+      });
+    }
     
     // Generate token
     const token = generatetoken(admin, "admin");
     
-    res.header("Authorization", `Bearer ${token}`)
-      .status(201)
-      .json({ 
-        success: true,
-        message: "Admin registered successfully", 
-        token 
-      });
-      
+    // Return successful response
+    res.status(200).json({
+      success: true,
+      message: "Admin logged in successfully",
+      token: token
+    });
+    
   } catch (error) {
-    console.error("Error in admin signup:", error);
-    res.status(500).json({ 
+    console.error("Admin login error:", error);
+    res.status(500).json({
       success: false,
-      message: "Error registering admin", 
-      error: error.message 
+      message: "Error in admin login",
+      error: error.message
+    });
+  }
+};
+
+exports.resetAdminPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    
+    // Find the admin
+    const admin = await Admin.findOne({ email });
+    
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found"
+      });
+    }
+    
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    // Update the admin directly with the new password using updateOne to bypass schema validation
+    await Admin.updateOne(
+      { _id: admin._id },
+      { $set: { password: hashedPassword } }
+    );
+    
+    res.status(200).json({
+      success: true,
+      message: "Admin password reset successfully"
+    });
+    
+  } catch (error) {
+    console.error("Password reset error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error resetting password",
+      error: error.message
     });
   }
 };

@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUserCog, FaLock, FaArrowLeft, FaIdCard, FaUser } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
-
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AdminContext } from "../../context/AdminContext";
 function AdminAuth() {
   const [activeTab, setActiveTab] = useState("login");
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [email, setemail] = useState("");
+  const [password, setpassword] = useState("");
+  const [name, setName] = useState("");
+  const [adminid, setadminid] = useState("");
+  const { setatoken } = useContext(AdminContext);
   const [signupData, setSignupData] = useState({
     fullName: "",
     email: "",
@@ -14,8 +22,55 @@ function AdminAuth() {
     password: "",
     confirmPassword: ""
   });
+  const [loading,setIsLoading] = useState(false)
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+
+  const handleLogin = async (e) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError("");
+      
+      try {
+        const response = await axios.post("http://localhost:5000/api/admin/login", { 
+          email, 
+          password 
+        });
+  
+        if (response.data.token) {
+          // Success - save token and redirect
+          localStorage.setItem("aToken", response.data.token);
+          setatoken(response.data.token);
+          toast.success("Login successful! Redirecting...");
+          
+          // Short delay for toast to be visible
+          setTimeout(() => {
+            navigate("/admin-dashboard");
+          }, 1000);
+        } else {
+          // No token in response
+          toast.error(response.data.message || "Login failed. Please check your credentials.");
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        
+        // Show appropriate error messages based on response
+        if (error.response) {
+          if (error.response.status === 401) {
+            toast.error("Invalid email or password");
+          } else if (error.response.status === 404) {
+            toast.error("Student account not found");
+          } else {
+            toast.error(error.response.data.message || "Login failed. Please try again.");
+          }
+        } else {
+          toast.error("Network error. Please check your connection.");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
@@ -77,7 +132,7 @@ function AdminAuth() {
           </div>
 
           {activeTab === "login" ? (
-            <form onSubmit={handleLoginSubmit} className="p-8">
+            <form onSubmit={handleLogin} className="p-8">
               {error && (
                 <div className="mb-4 p-3 bg-red-900 text-red-100 rounded-md">
                   {error}
@@ -92,8 +147,8 @@ function AdminAuth() {
                     type="email"
                     className="w-full pl-10 pr-3 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-white focus:border-transparent text-white"
                     placeholder="admin@university.edu"
-                    value={loginData.email}
-                    onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                    value={email}
+                    onChange={(e) => setemail(e.target.value)}
                     required
                   />
                 </div>
@@ -107,8 +162,8 @@ function AdminAuth() {
                     type="password"
                     className="w-full pl-10 pr-3 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-white focus:border-transparent text-white"
                     placeholder="••••••••"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                    value={password}
+                    onChange={(e) => setpassword(e.target.value)}
                     required
                   />
                 </div>
@@ -133,7 +188,6 @@ function AdminAuth() {
               <button
                 type="submit"
                 className="w-full bg-black hover:bg-gray-900 text-white py-3 px-4 rounded-lg font-medium transition duration-200 border border-gray-700"
-                onClick={() => (navigate('/admin-dashboard'))}
               >
                 Login to Admin Portal
               </button>

@@ -10,6 +10,7 @@ router.post('/login',authController.adminLogin);
 
 router.post('/signup',authController.adminSignup)
 
+router.post('/recover',authController.resetAdminPassword)
 
 
 // Student Routes

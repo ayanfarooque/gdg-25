@@ -52,13 +52,13 @@ const App = () => {
   useEffect(() => {
     const stoken = localStorage.getItem('sToken')
     const tToken = localStorage.getItem('tToken')
-    const atoken = localStorage.getItem('aToken')
+    const aToken = localStorage.getItem('aToken')
 
     if(stoken){
       setRole('student')
     }else if(tToken){
       setRole('teacher')
-    }else if(atoken){
+    }else if(aToken){
       setRole('admin')
     }
   },[])
