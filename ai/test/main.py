@@ -2,6 +2,8 @@ import os
 import json
 import google.generativeai as genai
 from dotenv import load_dotenv
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -9,6 +11,123 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 # Configure Gemini API
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('models/gemini-2.0-flash')
+
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
+@app.route('http://localhost:5000/api/generate-test', methods=['POST'])
+def generate_test_route():
+    data = request.json
+    print(f"Received request from AITestCreator: {data}")
+    
+    try:
+        # Extract all fields from request body
+        subject = data.get('subject')
+        grade_level = data.get('grade_level')
+        topic = data.get('topic')
+        question_types = data.get('question_types', [])
+        difficulty = data.get('difficulty')
+        number_of_questions = data.get('number_of_questions')
+        time_limit = data.get('time_limit')
+        
+        # Validate required fields
+        if not all([subject, grade_level, difficulty, number_of_questions, time_limit]):
+            missing = []
+            if not subject: missing.append("subject")
+            if not grade_level: missing.append("grade_level")
+            if not difficulty: missing.append("difficulty") 
+            if not number_of_questions: missing.append("number_of_questions")
+            if not time_limit: missing.append("time_limit")
+            return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
+            
+        # If question_types is empty, default to multiple_choice
+        if not question_types:
+            question_types = ["multiple_choice"]
+            print("No question types provided, defaulting to multiple_choice")
+        
+        print(f"Generating {subject} test on {topic} with {question_types} questions")
+        
+        # Generate the test content
+        test_content = generate_test(subject, grade_level, topic, question_types, difficulty, number_of_questions, time_limit)
+        
+        # Process the content for frontend compatibility
+        processed_content = process_test_content(test_content)
+        
+        # Return the content to be rendered on AITestCreator
+        return jsonify({
+            "test_content": processed_content, 
+            "status": "success",
+            "message": f"Successfully generated {subject} test"
+        })
+    
+    except Exception as e:
+        print(f"Error in generate_test_route: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e), "status": "error"}), 500
+
+def process_test_content(test_content):
+    """Process the raw test content to ensure it's valid JSON and formatted correctly for the frontend"""
+    try:
+        # Handle markdown code blocks if present
+        if "```json" in test_content:
+            import re
+            json_match = re.search(r'```json\s*([\s\S]*?)\s*```', test_content)
+            if json_match:
+                test_content = json_match.group(1).strip()
+            else:
+                test_content = test_content.replace("```json", "").replace("```", "").strip()
+        
+        # Try parsing the JSON to validate it and identify any issues
+        try:
+            parsed_json = json.loads(test_content)
+            
+            # Ensure all required fields are present
+            required_fields = ["title", "questions", "answer_key"]
+            for field in required_fields:
+                if field not in parsed_json:
+                    parsed_json[field] = f"Missing {field}" if field != "questions" else []
+            
+            # Ensure questions have all required fields and correct format
+            for i, question in enumerate(parsed_json.get("questions", [])):
+                # Add an id if missing
+                if "id" not in question:
+                    question["id"] = f"q{i+1}"
+                
+                # Convert type from snake_case to camelCase for frontend compatibility
+                if "type" in question:
+                    if question["type"] == "multiple_choice":
+                        question["type"] = "multipleChoice"
+                    elif question["type"] == "short_answer":
+                        question["type"] = "shortAnswer"
+                    elif question["type"] == "final_answer":
+                        question["type"] = "finalanswer"
+                
+                # Ensure options array exists for multiple choice questions
+                if question.get("type") == "multipleChoice" and "options" not in question:
+                    question["options"] = ["Option A", "Option B", "Option C", "Option D"]
+            
+            # Convert back to string for frontend
+            return json.dumps(parsed_json)
+            
+        except json.JSONDecodeError:
+            # If parsing fails, try to fix common formatting issues
+            test_content = test_content.replace("'", '"')  # Replace single quotes with double quotes
+            test_content = test_content.replace('None', 'null')  # Replace Python None with JSON null
+            test_content = test_content.replace('True', 'true').replace('False', 'false')  # Fix boolean values
+            
+            # Try again with fixes
+            try:
+                json.loads(test_content)  # Just to validate
+                return test_content
+            except:
+                print("Still invalid JSON after attempted fixes")
+                return test_content  # Return as is and let frontend handle it
+    except Exception as e:
+        print(f"Error processing test content: {e}")
+    
+    return test_content  # Return original content if all processing attempts fail
 
 def generate_test(subject, grade_level, topic, question_types, difficulty, number_of_questions, time_limit):
     prompt = f"""Generate a {subject} test for Grade {grade_level} with the following specifications:
@@ -46,6 +165,39 @@ def generate_test(subject, grade_level, topic, question_types, difficulty, numbe
         return response.text
     except Exception as e:
         raise Exception(f"Error generating test: {str(e)}")
+
+
+@app.route('http://localhost:5000/api/download-test', methods=['POST'])
+def download_test_route():
+    data = request.json
+    try:
+        test_data = data.get('test_data')
+        subject = data.get('subject')
+        filename = data.get('filename')
+        
+        if not test_data:
+            return jsonify({"error": "Missing test data", "status": "error"}), 400
+        
+        # Generate a unique filename if none provided
+        if not filename:
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            filename = f"{subject.lower().replace(' ', '_')}_{timestamp}_test.json"
+        
+        file_path = save_test_to_json(test_data, subject, filename)
+        
+        # Return the file with proper headers
+        return send_file(
+            file_path, 
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/json'
+        )
+    except Exception as e:
+        print(f"Error in download_test_route: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e), "status": "error"}), 500
 
 def save_test_to_json(test_data, subject, filename=None):
     if filename is None:
@@ -85,50 +237,70 @@ def save_test_to_json(test_data, subject, filename=None):
     except Exception as e:
         raise Exception(f"Error saving JSON file: {str(e)}")
 
-def main():
+def main(config_file=None):
     print("Welcome to the Gemini Test Generator!")
     
-    # Test configuration 1 - Mathematics
-    test_config_math = {
-        "subject": "Mathematics",
-        "grade_level": 10,
-        "topic": "Quadratic Equations",
-        "question_types": ["multiple_choice", "short_answer"],
-        "difficulty": "medium",
-        "number_of_questions": 5,
-        "time_limit": 30
-    }
-
-    # Test configuration 2 - Science
-    test_config_science = {
-        "subject": "Science",
-        "grade_level": 9,
-        "topic": "Kinematics",
-        "question_types": ["multiple_choice", "essay"],
-        "difficulty": "hard",
-        "number_of_questions": 3,
-        "time_limit": 20
-    }
+    test_configs = []
+    
+    # Try to load test configuration from file first (if provided from frontend)
+    if config_file and os.path.exists(config_file):
+        try:
+            with open(config_file, 'r') as f:
+                frontend_configs = json.load(f)
+                if isinstance(frontend_configs, list):
+                    test_configs = frontend_configs
+                else:
+                    test_configs = [frontend_configs]  # Convert single config to list
+                print(f"Loaded {len(test_configs)} test configurations from {config_file}")
+        except Exception as e:
+            print(f"Error loading config file: {e}")
+    
+    # If no configs were loaded from file, use default examples
+    if not test_configs:
+        print("Using default test configurations")
+        # Test configuration 1 - Mathematics
+        test_configs = [{
+            "subject": "Mathematics",
+            "grade_level": 10,
+            "topic": "Quadratic Equations",
+            "question_types": ["multiple_choice", "short_answer"],
+            "difficulty": "medium",
+            "number_of_questions": 5,
+            "time_limit": 30
+        },
+        # Test configuration 2 - Science
+        {
+            "subject": "Science",
+            "grade_level": 9,
+            "topic": "Kinematics",
+            "question_types": ["multiple_choice", "essay"],
+            "difficulty": "hard",
+            "number_of_questions": 3,
+            "time_limit": 20
+        }]
 
     try:
-        # Generate Mathematics test
-        print("\nGenerating Mathematics Test...")
-        math_test = generate_test(**test_config_math)
-        print("\nMathematics Test:")
-        print(math_test)
-        math_file = save_test_to_json(math_test, "Mathematics")
-        print(f"Mathematics test saved to: {math_file}")
-
-        # Generate Science test
-        print("\nGenerating Science Test...")
-        science_test = generate_test(**test_config_science)
-        print("\nScience Test:")
-        print(science_test)
-        science_file = save_test_to_json(science_test, "Science")
-        print(f"Science test saved to: {science_file}")
+        # Process each test configuration
+        for config in test_configs:
+            subject = config.get("subject", "General")
+            print(f"\nGenerating {subject} Test...")
+            test = generate_test(**config)
+            print(f"\n{subject} Test:")
+            print(test)
+            test_file = save_test_to_json(test, subject)
+            print(f"{subject} test saved to: {test_file}")
 
     except Exception as e:
         print(f"Unexpected error: {e}")
 
 if __name__ == "__main__":
-    main()
+    # Choose behavior based on how the script is run
+    if os.environ.get('FLASK_ENV') == 'development':
+        app.run(debug=True, port=5000)
+    else:
+        # Check for config file from command line args
+        import sys
+        config_file = None
+        if len(sys.argv) > 1:
+            config_file = sys.argv[1]
+        main(config_file)  # Run with config file if provided

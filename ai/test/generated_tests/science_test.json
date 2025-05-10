@@ -3,37 +3,37 @@
     "questions": [
         {
             "type": "multiple_choice",
-            "question": "A projectile is launched at an angle of 30 degrees with an initial velocity of 20 m/s from the top of a building 45 meters high. Ignoring air resistance, what is the horizontal range of the projectile when it hits the ground?",
+            "question": "A projectile is launched with an initial velocity *v₀* at an angle *θ* with respect to the horizontal. Neglecting air resistance, what is the magnitude of the projectile's velocity at the highest point of its trajectory?",
             "options": [
-                "Approximately 65 m",
-                "Approximately 74 m",
-                "Approximately 83 m",
-                "Approximately 92 m"
+                "v₀",
+                "v₀ * cos(θ)",
+                "v₀ * sin(θ)",
+                "0"
             ],
-            "answer": "Approximately 83 m",
+            "answer": "v₀ * cos(θ)",
             "difficulty": "hard"
         },
         {
             "type": "multiple_choice",
-            "question": "A car starts from rest and accelerates uniformly at 2 m/s² for 5 seconds. It then maintains a constant velocity for 10 seconds before decelerating uniformly at 1 m/s² until it comes to a complete stop. What is the total distance travelled by the car?",
+            "question": "A car starts from rest and accelerates uniformly at 2 m/s² for 5 seconds. It then travels at a constant velocity for 10 seconds before decelerating uniformly at 1 m/s² until it comes to rest. What is the total distance traveled by the car?",
             "options": [
+                "100 m",
+                "125 m",
                 "200 m",
-                "225 m",
-                "250 m",
-                "275 m"
+                "225 m"
             ],
             "answer": "225 m",
             "difficulty": "hard"
         },
         {
             "type": "essay",
-            "question": "Two objects, A and B, are dropped simultaneously from the same height. Object A is dropped with no initial velocity. Object B is thrown downward with an initial velocity. Explain how the time it takes each object to reach the ground compares, considering air resistance is negligible. Then, explain how the final velocity of each object compares just before hitting the ground. Justify your answers using kinematic equations and provide a brief discussion on how air resistance would change your conclusions.",
-            "answer": " (Grading Rubric: 5 marks for correct comparison of time, justification with equations; 5 marks for correct comparison of final velocity, justification with equations; 5 marks for discussion of air resistance effects)",
+            "question": "Two cars, A and B, are initially at rest and separated by a distance *d*. Car A starts moving with a constant acceleration *a*, while car B starts moving simultaneously with a constant velocity *v*.  Derive an expression for the minimum value of *v* such that car B will eventually overtake car A. Explain your reasoning clearly, showing all steps.",
+            "answer": "See Answer Key",
             "difficulty": "hard"
         }
     ],
-    "answer_key": "1. Approximately 83 m \n2. 225 m\n3. See answer in the 'answer' field for grading rubric.",
+    "answer_key": "1. B\n2. D\n3. Essay:\nLet t be the time when car B overtakes car A.\nAt time t, the position of car A (x_A) is (1/2)at²\nAt time t, the position of car B (x_B) is d + vt\nFor car B to overtake car A: x_B = x_A\nd + vt = (1/2)at²\n(1/2)at² - vt - d = 0\nFor car B to overtake car A, there must be a real solution for t. Thus, the discriminant of the quadratic equation must be greater than or equal to zero.\nDiscriminant: (-v)² - 4(1/2)a(-d) >= 0\nv² + 2ad >= 0\nv² >= -2ad\nv >= sqrt(2ad). Since we are only concerned with the magnitude of v, v = sqrt(2ad)\nTherefore, the minimum value of v is sqrt(2ad).",
     "estimated_time": "20",
-    "total_marks": "17",
-    "instructions": "Read each question carefully. For multiple-choice questions, select the best answer. For the essay question, provide a comprehensive and well-reasoned response. Show your work where applicable. Calculators are permitted."
+    "total_marks": "15 (1 mark each for MCQs, 13 marks for Essay)",
+    "instructions": "1. Answer all questions.\n2. Write your name and class on the top of the page.\n3. Show all your work for the essay question.\n4. Good luck!"
 }

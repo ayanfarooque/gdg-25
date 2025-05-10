@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import FacHeader from './Dashboardpages/facheader';
+import axios from 'axios'; // Make sure to import axios
 
 const AITestCreator = () => {
   const [testDetails, setTestDetails] = useState({
     subject: 'Mathematics',
     gradeLevel: 'Grade 9',
+    chapter: '',
     topic: '',
     questionTypes: {
       multipleChoice: true,
       shortAnswer: false,
-      essay: false
+      essay: false,
+      finalanswer: false
     },
     difficulty: 'medium',
     numberOfQuestions: 10,
@@ -20,10 +23,24 @@ const AITestCreator = () => {
   const [generatedTest, setGeneratedTest] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState('create');
+  const [error, setError] = useState(null);
+  
+  // Chapter options based on selected subject
+  const chapterOptions = {
+    Mathematics: ['Algebra', 'Geometry', 'Calculus', 'Statistics', 'Trigonometry'],
+    Science: ['Biology', 'Chemistry', 'Physics', 'Earth Science', 'Astronomy'],
+    English: ['Grammar', 'Literature', 'Composition', 'Vocabulary', 'Comprehension'],
+    History: ['Ancient Civilizations', 'World Wars', 'American History', 'European History', 'Asian History']
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setTestDetails(prev => ({ ...prev, [name]: value }));
+    setTestDetails(prev => ({ 
+      ...prev, 
+      [name]: value,
+      // Reset chapter if subject changes
+      ...(name === 'subject' ? { chapter: '' } : {})
+    }));
   };
 
   const handleQuestionTypeChange = (type) => {
@@ -36,33 +53,135 @@ const AITestCreator = () => {
     }));
   };
 
-  const generateTest = () => {
-    setIsGenerating(true);
-    // Simulate AI generation with timeout
-    setTimeout(() => {
-      setGeneratedTest({
-        title: `${testDetails.topic || testDetails.subject} Test`,
-        questions: [
-          {
-            id: 1,
-            type: 'multipleChoice',
-            question: 'What is the quadratic formula?',
-            options: [
-              'x = (-b ± √(b²-4ac))/2a',
-              'x = b²-4ac',
-              'y = mx + b',
-              'A = πr²'
-            ],
-            answer: 0
-          },
-          // More sample questions...
-        ],
-        answerKey: "1. A\n2. C\n3. B...",
-        estimatedTime: testDetails.timeLimit
+  // Transform React questionTypes object to array format expected by Python
+  const getSelectedQuestionTypes = () => {
+    return Object.entries(testDetails.questionTypes)
+      .filter(([_, selected]) => selected)
+      .map(([type]) => {
+        // Convert camelCase to snake_case for Python backend
+        if (type === 'multipleChoice') return 'multiple_choice';
+        if (type === 'shortAnswer') return 'short_answer';
+        if (type === 'finalanswer') return 'final_answer';
+        return type; // essay stays the same
       });
+  };
+
+  // Extract grade number from "Grade X" format
+  const extractGradeNumber = (gradeText) => {
+    const matches = gradeText.match(/\d+/);
+    return matches ? parseInt(matches[0], 10) : 9; // Default to 9 if parsing fails
+  };
+
+  const generateTest = async () => {
+    setIsGenerating(true);
+    setError(null);
+    
+    try {
+      // Format data for the Python backend
+      const requestData = {
+        subject: testDetails.subject,
+        grade_level: extractGradeNumber(testDetails.gradeLevel),
+        topic: testDetails.topic || testDetails.chapter || "General",
+        question_types: getSelectedQuestionTypes(),
+        difficulty: testDetails.difficulty,
+        number_of_questions: parseInt(testDetails.numberOfQuestions, 10),
+        time_limit: parseInt(testDetails.timeLimit, 10)
+      };
+      
+      console.log("Sending request to generate test:", requestData);
+      
+      // Call the API endpoint
+      const response = await axios.post('http://localhost:5000/api/generate-test', requestData);
+      
+      // Process the response, expecting a JSON string in the response.data.test_content
+      if (response.data && response.data.test_content) {
+        try {
+          // Attempt to parse the test content
+          const rawContent = response.data.test_content;
+          let parsedContent;
+          
+          // Clean up the content if it comes with markdown code blocks
+          if (rawContent.includes('```')) {
+            const jsonContent = rawContent
+              .replace(/```json/g, '')
+              .replace(/```/g, '')
+              .trim();
+            parsedContent = JSON.parse(jsonContent);
+          } else {
+            parsedContent = JSON.parse(rawContent);
+          }
+          
+          // Format the test data for the frontend
+          const formattedTest = {
+            title: parsedContent.title,
+            questions: parsedContent.questions.map(q => {
+              // Convert question type if needed
+              const type = q.type === 'multiple_choice' ? 'multipleChoice' : 
+                         q.type === 'short_answer' ? 'shortAnswer' : 
+                         q.type === 'final_answer' ? 'finalanswer' : q.type;
+                         
+              return {
+                ...q,
+                type,
+                id: q.id || Math.random().toString(36).substr(2, 9)
+              };
+            }),
+            answerKey: parsedContent.answer_key,
+            estimatedTime: parsedContent.estimated_time,
+            instructions: parsedContent.instructions || ''
+          };
+          
+          setGeneratedTest(formattedTest);
+          setActiveTab('preview');
+        } catch (parseError) {
+          console.error("Error parsing test content:", parseError);
+          setError("Failed to parse the generated test. Please try again.");
+        }
+      } else {
+        throw new Error("Invalid response format");
+      }
+    } catch (error) {
+      console.error("Error generating test:", error);
+      setError(`Failed to generate test: ${error.response?.data?.error || error.message || 'Unknown error'}`);
+    } finally {
       setIsGenerating(false);
-      setActiveTab('preview');
-    }, 2000);
+    }
+  };
+
+  // Handle test download
+  const handleDownloadTest = async () => {
+    try {
+      // First, we need to stringify the actual test data
+      const testJson = JSON.stringify(generatedTest);
+      
+      // Using Blob approach for file download
+      const response = await axios.post('http://localhost:5000/api/download-test', {
+        test_data: testJson,
+        subject: testDetails.subject,
+        filename: `${testDetails.subject.toLowerCase()}_${(testDetails.topic || 'test').toLowerCase().replace(/\s+/g, '_')}.json`
+      }, {
+        responseType: 'blob' // Important for file downloads
+      });
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${testDetails.subject.toLowerCase()}_test.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading test:", error);
+      setError(`Failed to download test: ${error.response?.data?.error || error.message || 'Unknown error'}`);
+    }
+  };
+
+  // Handle assign to class
+  const handleAssignTest = () => {
+    // This would call another endpoint to assign the test to a class
+    alert("Test assignment feature will be implemented soon");
   };
 
   return (
@@ -76,6 +195,12 @@ const AITestCreator = () => {
           <p className="text-gray-600">Create customized tests in minutes using AI</p>
         </div>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
+          {error}
+        </div>
+      )}
 
       <div className="flex border-b border-gray-200 mb-6">
         <button
@@ -129,7 +254,22 @@ const AITestCreator = () => {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Chapter</label>
+              <select
+                name="chapter"
+                value={testDetails.chapter}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Select a chapter</option>
+                {chapterOptions[testDetails.subject]?.map((chapter) => (
+                  <option key={chapter} value={chapter}>{chapter}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Topic (optional)</label>
               <input
                 type="text"
@@ -236,13 +376,17 @@ const AITestCreator = () => {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">{generatedTest?.title}</h2>
             <div className="flex space-x-3">
-              <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+              <button 
+                onClick={handleDownloadTest}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                 <svg className="w-5 h-5 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                 </svg>
                 Download
               </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <button 
+                onClick={handleAssignTest}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 <svg className="w-5 h-5 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
                 </svg>
@@ -259,8 +403,20 @@ const AITestCreator = () => {
                 <p className="font-medium">{testDetails.subject}</p>
               </div>
               <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-sm text-gray-600">Chapter</p>
+                <p className="font-medium">{testDetails.chapter || "N/A"}</p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-lg">
                 <p className="text-sm text-gray-600">Grade Level</p>
                 <p className="font-medium">{testDetails.gradeLevel}</p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-sm text-gray-600">Topic</p>
+                <p className="font-medium">{testDetails.topic || "N/A"}</p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-sm text-gray-600">Difficulty</p>
+                <p className="font-medium">{testDetails.difficulty.charAt(0).toUpperCase() + testDetails.difficulty.slice(1)}</p>
               </div>
               <div className="bg-gray-50 p-3 rounded-lg">
                 <p className="text-sm text-gray-600">Estimated Time</p>
@@ -273,11 +429,11 @@ const AITestCreator = () => {
             <h3 className="text-lg font-semibold mb-3">Questions</h3>
             <div className="space-y-6">
               {generatedTest?.questions?.map((q, index) => (
-                <div key={q.id} className="border-l-4 border-blue-500 pl-4 py-2">
+                <div key={q.id || index} className="border-l-4 border-blue-500 pl-4 py-2">
                   <p className="font-medium">Question {index + 1}: {q.question}</p>
                   {q.type === 'multipleChoice' && (
                     <ul className="mt-2 space-y-2">
-                      {q.options.map((opt, i) => (
+                      {q.options?.map((opt, i) => (
                         <li key={i} className="flex items-center">
                           <span className="mr-2 font-medium">{String.fromCharCode(65 + i)}.</span>
                           <span>{opt}</span>
@@ -289,6 +445,16 @@ const AITestCreator = () => {
                         </li>
                       ))}
                     </ul>
+                  )}
+                  {q.type === 'shortAnswer' && (
+                    <div className="mt-2 italic text-gray-600">
+                      Expected answer: {q.answer}
+                    </div>
+                  )}
+                  {q.type === 'essay' && (
+                    <div className="mt-2 italic text-gray-600">
+                      Essay question
+                    </div>
                   )}
                 </div>
               ))}

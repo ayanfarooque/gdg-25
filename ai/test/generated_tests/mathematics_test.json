@@ -1,57 +1,59 @@
 {
-    "title": "Grade 10 Mathematics Test: Quadratic Equations",
+    "title": "Grade 10 Mathematics: Quadratic Equations Test",
     "questions": [
         {
             "type": "multiple_choice",
             "question": "Which of the following is a quadratic equation?",
             "options": [
-                "2x + 5 = 0",
-                "x^2 - 3x + 2 = 0",
-                "x^3 + 1 = 0",
-                "4x - 7 = 11"
+                "x + 2 = 0",
+                "x^2 + 3x + 1 = 0",
+                "y = 3x - 5",
+                "4x - 7 = 2x + 1"
             ],
-            "answer": "x^2 - 3x + 2 = 0",
+            "answer": "x^2 + 3x + 1 = 0",
             "difficulty": "medium"
         },
         {
             "type": "short_answer",
-            "question": "Solve the quadratic equation: x^2 - 5x + 6 = 0",
+            "question": "Solve the following quadratic equation by factoring: x^2 - 5x + 6 = 0",
+            "options": [],
             "answer": "x = 2, x = 3",
             "difficulty": "medium"
         },
         {
             "type": "multiple_choice",
-            "question": "The discriminant of a quadratic equation is b^2 - 4ac. If the discriminant is positive, the equation has:",
+            "question": "What is the discriminant of the quadratic equation 2x^2 - 4x + 1 = 0?",
             "options": [
-                "Two distinct real roots",
-                "One real root",
-                "No real roots",
-                "Two equal real roots"
+                "-8",
+                "8",
+                "24",
+                "-24"
             ],
-            "answer": "Two distinct real roots",
+            "answer": "8",
             "difficulty": "medium"
         },
         {
             "type": "short_answer",
-            "question": "Find the sum and product of the roots of the quadratic equation 2x^2 + 4x - 6 = 0.",
-            "answer": "Sum = -2, Product = -3",
+            "question": "Use the quadratic formula to solve the equation: x^2 + 2x - 8 = 0. Show your working.",
+            "options": [],
+            "answer": "x = 2, x = -4 (working must show application of the quadratic formula)",
             "difficulty": "medium"
         },
         {
             "type": "multiple_choice",
-            "question": "Which method can be used to solve quadratic equations?",
+            "question": "Which of the following statements is true about the roots of the equation x^2 + 4x + 4 = 0?",
             "options": [
-                "Factoring",
-                "Quadratic Formula",
-                "Completing the Square",
-                "All of the above"
+                "The equation has two distinct real roots.",
+                "The equation has one real root (repeated).",
+                "The equation has no real roots.",
+                "The equation has three real roots."
             ],
-            "answer": "All of the above",
+            "answer": "The equation has one real root (repeated).",
             "difficulty": "medium"
         }
     ],
-    "answer_key": "1. b) x^2 - 3x + 2 = 0\n2. x = 2, x = 3\n3. a) Two distinct real roots\n4. Sum = -2, Product = -3\n5. d) All of the above",
+    "answer_key": "1. B\n2. x = 2, x = 3\n3. B\n4. x = 2, x = -4 (working must be shown)\n5. B",
     "estimated_time": "30",
-    "total_marks": "10",
-    "instructions": "Read each question carefully and answer to the best of your ability. Show your working where appropriate. The time limit is 30 minutes. Good luck!"
+    "total_marks": "5 (1 mark per question)",
+    "instructions": "1. This test is designed to assess your understanding of quadratic equations.\n2. Please answer all questions.\n3. For multiple-choice questions, select the best answer.\n4. For short-answer questions, show your working where applicable.\n5. You have 30 minutes to complete the test.\n6. Calculators are allowed.\n7. Good luck!"
 }
