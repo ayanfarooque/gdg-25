@@ -51,6 +51,46 @@ const Chatbot = () => {
     }
   };
 
+  const sendmessagetogemini = async (message) => { 
+    try {
+        const response = await axios.post('http://localhost:5000/api/chatbot/askdoubt', {
+            question: message
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.data.success) {
+            // Add user message to chat
+            setMessages(prev => [...prev, {
+                text: message,
+                sender: 'user',
+                timestamp: new Date()
+            }]);
+
+            // Add bot response to chat
+            setMessages(prev => [...prev, {
+                text: response.data.data.response,
+                sender: 'bot',
+                timestamp: new Date()
+            }]);
+
+            return response.data.data.response;
+        } else {
+            throw new Error(response.data.message);
+        }
+    } catch (error) {
+        console.error('Error sending message:', error);
+        setMessages(prev => [...prev, {
+            text: 'Sorry, I encountered an error. Please try again.',
+            sender: 'bot',
+            isError: true,
+            timestamp: new Date()
+        }]);
+        throw error;
+    }
+};
   // Fetch chat history on component mount
   useEffect(() => {
     fetchChatHistory();

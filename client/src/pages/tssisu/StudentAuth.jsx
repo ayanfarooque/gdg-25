@@ -1,37 +1,68 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUserGraduate, FaLock, FaArrowLeft, FaIdCard, FaUser, FaChalkboardTeacher } from "react-icons/fa";
 import { MdEmail, MdDateRange } from "react-icons/md";
-
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import StudentContextProvider, { StudentContext } from "../../context/StudentContext";
 function StudentAuth() {
   const [activeTab, setActiveTab] = useState("login");
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [signupData, setSignupData] = useState({
-    fullName: "",
-    email: "",
-    studentId: "",
-    password: "",
-    confirmPassword: ""
-  });
+  // const [signupData, setSignupData] = useState({
+  //   fullName: "",
+  //   email: "",
+  //   studentId: "",
+  //   password: "",
+  //   confirmPassword: ""
+  // });
+  const [email,setemail] = useState("");
+  const [password,setpassword] = useState("")
   const [error, setError] = useState("");
+  const [name,setname] = useState("")
+  const [studentId,setstudentId] = ("")
+  const { setstoken, backendUrl } = useContext(StudentContext)
   const navigate = useNavigate();
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    console.log("Student login:", loginData);
-    navigate("/student/dashboard");
-  };
+  // const handleLoginSubmit = (e) => {
+  //   e.preventDefault();
+  //   console.log("Student login:", loginData);
+  //   navigate("/student/dashboard");
+  // };
 
-  const handleSignupSubmit = (e) => {
-    e.preventDefault();
-    if (signupData.password !== signupData.confirmPassword) {
-      setError("Passwords don't match");
-      return;
-    }
-    console.log("Student signup:", signupData);
-    navigate("/student/dashboard");
-  };
+  // const handleSignupSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (signupData.password !== signupData.confirmPassword) {
+  //     setError("Passwords don't match");
+  //     return;
+  //   }
+  //   console.log("Student signup:", signupData);
+  //   navigate("/student-home");
+  // };
 
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    console.log("Submitting to:", `http://localhost:5000/api/Students/login`);
+    console.log("Email:", email, "Password:", password);
+     try {
+            const response = await axios.post(`http://localhost:5000/api/students/login`, { email, password });
+    
+            console.log("Full API Response:", response); // Log full response
+            console.log("Response Data:", response.data); // Log response data only
+    
+            if (response.data.token) { // Ensure token exists
+                localStorage.setItem("sToken", response.data.token);
+                setstoken(response.data.token);
+                toast.success("Login successful!");
+                navigate("/Stu-Dash");
+            } else {
+                toast.error(response.data.message || "Invalid credentials");
+            }
+        } catch (error) {
+            console.error("Error logging in:", error.response?.data || error.message);
+            toast.error("An error occurred during login. Please try again.");
+        }
+  }
   return (
     <div className="min-h-screen text-black bg-gradient-to-br from-[#49ABB0] to-[#21294F] flex items-center justify-center p-4">
       <motion.div
@@ -76,7 +107,7 @@ function StudentAuth() {
           </div>
 
           {activeTab === "login" ? (
-            <form onSubmit={handleLoginSubmit} className="p-8">
+            <form onSubmit={onSubmitHandler} className="p-8">
               {error && (
                 <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
                   {error}
@@ -91,8 +122,8 @@ function StudentAuth() {
                     type="email"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="student@university.edu"
-                    value={loginData.email}
-                    onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                    value={email.email}
+                    onChange={(e) => setemail(e.target.value)}
                     required
                   />
                 </div>
@@ -106,8 +137,8 @@ function StudentAuth() {
                     type="password"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="••••••••"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                    value={password.password}
+                    onChange={(e) => setpassword(e.target.value)}
                     required
                   />
                 </div>
@@ -132,7 +163,8 @@ function StudentAuth() {
               <button
                 type="submit"
                 className="w-full bg-[#49ABB0] hover:bg-[#3a8a8f] text-white py-3 px-4 rounded-lg font-medium transition duration-200"
-                onClick={() => (navigate('/student-home'))}
+                //onClick={() => (navigate('/student-home'))}
+                
               >
                 Login to Student Portal
               </button>
@@ -149,7 +181,7 @@ function StudentAuth() {
               </p>
             </form>
           ) : (
-            <form onSubmit={handleSignupSubmit} className="p-8">
+            <form onSubmit={onSubmitHandler} className="p-8">
               {error && (
                 <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
                   {error}
@@ -164,8 +196,8 @@ function StudentAuth() {
                     type="text"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="John Doe"
-                    value={signupData.fullName}
-                    onChange={(e) => setSignupData({...signupData, fullName: e.target.value})}
+                    value={name.fullName}
+                    onChange={(e) => setname(e.target.value)}
                     required
                   />
                 </div>
@@ -179,8 +211,8 @@ function StudentAuth() {
                     type="email"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="student@university.edu"
-                    value={signupData.email}
-                    onChange={(e) => setSignupData({...signupData, email: e.target.value})}
+                    value={email.email}
+                    onChange={(e) => setemail(e.target.value)}
                     required
                   />
                 </div>
@@ -194,8 +226,8 @@ function StudentAuth() {
                     type="text"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="20230001"
-                    value={signupData.studentId}
-                    onChange={(e) => setSignupData({...signupData, studentId: e.target.value})}
+                    value={studentId.studentId}
+                    onChange={(e) => setstudentId(e.target.value)}
                     required
                   />
                 </div>
@@ -209,8 +241,8 @@ function StudentAuth() {
                     type="password"
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="••••••••"
-                    value={signupData.password}
-                    onChange={(e) => setSignupData({...signupData, password: e.target.value})}
+                    value={password.password}
+                    onChange={(e) => setpassword(e.target.value)}
                     required
                     minLength="8"
                   />
@@ -225,8 +257,8 @@ function StudentAuth() {
                     type="password"
                     className="w-full text-black pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#49ABB0] focus:border-transparent"
                     placeholder="••••••••"
-                    value={signupData.confirmPassword}
-                    onChange={(e) => setSignupData({...signupData, confirmPassword: e.target.value})}
+                    value={password.confirmPassword}
+                    onChange={(e) => setpassword(e.target.value)}
                     required
                     minLength="8"
                   />

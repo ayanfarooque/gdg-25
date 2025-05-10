@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import StudentPage from './pages/StudentPage';
 import TestPage from './pages/TestPage';
@@ -47,6 +47,21 @@ const App = () => {
   const [role, setRole] = useState('');
   const navigate = useNavigate();
   const location = useLocation(); // Get the current path
+  
+  
+  useEffect(() => {
+    const stoken = localStorage.getItem('sToken')
+    const ttoken = localStorage.getItem('tToken')
+    const atoken = localStorage.getItem('aToken')
+
+    if(stoken){
+      setRole('student')
+    }else if(ttoken){
+      setRole('teacher')
+    }else if(atoken){
+      setRole('admin')
+    }
+  },[])
 
   const handleRoleSelection = (selectedRole) => {
     setRole(selectedRole);
@@ -60,6 +75,7 @@ const App = () => {
    }
   };
 
+  
   return (
     <div className="flex h-screen w-full bg-[#ECE7CA] text-gray-100">
       {/* Hide Sidebar on the Login page ("/") */}
