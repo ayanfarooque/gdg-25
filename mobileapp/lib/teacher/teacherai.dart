@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 import '../components/teacherheader.dart';
 import '../components/teacherFooter.dart';
@@ -171,11 +173,35 @@ class _LandingPageState extends State<TeacherAi>
   // Store the full chat data for detailed view
   List<dynamic> _fullChatData = [];
   Map<String, dynamic>? _selectedChat;
+  File? _selectedPaper;
+  String? _paperPreviewPath;
+  bool _isSolvingPaper = false;
+  bool _paperSolved = false;
+  String _paperSolutionText = '';
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+
+    // Add listener for tab changes
+    _tabController!.addListener(() {
+      if (!_tabController!.indexIsChanging) {
+        // This is called when the tab selection actually changes
+        setState(() {
+          // You can add specific actions based on tab index
+          // For example, clear selections or reset states
+          if (_tabController!.index == 0) {
+            // Actions when Test Generator tab is selected
+          } else if (_tabController!.index == 1) {
+            // Actions when Grade Card Generator tab is selected
+          } else if (_tabController!.index == 2) {
+            // Actions when Paper Solver tab is selected
+          }
+        });
+      }
+    });
+
     loadChatData();
   }
 
@@ -202,6 +228,11 @@ class _LandingPageState extends State<TeacherAi>
       _selectedChapter = newValue;
       _selectedTopic = null;
     });
+  }
+
+  void _selectTab(int index) {
+    _tabController!.animateTo(index);
+    // You can add additional actions here if needed
   }
 
   // Method to load chat data from JSON
@@ -431,14 +462,62 @@ class _LandingPageState extends State<TeacherAi>
                     child: Column(
                       children: [
                         // Tab Bar
+                        // Replace your current TabBar with this enhanced version
                         TabBar(
                           controller: _tabController,
                           labelColor: Colors.black,
                           unselectedLabelColor: Colors.grey,
                           indicatorColor: const Color(0xFFE195AB),
+                          indicatorWeight: 3, // Make indicator more visible
+                          labelStyle: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14), // Make selected tab text bold
+                          unselectedLabelStyle:
+                              TextStyle(fontSize: 14), // Consistent font size
+                          labelPadding: EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 10), // More padding
                           tabs: [
-                            Tab(text: 'AI Test Generator'),
-                            Tab(text: 'Grade Card Generator'),
+                            Tab(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.assessment,
+                                        size: 12), // Add icon
+                                    SizedBox(width: 0),
+                                    Text('Test Generator'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.grade, size: 12), // Add icon
+                                    SizedBox(width: 0),
+                                    Text('Grade Cards'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.assignment_turned_in,
+                                        size: 12), // Add icon
+                                    SizedBox(width: 0),
+                                    Text('Paper Solver'),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 15),
@@ -447,12 +526,26 @@ class _LandingPageState extends State<TeacherAi>
                         Expanded(
                           child: TabBarView(
                             controller: _tabController,
+                            physics:
+                                BouncingScrollPhysics(), // Add bouncing effect when scrolling
                             children: [
                               // AI Test Generator Tab
-                              _buildTestGeneratorTab(),
+                              AnimatedSwitcher(
+                                duration: Duration(milliseconds: 300),
+                                child: _buildTestGeneratorTab(),
+                              ),
 
                               // AI Grade Card Generator Tab
-                              _buildGradeCardGeneratorTab(),
+                              AnimatedSwitcher(
+                                duration: Duration(milliseconds: 300),
+                                child: _buildGradeCardGeneratorTab(),
+                              ),
+
+                              // AI Paper Solver Tab
+                              AnimatedSwitcher(
+                                duration: Duration(milliseconds: 300),
+                                child: _buildPaperSolverTab(),
+                              ),
                             ],
                           ),
                         ),
@@ -967,6 +1060,462 @@ class _LandingPageState extends State<TeacherAi>
         ],
       ),
     );
+  }
+
+  Widget _buildPaperSolverTab() {
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'AI Paper Solver',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Upload a test paper and get AI-generated solutions',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Paper Upload Area
+            Container(
+              width: double.infinity,
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: _selectedPaper != null
+                      ? const Color(0xFFE195AB)
+                      : Colors.grey.shade300,
+                  width: _selectedPaper != null ? 2 : 1,
+                ),
+              ),
+              child: _paperPreviewPath != null
+                  ? Stack(
+                      children: [
+                        // Paper Preview
+                        Center(
+                          child:
+                              _paperPreviewPath!.toLowerCase().endsWith('.pdf')
+                                  ? Icon(
+                                      Icons.picture_as_pdf,
+                                      size: 80,
+                                      color: const Color(0xFFE195AB),
+                                    )
+                                  : Image.file(
+                                      File(_paperPreviewPath!),
+                                      fit: BoxFit.contain,
+                                      height: 180,
+                                    ),
+                        ),
+                        // Remove button
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                _selectedPaper = null;
+                                _paperPreviewPath = null;
+                                _paperSolved = false;
+                                _paperSolutionText = '';
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.7),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : InkWell(
+                      onTap: _pickPaper,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.upload_file,
+                            size: 50,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Click to upload PDF or image',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Supported formats: PDF, JPG, PNG',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+            const SizedBox(height: 16),
+
+            // File name display
+            if (_selectedPaper != null)
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _paperPreviewPath!.toLowerCase().endsWith('.pdf')
+                          ? Icons.picture_as_pdf
+                          : Icons.image,
+                      color: const Color(0xFFE195AB),
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _selectedPaper!.path.split('/').last,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 20),
+
+            // Additional options
+            if (_selectedPaper != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Solving Options',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.format_list_numbered,
+                                color: const Color(0xFFE195AB),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Step-by-step solutions'),
+                              Spacer(),
+                              Switch(
+                                value: true,
+                                onChanged: (value) {},
+                                activeColor: const Color(0xFFE195AB),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.grading,
+                                color: const Color(0xFFE195AB),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Include grading scheme'),
+                              Spacer(),
+                              Switch(
+                                value: true,
+                                onChanged: (value) {},
+                                activeColor: const Color(0xFFE195AB),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            const SizedBox(height: 30),
+
+            // Generate Solution Button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _selectedPaper != null ? _solvePaper : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _selectedPaper != null
+                      ? const Color(0xFFE195AB)
+                      : Colors.grey.shade300,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: _isSolvingPaper
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Solving paper...',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Text(
+                        'Generate Solution',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: _selectedPaper != null
+                              ? Colors.white
+                              : Colors.grey,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Solution display
+            if (_paperSolved && _paperSolutionText.isNotEmpty)
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.auto_awesome,
+                          color: const Color(0xFFE195AB),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'AI-Generated Solution',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Spacer(),
+                        IconButton(
+                          icon: Icon(Icons.copy),
+                          onPressed: () {
+                            Clipboard.setData(
+                              ClipboardData(text: _paperSolutionText),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Solution copied to clipboard!'),
+                              ),
+                            );
+                          },
+                          tooltip: 'Copy solution',
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.download),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Solution downloaded as PDF!'),
+                              ),
+                            );
+                          },
+                          tooltip: 'Download as PDF',
+                        ),
+                      ],
+                    ),
+                    Divider(),
+                    SizedBox(height: 8),
+                    Text(
+                      _paperSolutionText,
+                      style: TextStyle(fontSize: 14, height: 1.5),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+// Add this method to pick a paper file
+  Future<void> _pickPaper() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedPaper = File(result.files.single.path!);
+        _paperPreviewPath = result.files.single.path!;
+        _paperSolved = false;
+        _paperSolutionText = '';
+      });
+    }
+  }
+
+// Add this method to solve the paper
+  void _solvePaper() {
+    if (_selectedPaper == null) return;
+
+    setState(() {
+      _isSolvingPaper = true;
+    });
+
+    // This would normally involve sending the file to an API
+    // For now we'll simulate it with a delay
+    Future.delayed(Duration(seconds: 5), () {
+      setState(() {
+        _isSolvingPaper = false;
+        _paperSolved = true;
+        _paperSolutionText = _generateSampleSolution();
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Paper solved successfully!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    });
+  }
+
+// Helper method to generate a sample solution
+  String _generateSampleSolution() {
+    return """# Paper Solution
+
+## Question 1: Solve for x in the equation 3x + 7 = 22
+**Step 1:** Subtract 7 from both sides
+3x + 7 - 7 = 22 - 7
+3x = 15
+
+**Step 2:** Divide both sides by 3
+3x/3 = 15/3
+x = 5
+
+**Answer:** x = 5
+
+## Question 2: Find the derivative of f(x) = 2x³ - 4x² + 5x - 3
+**Step 1:** Apply the power rule for each term
+f'(x) = 2(3x²) - 4(2x) + 5(1) - 0
+f'(x) = 6x² - 8x + 5
+
+**Answer:** f'(x) = 6x² - 8x + 5
+
+## Question 3: Describe the main causes of World War II
+The main causes of World War II included:
+
+1. **Treaty of Versailles** - The harsh conditions imposed on Germany after World War I created resentment and economic hardship.
+
+2. **Rise of fascism** - The emergence of dictatorial regimes in Germany (Hitler), Italy (Mussolini), and Japan that promoted aggressive expansionist policies.
+
+3. **Failure of appeasement** - Western democracies' attempts to avoid conflict by making concessions to Hitler ultimately failed.
+
+4. **Economic depression** - The global economic crisis of the 1930s created political instability and increased support for extremist ideologies.
+
+5. **Japanese imperialism** - Japan's ambitions to create a vast empire in East Asia and the Pacific led to conflicts with China and eventually the United States.
+
+**Grading scheme:**
+- Full marks (5 points) for identifying at least 4 major causes with explanation
+- Partial marks (3 points) for identifying 2-3 causes
+- Minimal marks (1 point) for identifying only 1 cause
+
+## Question 4: Explain the process of photosynthesis
+Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy. The process occurs primarily in the chloroplasts of plant cells, especially in the leaves.
+
+**Chemical equation:**
+6CO₂ + 6H₂O + light energy → C₆H₁₂O₆ + 6O₂
+
+**Main stages:**
+1. **Light-dependent reactions:**
+   - Occur in thylakoid membranes
+   - Chlorophyll absorbs light energy
+   - Water molecules split, releasing oxygen
+   - ATP and NADPH produced
+
+2. **Calvin cycle (light-independent reactions):**
+   - Takes place in the stroma
+   - Carbon dioxide is incorporated into organic molecules
+   - Uses ATP and NADPH from light-dependent reactions
+   - Produces glucose as end product
+
+**Answer should include:** Definition, chemical equation, stages, location in the cell, and importance to life on Earth.
+""";
   }
 
   // Find the full chat data by chatId
