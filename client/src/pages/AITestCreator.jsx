@@ -53,6 +53,17 @@ const AITestCreator = () => {
     }));
   };
 
+
+  const submittestresponsetodatabase = async () => {
+    try{
+      const response = await axios.post('http://localhost:5000/api/tests/generate',{
+        generatedTest
+      })
+    }catch(error){
+      console.error("Error submitting test response to database:", error);
+      setError("Failed to submit test response to database.");
+    }
+  }
   // Transform React questionTypes object to array format expected by Python
   const getSelectedQuestionTypes = () => {
     return Object.entries(testDetails.questionTypes)
@@ -93,6 +104,8 @@ const AITestCreator = () => {
       // Call the API endpoint
       const response = await axios.post('http://127.0.0.1:5000/api/generate-test', requestData);
       
+
+
       // Process the response, expecting a JSON string in the response.data.test_content
       if (response.data && response.data.test_content) {
         try {
@@ -376,6 +389,14 @@ const AITestCreator = () => {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">{generatedTest?.title}</h2>
             <div className="flex space-x-3">
+              <button 
+                onClick={submittestresponsetodatabase}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                <svg className="w-5 h-5 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Save
+              </button>
               <button 
                 onClick={handleDownloadTest}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">

@@ -38,7 +38,7 @@ app.use("/api/assignments", assignmentRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/subjects", subjectRoutes);
-app.use('/api/test-scores',testResultRoutes);
+app.use('/api/tests',testResultRoutes);
 app.use('/api/news',newsRoute)
 app.use('/api/notify',notificationRoutes)
 app.use('/api/resources',resourceRoutes)

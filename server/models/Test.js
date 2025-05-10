@@ -32,7 +32,7 @@ const questionSchema = new mongoose.Schema({
   questionType: { 
     type: String, 
     enum: {
-      values: ['multiple-choice', 'true-false', 'short-answer', 'essay', 'matching', 'fill-in-the-blank'],
+      values: ['multipleChoice', 'shortAnswer', 'essay', 'finalanswer', 'true-false', 'matching', 'fill-in-the-blank'],
       message: 'Invalid question type'
     }, 
     required: [true, 'Question type is required']
@@ -42,7 +42,7 @@ const questionSchema = new mongoose.Schema({
     validate: {
       validator: function(options) {
         // Validate that multiple-choice questions have between 2-10 options
-        if (this.questionType === 'multiple-choice') {
+        if (this.questionType === 'multipleChoice') {
           return options.length >= 2 && options.length <= 10;
         }
         // Validate that true-false questions have exactly 2 options
@@ -58,22 +58,28 @@ const questionSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function(value) {
-        // Only required for short-answer questions
-        if (this.questionType === 'short-answer') {
+        // Required for shortAnswer and finalanswer questions
+        if (this.questionType === 'shortAnswer' || this.questionType === 'finalanswer') {
           return value && value.trim().length > 0;
         }
         return true;
       },
-      message: 'Correct answer is required for short-answer questions'
+      message: 'Correct answer is required for short answer questions'
     },
     trim: true,
     maxlength: [2000, 'Correct answer cannot exceed 2000 characters']
+  },
+  // New field for AI-generated questions
+  originalQuestion: {
+    type: String,
+    trim: true
   },
   points: { 
     type: Number, 
     required: [true, 'Points are required'],
     min: [0, 'Points cannot be negative'],
-    max: [100, 'Points cannot exceed 100']
+    max: [100, 'Points cannot exceed 100'],
+    default: 5
   },
   difficulty: {
     type: String,
@@ -91,31 +97,18 @@ const questionSchema = new mongoose.Schema({
     trim: true,
     maxlength: [500, 'Hint cannot exceed 500 characters']
   }],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  },
   media: {
     type: String,
     validate: {
-      validator: validator.isURL,
-      message: 'Media must be a valid URL',
-      protocols: ['http', 'https'],
-      require_protocol: true
+      validator: function(value) {
+        return !value || validator.isURL(value, {
+          protocols: ['http', 'https'],
+          require_protocol: true
+        });
+      },
+      message: 'Media must be a valid URL'
     }
   }
-}, { 
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
-});
-
-questionSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
 });
 
 const testSchema = new mongoose.Schema({
@@ -131,28 +124,31 @@ const testSchema = new mongoose.Schema({
     trim: true,
     maxlength: [5000, 'Description cannot exceed 5000 characters']
   },
+  // Make classroom and teacher optional for AI generated tests
   classroom: { 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Classroom', 
-    required: [true, 'Classroom reference is required'] 
+    ref: 'Classroom'
   },
   teacher: { 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Teacher', 
-    required: [true, 'Teacher reference is required'] 
+    ref: 'Teacher'
   },
   duration: { 
     type: Number, 
     required: [true, 'Duration is required'],
     min: [1, 'Duration must be at least 1 minute'],
-    max: [600, 'Duration cannot exceed 600 minutes (10 hours)']
+    max: [600, 'Duration cannot exceed 600 minutes (10 hours)'],
+    default: 30
   },
   scheduledDate: { 
-    type: Date, 
-    required: [true, 'Scheduled date is required'],
+    type: Date,
+    default: function() {
+      return new Date(Date.now() + 7*24*60*60*1000); // Default 1 week from now
+    },
     validate: {
       validator: function(value) {
-        return value > Date.now();
+        // Only validate if a date is provided and test is not AI-generated draft
+        return !value || this.status === 'draft' || value > Date.now();
       },
       message: 'Scheduled date must be in the future'
     }
@@ -161,7 +157,7 @@ const testSchema = new mongoose.Schema({
     type: Date,
     validate: {
       validator: function(value) {
-        return value > this.scheduledDate;
+        return !value || !this.scheduledDate || value > this.scheduledDate;
       },
       message: 'Deadline must be after the scheduled date'
     }
@@ -170,7 +166,8 @@ const testSchema = new mongoose.Schema({
     type: [questionSchema],
     validate: {
       validator: function(questions) {
-        return questions.length > 0;
+        // Only enforce question requirement for non-draft tests
+        return this.status === 'draft' || questions.length > 0;
       },
       message: 'Test must have at least one question'
     }
@@ -190,6 +187,11 @@ const testSchema = new mongoose.Schema({
   aiGenerated: { 
     type: Boolean, 
     default: false 
+  },
+  // Store the original AI response for reference
+  aiGeneratedContent: {
+    type: String,
+    trim: true
   },
   passingScore: {
     type: Number,
@@ -211,6 +213,14 @@ const testSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  answerKey: {
+    type: String,
+    trim: true
+  },
+  estimatedTime: {
+    type: String,
+    trim: true
+  },
   timezone: {
     type: String,
     default: 'UTC'
@@ -229,8 +239,17 @@ const testSchema = new mongoose.Schema({
   metadata: {
     topics: [String],
     subject: String,
+    gradeLevel: Number,
     curriculum: String,
     standards: [String]
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 }, { 
   timestamps: true,
@@ -243,47 +262,130 @@ testSchema.virtual('totalPoints').get(function() {
   return this.questions.reduce((sum, question) => sum + question.points, 0);
 });
 
-// Virtual for estimated completion time
-testSchema.virtual('estimatedCompletionTime').get(function() {
-  const baseTime = this.duration;
-  const questionTime = this.questions.length * 0.5; // 30 seconds per question average
-  return baseTime + Math.min(questionTime, baseTime * 0.5); // Cap additional time at 50% of base
-});
+// Function to map AI-generated test to MongoDB schema
+testSchema.statics.fromAIGeneratedTest = function(aiTestData, teacherID = null) {
+  try {
+    // Parse test data if it's a string
+    const testData = typeof aiTestData === 'string' ? JSON.parse(aiTestData) : aiTestData;
 
-// Indexes for better query performance
-testSchema.index({ classroom: 1, status: 1 });
-testSchema.index({ teacher: 1, scheduledDate: -1 });
-testSchema.index({ scheduledDate: 1 });
-testSchema.index({ status: 1 });
+    // Map AI-generated questions to schema format
+    const mappedQuestions = testData.questions.map(q => {
+      const question = {
+        questionText: q.question,
+        questionType: q.type,
+        difficulty: q.difficulty || 'medium',
+        points: 5, // Default points per question
+        originalQuestion: q.question
+      };
 
-// Pre-save hook to validate test
+      // Handle options for multiple choice questions
+      if (q.type === 'multipleChoice' && q.options) {
+        question.options = q.options.map((optText, i) => {
+          // If the answer is a number index or string option, mark as correct
+          const isCorrect = (
+            typeof q.answer === 'number' && i === q.answer ||
+            typeof q.answer === 'string' && optText === q.answer
+          );
+          return { text: optText, isCorrect };
+        });
+      } else if (q.type === 'shortAnswer' || q.type === 'finalanswer') {
+        question.correctAnswer = q.answer;
+      }
+
+      return question;
+    });
+
+    // Create new test object
+    return {
+      title: testData.title,
+      description: testData.instructions || "",
+      teacher: teacherID,
+      duration: parseInt(testData.estimatedTime) || 30,
+      questions: mappedQuestions,
+      instructions: testData.instructions || "",
+      answerKey: testData.answer_key || "",
+      aiGenerated: true,
+      aiGeneratedContent: JSON.stringify(testData),
+      metadata: {
+        subject: testData.subject || "",
+        gradeLevel: testData.grade_level || 9
+      }
+    };
+  } catch (error) {
+    throw new Error(`Error mapping AI test: ${error.message}`);
+  }
+};
+
+// Pre-save hook to update timestamps
 testSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  
   // Ensure passing score doesn't exceed total points
   if (this.passingScore && this.passingScore > this.totalPoints) {
-    throw new Error('Passing score cannot exceed total points');
-  }
-  
-  // Auto-update status based on dates
-  if (this.isModified('scheduledDate') ){
-    const now = new Date();
-    if (this.scheduledDate <= now) {
-      this.status = 'in-progress';
-    }
+    this.passingScore = this.totalPoints;
   }
   
   next();
 });
 
-// Static method to find tests by status
-testSchema.statics.findByStatus = function(status) {
-  return this.find({ status });
-};
 
-// Instance method to check if test is active
-testSchema.methods.isActive = function() {
-  const now = new Date();
-  return this.status === 'in-progress' || 
-         (this.scheduledDate <= now && this.deadline >= now);
+
+
+// Add the static method to the schema
+testSchema.statics.fromAIGeneratedTest = function(aiTestData, teacherId = null) {
+  try {
+    // Parse test data if it's a string
+    let testData = aiTestData;
+    if (typeof aiTestData === 'string') {
+      testData = JSON.parse(aiTestData);
+    }
+
+    // Map AI-generated questions to schema format
+    const mappedQuestions = testData.questions.map(q => {
+      const question = {
+        questionText: q.question,
+        questionType: q.type === 'multiple_choice' ? 'multipleChoice' : 
+                     q.type === 'short_answer' ? 'shortAnswer' : q.type,
+        difficulty: q.difficulty || 'medium',
+        points: 5, // Default points per question
+      };
+
+      // Handle options for multiple choice questions
+      if (q.type === 'multiple_choice' || q.type === 'multipleChoice') {
+        question.options = q.options.map((optText, i) => {
+          // If the answer is a number index or string option, mark as correct
+          const isCorrect = (
+            typeof q.answer === 'number' && i === q.answer ||
+            typeof q.answer === 'string' && optText === q.answer
+          );
+          return { text: optText, isCorrect };
+        });
+      } else if (q.type === 'short_answer' || q.type === 'shortAnswer' || q.type === 'finalanswer') {
+        question.correctAnswer = q.answer;
+      }
+
+      return question;
+    });
+
+    // Create new test object
+    return {
+      title: testData.title || "AI Generated Test",
+      description: testData.instructions || "",
+      teacher: teacherId,
+      duration: parseInt(testData.estimated_time) || 30,
+      questions: mappedQuestions,
+      instructions: testData.instructions || "",
+      answerKey: testData.answer_key || "",
+      aiGenerated: true,
+      aiGeneratedContent: JSON.stringify(testData),
+      metadata: {
+        subject: testData.subject || "",
+        gradeLevel: testData.grade_level || 9
+      }
+    };
+  } catch (error) {
+    throw new Error(`Error mapping AI test: ${error.message}`);
+  }
 };
 
 module.exports = mongoose.model('Test', testSchema);
