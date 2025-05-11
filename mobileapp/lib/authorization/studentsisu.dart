@@ -14,6 +14,7 @@ class StudentAuthPage extends StatefulWidget {
 class _AuthPageState extends State<StudentAuthPage>
     with TickerProviderStateMixin {
   bool isLogin = true;
+  int registerStep = 1; // 1: Form, 2: Preferences
   late AnimationController _animationController;
   late Animation<double> _formAnimation;
   late Animation<double> _loginButtonAnimation;
@@ -30,6 +31,32 @@ class _AuthPageState extends State<StudentAuthPage>
   final TextEditingController _stateController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
   DateTime? _selectedDate;
+
+  // Store registration data between steps
+  Map<String, dynamic> _registrationData = {};
+
+  // User preferences
+  List<String> _selectedPreferences = [];
+
+  // Define interest categories similar to web implementation
+  final List<Map<String, dynamic>> interestCategories = [
+    {'id': 'math', 'name': 'Mathematics', 'icon': Icons.calculate},
+    {
+      'id': 'computer_science',
+      'name': 'Computer Science',
+      'icon': Icons.computer
+    },
+    {'id': 'biology', 'name': 'Biology', 'icon': Icons.biotech},
+    {'id': 'physics', 'name': 'Physics', 'icon': Icons.science},
+    {'id': 'chemistry', 'name': 'Chemistry', 'icon': Icons.science_outlined},
+    {'id': 'literature', 'name': 'Literature', 'icon': Icons.book},
+    {'id': 'engineering', 'name': 'Engineering', 'icon': Icons.engineering},
+    {'id': 'business', 'name': 'Business', 'icon': Icons.business},
+    {'id': 'medicine', 'name': 'Medicine', 'icon': Icons.medical_services},
+    {'id': 'history', 'name': 'History', 'icon': Icons.history_edu},
+    {'id': 'education', 'name': 'Education', 'icon': Icons.school},
+    {'id': 'technology', 'name': 'Technology', 'icon': Icons.devices},
+  ];
 
   @override
   void initState() {
@@ -79,7 +106,69 @@ class _AuthPageState extends State<StudentAuthPage>
     super.dispose();
   }
 
-  // ...existing code...
+  // Method to toggle preference selection
+  void _togglePreference(String preferenceId) {
+    setState(() {
+      if (_selectedPreferences.contains(preferenceId)) {
+        _selectedPreferences.remove(preferenceId);
+      } else {
+        // Limit to maximum 5 selections
+        if (_selectedPreferences.length < 5) {
+          _selectedPreferences.add(preferenceId);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Maximum 5 interests can be selected.'),
+              backgroundColor: Color(0xFF49ABB0),
+            ),
+          );
+        }
+      }
+    });
+  }
+
+  // Method to proceed to next step after form validation
+  void _nextStep() {
+    if (_formKey.currentState!.validate()) {
+      // Store registration data
+      _registrationData = {
+        "name": _nameController.text,
+        "addressline1": _addressLine1Controller.text,
+        "addressline2": _addressLine2Controller.text,
+        "city": _cityController.text,
+        "state": _stateController.text,
+        "postalCode": _postalCodeController.text,
+        "enrollmentId": _enrollmentIdController.text,
+        "dob": _selectedDate == null
+            ? ""
+            : "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}",
+        "email": _emailController.text,
+        "password": _passwordController.text,
+      };
+
+      setState(() {
+        registerStep = 2;
+      });
+    }
+  }
+
+  // Method to go back to form step
+  void _backToForm() {
+    setState(() {
+      registerStep = 1;
+    });
+  }
+
+  // Method to skip preferences
+  void _skipPreferences() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('You can set your interests later in your profile.'),
+        backgroundColor: Color(0xFF49ABB0),
+      ),
+    );
+    _completeRegistration();
+  }
 
   Future<void> studentLogin(String email, String password) async {
     try {
@@ -100,9 +189,65 @@ class _AuthPageState extends State<StudentAuthPage>
       print("Error: $error");
     }
   }
-// ...existing code...
 
-  // ...existing code...
+  // Complete registration with preferences
+  Future<void> _completeRegistration() async {
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Creating account...'),
+          backgroundColor: Color(0xFF49ABB0),
+        ),
+      );
+
+      // First register the student
+      bool registrationSuccess = await registerStudent(
+        name: _registrationData["name"],
+        addressLine1: _registrationData["addressline1"],
+        addressLine2: _registrationData["addressline2"],
+        city: _registrationData["city"],
+        state: _registrationData["state"],
+        postalCode: _registrationData["postalCode"],
+        enrollmentId: _registrationData["enrollmentId"],
+        dob: _registrationData["dob"],
+        email: _registrationData["email"],
+        password: _registrationData["password"],
+      );
+
+      if (registrationSuccess) {
+        // Then save preferences if any are selected
+        if (_selectedPreferences.isNotEmpty) {
+          print("Saving preferences: $_selectedPreferences");
+        }
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration successful!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Reset the step
+        setState(() {
+          registerStep = 1;
+          isLogin = true;
+        });
+
+        // Navigate to home page
+        Navigator.pushReplacementNamed(context, '/');
+      }
+    } catch (error) {
+      print("Error: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Registration failed: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   Future<bool> registerStudent({
     required String name,
@@ -140,7 +285,6 @@ class _AuthPageState extends State<StudentAuthPage>
       return true; // Return true anyway to always succeed
     }
   }
-// ...existing code...
 
   Future<String> getToken() async {
     return "fake-token-for-testing";
@@ -153,67 +297,43 @@ class _AuthPageState extends State<StudentAuthPage>
   void _toggleAuthMode() {
     setState(() {
       isLogin = !isLogin;
+      registerStep = 1; // Reset to first step when switching modes
       _animationController.reset();
       _animationController.forward();
     });
   }
 
-  // ...existing code...
-
+  // Modified submit form to handle multi-step registration
   void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isLogin ? 'Logging in...' : 'Signing up...'),
-          backgroundColor: const Color(0xFF49ABB0),
-        ),
-      );
-
-      if (isLogin) {
-        // Direct login without credential verification
+    if (isLogin) {
+      if (_formKey.currentState!.validate()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Logging in...'),
+            backgroundColor: Color(0xFF49ABB0),
+          ),
+        );
         studentLogin(_emailController.text, _passwordController.text);
+      }
+    } else {
+      if (registerStep == 1) {
+        // Proceed to preferences step after form validation
+        _nextStep();
       } else {
-        // Handle registration without server validation
-        if (_selectedDate == null) {
+        // Complete registration with preferences
+        if (_selectedPreferences.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Please select your date of birth'),
+              content: Text('Please select at least one interest'),
               backgroundColor: Colors.red,
             ),
           );
           return;
         }
-
-        // Format date in the required format (YYYY-MM-DD)
-        final formattedDob =
-            "${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}";
-
-        registerStudent(
-          name: _nameController.text,
-          addressLine1: _addressLine1Controller.text,
-          addressLine2: _addressLine2Controller.text,
-          city: _cityController.text,
-          state: _stateController.text,
-          postalCode: _postalCodeController.text,
-          enrollmentId: _enrollmentIdController.text,
-          dob: formattedDob,
-          email: _emailController.text,
-          password: _passwordController.text,
-        ).then((_) {
-          // Always navigate to home page on registration
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Registration successful!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          // Navigate to home page
-          Navigator.pushReplacementNamed(context, '/');
-        });
+        _completeRegistration();
       }
     }
   }
-// ...existing code...
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +391,11 @@ class _AuthPageState extends State<StudentAuthPage>
                       const SizedBox(height: 10),
 
                       Text(
-                        isLogin ? 'Welcome Back!' : 'Create Account',
+                        isLogin
+                            ? 'Welcome Back!'
+                            : (registerStep == 1
+                                ? 'Create Account'
+                                : 'Select Your Interests'),
                         style: const TextStyle(
                           fontSize: 20,
                           color: Colors.black,
@@ -280,7 +404,7 @@ class _AuthPageState extends State<StudentAuthPage>
 
                       const SizedBox(height: 40),
 
-                      // Auth form
+                      // Auth form or Preferences UI
                       FadeTransition(
                         opacity: _formAnimation,
                         child: SlideTransition(
@@ -288,30 +412,238 @@ class _AuthPageState extends State<StudentAuthPage>
                             begin: const Offset(0, 0.3),
                             end: Offset.zero,
                           ).animate(_formAnimation),
-                          child: _buildAuthForm(),
+                          child: !isLogin && registerStep == 2
+                              ? _buildPreferencesUI()
+                              : _buildAuthForm(),
                         ),
                       ),
 
                       const SizedBox(height: 20),
 
-                      // Toggle button
-                      FadeTransition(
-                        opacity: _registerButtonAnimation,
-                        child: TextButton(
-                          onPressed: _toggleAuthMode,
-                          child: Text(
-                            isLogin
-                                ? 'Don\'t have an account? Sign Up'
-                                : 'Already have an account? Log In',
-                            style: const TextStyle(color: Colors.black),
+                      // Toggle button (only show on login or first step of signup)
+                      if (isLogin || registerStep == 1)
+                        FadeTransition(
+                          opacity: _registerButtonAnimation,
+                          child: TextButton(
+                            onPressed: _toggleAuthMode,
+                            child: Text(
+                              isLogin
+                                  ? 'Don\'t have an account? Sign Up'
+                                  : 'Already have an account? Log In',
+                              style: const TextStyle(color: Colors.black),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // New method to build the preferences UI
+  Widget _buildPreferencesUI() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Back button
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              icon: const Icon(Icons.arrow_back, color: Color(0xFF49ABB0)),
+              label: const Text("Back",
+                  style: TextStyle(color: Color(0xFF49ABB0))),
+              onPressed: _backToForm,
+            ),
+          ),
+
+          const Text(
+            "Select Your Academic Interests",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          const Text(
+            "Choose up to 5 subjects you're interested in",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          const SizedBox(height: 20),
+
+          // Interests grid
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 0.9,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+            ),
+            itemCount: interestCategories.length,
+            itemBuilder: (context, index) {
+              final category = interestCategories[index];
+              final isSelected = _selectedPreferences.contains(category['id']);
+
+              return GestureDetector(
+                onTap: () => _togglePreference(category['id']),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFF49ABB0).withOpacity(0.1)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isSelected
+                          ? const Color(0xFF49ABB0)
+                          : Colors.grey.shade300,
+                      width: 2,
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      // Center the content properly
+                      Positioned.fill(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              height: 40, // Fixed height for icon
+                              width: 40, // Fixed width for icon
+                              alignment: Alignment.center,
+                              child: Icon(
+                                category['icon'],
+                                size: 30,
+                                color: isSelected
+                                    ? const Color(0xFF49ABB0)
+                                    : Colors.grey.shade700,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Text(
+                                category['name'],
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  color: isSelected
+                                      ? const Color(0xFF49ABB0)
+                                      : Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Checkmark indicator
+                      if (isSelected)
+                        Positioned(
+                          top: 5,
+                          right: 5,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: const BoxDecoration(
+                              color: Color(0xFF49ABB0),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 24),
+
+          // Continue and Skip buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _selectedPreferences.isEmpty
+                      ? null
+                      : _completeRegistration,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF49ABB0),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    'CREATE ACCOUNT',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 245, 245, 221),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          TextButton(
+            onPressed: _skipPreferences,
+            child: const Text(
+              "Skip for now",
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          const Text(
+            "These preferences help us personalize your learning experience",
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -433,8 +765,7 @@ class _AuthPageState extends State<StudentAuthPage>
                   // Show date picker when the field is tapped
                   final DateTime? pickedDate = await showDatePicker(
                     context: context,
-                    initialDate: _selectedDate ??
-                        DateTime(2000), // Default to year 2000 if not selected
+                    initialDate: _selectedDate ?? DateTime(2000),
                     firstDate: DateTime(1950),
                     lastDate: DateTime.now(),
                     builder: (context, child) {
@@ -490,7 +821,7 @@ class _AuthPageState extends State<StudentAuthPage>
 
             if (!isLogin) const SizedBox(height: 15),
 
-// Add Address Line 2 (optional)
+            // Add Address Line 2 (optional)
             if (!isLogin)
               TextFormField(
                 controller: _addressLine2Controller,
@@ -502,7 +833,7 @@ class _AuthPageState extends State<StudentAuthPage>
 
             if (!isLogin) const SizedBox(height: 15),
 
-// Add City
+            // Add City
             if (!isLogin)
               TextFormField(
                 controller: _cityController,
@@ -520,7 +851,7 @@ class _AuthPageState extends State<StudentAuthPage>
 
             if (!isLogin) const SizedBox(height: 15),
 
-// Add State
+            // Add State
             if (!isLogin)
               TextFormField(
                 controller: _stateController,
@@ -577,9 +908,11 @@ class _AuthPageState extends State<StudentAuthPage>
                       elevation: 5,
                     ),
                     child: Text(
-                      isLogin ? 'LOGIN' : 'SIGN UP',
+                      isLogin
+                          ? 'LOGIN'
+                          : (registerStep == 1 ? 'NEXT' : 'SIGN UP'),
                       style: const TextStyle(
-                        color: const Color.fromARGB(255, 245, 245, 221),
+                        color: Color.fromARGB(255, 245, 245, 221),
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1,
