@@ -2,7 +2,7 @@ import os
 from typing import List, Dict, Any
 from langchain_groq import ChatGroq
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 import PyPDF2
@@ -159,6 +159,16 @@ class DocumentProcessor:
         vector_store = FAISS.from_texts(chunks, self.embeddings)
         return vector_store
     
+    def create_llm_model(self, model_name: str = "mixtral-8x7b-32768"):
+        """Create a language model instance with the specified model name."""
+        llm = ChatGroq(
+            groq_api_key=self.api_key,
+            model_name=model_name,
+            temperature=0.7,
+            max_tokens=32768
+        )
+        return llm
+        
     def create_qa_chain(self, vector_store: FAISS) -> RetrievalQA:
         """Create a question-answering chain using the vector store."""
         llm = ChatGroq(
@@ -173,4 +183,4 @@ class DocumentProcessor:
             chain_type="stuff",
             retriever=vector_store.as_retriever(search_kwargs={"k": 3})
         )
-        return qa_chain 
+        return qa_chain

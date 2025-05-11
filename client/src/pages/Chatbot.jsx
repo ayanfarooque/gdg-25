@@ -12,6 +12,9 @@ const BOT_TYPES = {
   MATH: "math"
 };
 
+// API endpoint for backend
+const API_ENDPOINT = "http://127.0.0.1:5000/api/chatbot";
+
 const Chatbot = () => {
   // State variables
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -53,7 +56,7 @@ const Chatbot = () => {
 
   const sendmessagetogemini = async (message) => { 
     try {
-        const response = await axios.post('http://localhost:5000/api/chatbot/askdoubt', {
+        const response = await axios.post(`${API_ENDPOINT}/askdoubt`, {
             question: message,
             botType: selectedBotType
         }, {
@@ -63,13 +66,6 @@ const Chatbot = () => {
         });
 
         if (response.data.success) {
-            // Add user message to chat
-            setMessages(prev => [...prev, {
-                text: message,
-                sender: 'user',
-                timestamp: new Date()
-            }]);
-
             // Add bot response to chat
             setMessages(prev => [...prev, {
                 text: response.data.data.response,
@@ -91,7 +87,7 @@ const Chatbot = () => {
         }]);
         throw error;
     }
-};
+  };
 
   // Fetch chat history on component mount
   useEffect(() => {
@@ -113,17 +109,15 @@ const Chatbot = () => {
   const fetchChatHistory = async () => {
     try {
       setIsLoading(true);
-      // Mock this call for now - in production, replace with actual API call
-      // const response = await axios.get(`${API_ENDPOINT}/chatbot/history`);
       
-      // Simulate API response
-      const mockHistory = [
-        { id: "chat1", title: "Math problem solving", timestamp: new Date(Date.now() - 86400000).toISOString(), botType: BOT_TYPES.MATH },
-        { id: "chat2", title: "Career advice for software engineering", timestamp: new Date(Date.now() - 172800000).toISOString(), botType: BOT_TYPES.CAREER },
-        { id: "chat3", title: "General questions about physics", timestamp: new Date(Date.now() - 259200000).toISOString(), botType: BOT_TYPES.NORMAL }
-      ];
+      const response = await axios.get(`${API_ENDPOINT}/history`);
       
-      setChatHistory(mockHistory);
+      if (response.data.success) {
+        setChatHistory(response.data.data.history);
+      } else {
+        throw new Error(response.data.message);
+      }
+      
       setIsLoading(false);
     } catch (err) {
       console.error("Error fetching chat history:", err);
@@ -290,82 +284,52 @@ const Chatbot = () => {
     setIsTyping(true);
     
     try {
-      // If this is math type with a file, we need special processing
-      if (selectedBotType === BOT_TYPES.MATH && file) {
-        // For image files containing math problems
-        const fileType = file.type.split('/')[0];
-        
+      // If file is attached, use the file upload endpoint
+      if (file) {
         const formData = new FormData();
         formData.append("file", file);
         if (userMessage) formData.append("context", userMessage);
-        
-        try {
-          // In production, replace with actual API call
-          // const response = await axios.post(`${API_ENDPOINT}/chatbot/processMathImage`, formData);
-          
-          // Simulate processing delay
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
-          // Mock response for math image processing
-          const mockResponse = "I've analyzed the math problem in your image. This appears to be a calculus problem involving differentiation.\n\nThe equation can be written as: $$f(x) = x^3 + 4x^2 - 5x + 2$$\n\nTo find the derivative, we apply the power rule: $$f'(x) = 3x^2 + 8x - 5$$\n\nTo find critical points, we solve: $$f'(x) = 0$$\n\n$$3x^2 + 8x - 5 = 0$$\n\nUsing the quadratic formula: $$x = \\frac{-8 \\pm \\sqrt{64 + 60}}{6} = \\frac{-8 \\pm \\sqrt{124}}{6}$$";
-          
-          setMessages(prevMessages => [...prevMessages, { text: mockResponse, sender: "bot" }]);
-        } catch (fileError) {
-          console.error("Error processing math file:", fileError);
-          setMessages(prevMessages => [...prevMessages, { 
-            text: "I encountered a problem processing your math document. Please ensure it contains clear equations and try again.",
-            sender: "bot",
-            isError: true
-          }]);
-        }
-      } else if (selectedBotType === BOT_TYPES.MATH && !file) {
-        // Regular math question without file
-        await sendmessagetogemini(userMessage);
-      } else {
-        // Other bot types (existing code)
-        const formData = new FormData();
-        if (userMessage) formData.append("prompt", userMessage);
-        if (file) formData.append("file", file);
         formData.append("botType", selectedBotType);
         if (currentChatId) formData.append("chatId", currentChatId);
         
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const response = await axios.post(`${API_ENDPOINT}/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
         
-        let botResponse;
-        switch(selectedBotType) {
-          case BOT_TYPES.MATH:
-            botResponse = "Based on the mathematical expression you provided, I can help solve this problem step-by-step. First, we need to identify the variables and equations involved.\n\nLet's use the quadratic formula: $$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$\n\nFor integration, we can use: $$\\int x^2 dx = \\frac{x^3}{3} + C$$\n\nAnd for complex expressions like: $e^{i\\pi} + 1 = 0$";
-            break;
-          case BOT_TYPES.CAREER:
-            botResponse = "From a career guidance perspective, I recommend exploring opportunities that align with your interests in this field. Many professionals take these steps when entering this career path...";
-            break;
-          default:
-            botResponse = "I understand your question about this topic. Here's what I know: this is a complex subject with several important aspects to consider. Let me explain the key concepts...";
+        if (response.data.success) {
+          setMessages(prevMessages => [...prevMessages, { 
+            text: response.data.data.response, 
+            sender: "bot" 
+          }]);
+        } else {
+          throw new Error(response.data.message);
         }
+      } else {
+        // For text-only messages
+        await sendmessagetogemini(userMessage);
+      }
+      
+      // Create new chat entry if this is a new conversation
+      if (!currentChatId) {
+        const newChatId = `chat_${Date.now()}`;
+        setCurrentChatId(newChatId);
         
-        if (!currentChatId) {
-          const newChatId = `chat_${Date.now()}`;
-          setCurrentChatId(newChatId);
-          
-          const newChatEntry = {
-            id: newChatId,
-            title: userMessage.slice(0, 30) + (userMessage.length > 30 ? "..." : ""),
-            timestamp: new Date().toISOString(),
-            botType: selectedBotType
-          };
-          
-          setChatHistory([newChatEntry, ...chatHistory]);
-        }
+        const newChatEntry = {
+          id: newChatId,
+          title: userMessage.slice(0, 30) + (userMessage.length > 30 ? "..." : ""),
+          timestamp: new Date().toISOString(),
+          botType: selectedBotType
+        };
         
-        setIsTyping(false);
-        setMessages(prevMessages => [...prevMessages, { text: botResponse, sender: "bot" }]);
+        setChatHistory([newChatEntry, ...chatHistory]);
       }
       
       setFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-      
     } catch (err) {
       console.error("Error sending message:", err);
       setIsTyping(false);
