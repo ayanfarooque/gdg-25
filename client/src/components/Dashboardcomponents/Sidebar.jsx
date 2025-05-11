@@ -19,6 +19,7 @@ import {
   Bookmark,
   User as UserIcon,
   UserCog,
+  Bot,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -69,8 +70,7 @@ const Sidebar = ({ role }) => {
         { name: "Newspaper", icon: CalendarDays, path: "/teacher-resource" },
         { name: "ChatBot", icon: MessageCircle, path: "/facchat" },
         { name: "Classroom", icon: School, path: "/teacher-classroom" },
-        { name: "AI Test Creator", icon: FileText, path: "/create-test" },
-        { name: "AI Grade Cards", icon: FileBarChart, path: "/generate-reportcard" }
+        { name: "AI Assistant", icon: Bot, path: "/ai-assistant" },
       ]);
     } else if (role === 'student') {
       setSidebarItems([

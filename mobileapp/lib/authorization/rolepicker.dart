@@ -43,7 +43,7 @@ class _RolePickerScreenState extends State<RolePickerScreen>
 
       // Navigate based on selected role
       if (role == 'student') {
-        Navigator.pushReplacementNamed(context, '/studentauth');
+        Navigator.pushReplacementNamed(context, '/');
       } else if (role == 'teacher') {
         Navigator.pushReplacementNamed(context, '/teacherhome');
       } else if (role == 'admin') {
