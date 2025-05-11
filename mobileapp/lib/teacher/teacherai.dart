@@ -187,8 +187,7 @@ class _LandingPageState extends State<TeacherAi>
 
   // API endpoints - updated to support multiple environments and CORS
   // Using 10.0.2.2 instead of 127.0.0.1 for Android emulator to access host machine
-  final String _baseUrl =
-      Platform.isAndroid ? 'http://10.0.2.2:5000' : 'http://127.0.0.1:5000';
+  final String _baseUrl = 'http://192.168.101.165:5000';
   late String _apiUrl;
   late String _downloadApiUrl;
 
