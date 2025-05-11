@@ -6,9 +6,15 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import sys
 
-# Add path to qs-gen.py
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agents'))
-from qs_gen import generate_question_paper, setup_agents_and_crew
+# Add path to qs-gen.py - improve error handling for missing module
+try:
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'agents'))
+    from qs_gen import generate_question_paper, setup_agents_and_crew
+    qs_gen_available = True
+    print("Successfully imported qs_gen module")
+except ImportError:
+    qs_gen_available = False
+    print("WARNING: qs_gen module not found. Final answer question generation will use fallback method.")
 
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
@@ -138,7 +144,7 @@ def generate_test(subject, grade_level, topic, question_types, difficulty, numbe
     # Convert finalanswer to final_answer for qs-gen compatibility
     question_types = ['final_answer' if qt == 'finalanswer' else qt for qt in question_types]
     
-    if "final_answer" in question_types:
+    if "final_answer" in question_types and qs_gen_available:
         try:
             # Get result from qs-gen
             result = generate_question_paper(subject)
@@ -165,7 +171,16 @@ def generate_test(subject, grade_level, topic, question_types, difficulty, numbe
             
             return json.dumps(test_json)
         except Exception as e:
-            raise Exception(f"Error generating final answer test: {str(e)}")
+            print(f"Error in qs_gen module: {str(e)}. Using fallback method.")
+            # Fall through to use the Gemini model as fallback
+    
+    # Adjust prompt for final answer questions if that type is requested but qs_gen isn't available
+    final_answer_prompt = ""
+    if "final_answer" in question_types:
+        final_answer_prompt = """
+        For final answer questions, please create typical exam-style questions that require detailed answers.
+        Each question should have clear marking criteria and expected answer points.
+        """
     
     # Original Gemini prompt for other question types
     prompt = f"""Generate a {subject} test for Grade {grade_level} with the following specifications:
@@ -174,6 +189,7 @@ def generate_test(subject, grade_level, topic, question_types, difficulty, numbe
     Difficulty: {difficulty}
     Number of Questions: {number_of_questions}
     Time Limit: {time_limit} minutes
+    {final_answer_prompt}
 
     Please format the output as a JSON object with the following structure:
     {{
@@ -314,9 +330,16 @@ def main():
     print("Starting the Gemini Test Generator API server...")
     print("Waiting for requests from AITestCreator frontend...")
     
+    # Check if critical components are available
+    if not GOOGLE_API_KEY:
+        print("WARNING: GOOGLE_API_KEY environment variable not set. Make sure you have a .env file with this key.")
+    
+    if not qs_gen_available:
+        print("NOTE: Running with limited functionality - 'final answer' questions will use Gemini model fallback.")
+    
     # No default configurations - only process requests from frontend
     try:
-        app.run(debug=True, port=5000)
+        app.run(debug=True, host='0.0.0.0', port=5000)
     except Exception as e:
         print(f"Error starting server: {str(e)}")
 

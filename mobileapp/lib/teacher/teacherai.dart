@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'dart:async'; // Add this import for TimeoutException
+import 'package:http/http.dart' as http; // Add this import for API calls
 
 import '../components/teacherheader.dart';
 import '../components/teacherFooter.dart';
@@ -29,6 +31,7 @@ class _LandingPageState extends State<TeacherAi>
   ];
   List<String> _difficulties = ["Easy", "Medium", "Hard"];
   List<String> _questionTypes = ["MCQ", "Short Answer", "Essay", "Full Paper"];
+  Set<String> _selectedQuestionTypes = {"MCQ"};
   List<String> _gradeLevels = [
     "Grade 1",
     "Grade 2",
@@ -144,7 +147,6 @@ class _LandingPageState extends State<TeacherAi>
   TabController? _tabController;
   String? _selectedDifficulty;
   String? _selectedGradeLevel;
-  String? _selectedQuestionType = "MCQ";
   int _numberOfQuestions = 10;
   int _timeLimit = 30;
   String? _selectedChapter;
@@ -179,30 +181,50 @@ class _LandingPageState extends State<TeacherAi>
   bool _paperSolved = false;
   String _paperSolutionText = '';
 
+  bool _isGeneratingTest = false;
+  Map<String, dynamic>? _generatedTest;
+  String? _testGenerationError;
+
+  // API endpoints - updated to support multiple environments and CORS
+  // Using 10.0.2.2 instead of 127.0.0.1 for Android emulator to access host machine
+  final String _baseUrl =
+      Platform.isAndroid ? 'http://10.0.2.2:5000' : 'http://127.0.0.1:5000';
+  late String _apiUrl;
+  late String _downloadApiUrl;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
 
-    // Add listener for tab changes
+    // Initialize API endpoints
+    _apiUrl = '$_baseUrl/api/generate-test';
+    _downloadApiUrl = '$_baseUrl/api/download-test';
+
+    // Add listener for tab changes to reset state when switching tabs
     _tabController!.addListener(() {
       if (!_tabController!.indexIsChanging) {
-        // This is called when the tab selection actually changes
         setState(() {
-          // You can add specific actions based on tab index
-          // For example, clear selections or reset states
+          // Reset error messages when changing tabs
+          _testGenerationError = null;
+
+          // Optionally reset other tab-specific states if needed
           if (_tabController!.index == 0) {
-            // Actions when Test Generator tab is selected
+            // Test Generator tab
           } else if (_tabController!.index == 1) {
-            // Actions when Grade Card Generator tab is selected
+            // Grade Cards tab
+            _selectedStudent = null;
           } else if (_tabController!.index == 2) {
-            // Actions when Paper Solver tab is selected
+            // Paper Solver tab
+            _paperSolved = false;
+            _paperSolutionText = '';
           }
         });
       }
     });
 
     loadChatData();
+    _checkApiConnection();
   }
 
   @override
@@ -214,6 +236,43 @@ class _LandingPageState extends State<TeacherAi>
     super.dispose();
   }
 
+  // Check if API is accessible
+  Future<void> _checkApiConnection() async {
+    try {
+      // Use a GET request to the base URL which is more likely to succeed for checking
+      final response = await http
+          .get(
+            Uri.parse(_baseUrl),
+          )
+          .timeout(Duration(seconds: 3));
+
+      print("API connection check status: ${response.statusCode}");
+    } catch (e) {
+      // Handle different types of errors
+      if (e is SocketException) {
+        print("API connection error: Server not running or unreachable");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Cannot connect to the server at 10.0.2.2:5000.\n\nMake sure:\n- The Flask server is running\n- It was started with host=0.0.0.0\n- Your firewall allows connections'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 8),
+              action: SnackBarAction(
+                label: 'Retry',
+                onPressed: _checkApiConnection,
+              ),
+            ),
+          );
+        }
+      } else if (e is TimeoutException) {
+        print("API connection error: Connection timed out");
+      } else {
+        print("API connection error: $e");
+      }
+    }
+  }
+
   void _updateSubject(String? newValue) {
     setState(() {
       _selectedSubject = newValue;
@@ -222,7 +281,6 @@ class _LandingPageState extends State<TeacherAi>
     });
   }
 
-  // Reset topic when chapter changes
   void _updateChapter(String? newValue) {
     setState(() {
       _selectedChapter = newValue;
@@ -232,25 +290,20 @@ class _LandingPageState extends State<TeacherAi>
 
   void _selectTab(int index) {
     _tabController!.animateTo(index);
-    // You can add additional actions here if needed
   }
 
-  // Method to load chat data from JSON
   Future<void> loadChatData() async {
     try {
       final String response =
           await rootBundle.loadString('lib/data/doubtChat.json');
       final List<dynamic> data = await json.decode(response);
 
-      // Store full chat data
       _fullChatData = data;
 
-      // Convert JSON data to the format needed for previousChats
       List<Map<String, String>> chatList = [];
 
       for (var chat in data) {
         if (chat['responses'] != null && chat['responses'].isNotEmpty) {
-          // Format the date from timestamp
           String dateStr = '';
           if (chat['responses'][0]['timeStamp'] != null) {
             final DateTime timestamp =
@@ -276,7 +329,6 @@ class _LandingPageState extends State<TeacherAi>
     }
   }
 
-  // Helper method to get month abbreviation
   String _getMonthAbbreviation(int month) {
     const months = [
       'Jan',
@@ -300,7 +352,6 @@ class _LandingPageState extends State<TeacherAi>
       _selectedIndex = index;
     });
 
-    // Navigate to different pages based on index
     switch (index) {
       case 0:
         Navigator.pushNamed(context, '/taecherhome');
@@ -328,101 +379,436 @@ class _LandingPageState extends State<TeacherAi>
     });
   }
 
-  void _generateTest() {
-    // Validate inputs
+  String _getQuestionTypeForAPI(String type) {
+    if (type == 'MCQ') return 'multiple_choice';
+    if (type == 'Short Answer') return 'short_answer';
+    if (type == 'Essay') return 'essay';
+    if (type == 'Full Paper') return 'full_paper';
+    return 'multiple_choice';
+  }
+
+  int _extractGradeNumber(String? gradeText) {
+    if (gradeText == null) return 9;
+    final matches = RegExp(r'\d+').firstMatch(gradeText);
+    return matches != null ? int.parse(matches.group(0)!) : 9;
+  }
+
+  Future<void> _generateTest() async {
     if (_selectedGradeLevel == null ||
         _selectedSubject == null ||
         _selectedChapter == null ||
-        _selectedTopic == null ||
-        _selectedQuestionType == null ||
+        _selectedQuestionTypes.isEmpty ||
         _selectedDifficulty == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please fill in all fields to generate a test'),
+          content:
+              Text('Please fill in all required fields to generate a test'),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Show processing message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(width: 20),
-            Text('Generating test...'),
-          ],
-        ),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 3),
-      ),
-    );
+    setState(() {
+      _isGeneratingTest = true;
+      _testGenerationError = null;
+      _generatedTest = null;
+    });
 
-    // Simulate test generation delay
-    Future.delayed(Duration(seconds: 3), () {
-      // Show success message
+    try {
+      final requestData = {
+        'subject': _selectedSubject,
+        'grade_level': _extractGradeNumber(_selectedGradeLevel),
+        'topic': _selectedTopic ?? _selectedChapter ?? "General",
+        'question_types':
+            _selectedQuestionTypes.map(_getQuestionTypeForAPI).toList(),
+        'difficulty': _selectedDifficulty?.toLowerCase() ?? 'medium',
+        'number_of_questions': _numberOfQuestions,
+        'time_limit': _timeLimit
+      };
+
+      print("Sending request to generate test: $requestData");
+
+      final response = await http
+          .post(
+            Uri.parse(_apiUrl),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(requestData),
+          )
+          .timeout(Duration(
+              seconds: 60)); // Add timeout to prevent indefinite waiting
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        if (responseData['test_content'] != null) {
+          try {
+            final rawContent = responseData['test_content'];
+            dynamic parsedContent;
+
+            if (rawContent.toString().contains('```')) {
+              final jsonContent = rawContent
+                  .toString()
+                  .replaceAll(RegExp(r'```json'), '')
+                  .replaceAll(RegExp(r'```'), '')
+                  .trim();
+              parsedContent = jsonDecode(jsonContent);
+            } else {
+              parsedContent = jsonDecode(rawContent);
+            }
+
+            // Add validation for expected keys
+            if (!parsedContent.containsKey('title') ||
+                !parsedContent.containsKey('questions')) {
+              throw Exception("Invalid test format: missing required fields");
+            }
+
+            final formattedTest = {
+              "title": parsedContent['title'],
+              "questions": parsedContent['questions'],
+              "answerKey":
+                  parsedContent['answer_key'] ?? "Answer key not available",
+              "estimatedTime": parsedContent['estimated_time'] ?? _timeLimit,
+              "instructions": parsedContent['instructions'] ??
+                  'Answer all questions to the best of your ability.'
+            };
+
+            setState(() {
+              _generatedTest = formattedTest;
+              _isGeneratingTest = false;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content:
+                    Text('Test generated successfully! Ready to download.'),
+                backgroundColor: Colors.green,
+                action: SnackBarAction(
+                  label: 'Download',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    _downloadTest();
+                  },
+                ),
+              ),
+            );
+          } catch (parseError) {
+            print("Error parsing test content: $parseError");
+            setState(() {
+              _testGenerationError =
+                  "Failed to parse the generated test. Please try again.";
+              _isGeneratingTest = false;
+            });
+          }
+        } else {
+          throw Exception("Invalid response format: test_content not found");
+        }
+      } else {
+        final errorMessage = response.statusCode == 500
+            ? "Server error: The API encountered a problem"
+            : "API Error: Status code ${response.statusCode}";
+
+        try {
+          final errorData = jsonDecode(response.body);
+          throw Exception(
+              "${errorMessage}: ${errorData['error'] ?? 'Unknown error'}");
+        } catch (_) {
+          throw Exception(errorMessage);
+        }
+      }
+    } catch (error) {
+      print("Error generating test: $error");
+      setState(() {
+        _testGenerationError = error.toString();
+        _isGeneratingTest = false;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Test generated successfully! Ready to download.'),
-          backgroundColor: Colors.green,
-          action: SnackBarAction(
-            label: 'Download',
-            textColor: Colors.white,
-            onPressed: () {
-              // Handle download action
-            },
-          ),
+          content: Text('Failed to generate test: ${error.toString()}'),
+          backgroundColor: Colors.red,
         ),
       );
-    });
+    }
   }
 
-  void _generateGradeCard() {
-    if (_selectedStudent == null) {
+  Future<void> _downloadTest() async {
+    if (_generatedTest == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select a student to generate grade card'),
+          content: Text('No test available to download'),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Show processing message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            CircularProgressIndicator(color: Colors.white),
-            SizedBox(width: 20),
-            Text('Generating grade card...'),
-          ],
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preparing download...'),
+          duration: Duration(seconds: 1),
         ),
-        backgroundColor: Colors.blue,
-        duration: Duration(seconds: 2),
-      ),
-    );
+      );
 
-    // Simulate grade card generation
-    Future.delayed(Duration(seconds: 2), () {
-      // Show success message
+      // Prepare data for download
+      final requestData = {
+        'test_data': jsonEncode(_generatedTest),
+        'subject': _selectedSubject ?? "General",
+        'filename':
+            "${_selectedSubject?.toLowerCase() ?? 'test'}_${DateTime.now().millisecondsSinceEpoch}.json"
+      };
+
+      // Call the download API
+      final response = await http
+          .post(
+            Uri.parse(_downloadApiUrl),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(requestData),
+          )
+          .timeout(Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        // Successfully received file data
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Test downloaded successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        throw Exception(
+            "Download failed: Server returned status code ${response.statusCode}");
+      }
+    } catch (error) {
+      print("Download error: $error");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Grade card generated for ${_selectedStudent!['name']}'),
-          backgroundColor: Colors.green,
-          action: SnackBarAction(
-            label: 'View',
-            textColor: Colors.white,
-            onPressed: () {
-              // Handle view action
+          content: Text('Download feature unavailable: ${error.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Widget _buildTestPreview() {
+    if (_generatedTest == null) return Container();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _generatedTest?['title'] ?? 'Generated Test',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 16),
+        Card(
+          elevation: 2,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Padding(
+            padding: EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Test Details',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Subject',
+                              style: TextStyle(color: Colors.grey.shade700)),
+                          Text(_selectedSubject ?? 'N/A',
+                              style: TextStyle(fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Difficulty',
+                              style: TextStyle(color: Colors.grey.shade700)),
+                          Text(_selectedDifficulty ?? 'N/A',
+                              style: TextStyle(fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Questions',
+                              style: TextStyle(color: Colors.grey.shade700)),
+                          Text('${_numberOfQuestions}',
+                              style: TextStyle(fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Time Limit',
+                              style: TextStyle(color: Colors.grey.shade700)),
+                          Text('${_timeLimit} minutes',
+                              style: TextStyle(fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Question Types',
+                              style: TextStyle(color: Colors.grey.shade700)),
+                          Text(
+                            _selectedQuestionTypes.join(', '),
+                            style: TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(height: 16),
+        Text(
+          'Questions Preview',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 8),
+        Expanded(
+          child: ListView.builder(
+            itemCount: (_generatedTest?['questions'] as List?)?.length ?? 0,
+            itemBuilder: (context, index) {
+              final question = (_generatedTest?['questions'] as List)[index];
+              final questionType = question['type'] ?? '';
+
+              return Card(
+                margin: EdgeInsets.only(bottom: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                child: Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Q${index + 1}: ${question['question']}',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      SizedBox(height: 8),
+                      if (questionType == 'multipleChoice' ||
+                          questionType == 'multiple_choice')
+                        ...List.generate(
+                          (question['options'] as List?)?.length ?? 0,
+                          (i) => Padding(
+                            padding: EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${String.fromCharCode(65 + i)}. ',
+                                  style: TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                Expanded(
+                                  child: Text(question['options'][i]),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      SizedBox(height: 8),
+                      if (question['answer'] != null)
+                        Container(
+                          padding: EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.check_circle,
+                                  color: Colors.green, size: 16),
+                              SizedBox(width: 4),
+                              Text(
+                                'Answer: ${question['answer']}',
+                                style: TextStyle(
+                                    color: Colors.green.shade800,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              );
             },
           ),
         ),
-      );
-    });
+        SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: _downloadTest,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFE195AB),
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Text('Download Test'),
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _generatedTest = null;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Text('Create Another'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   @override
@@ -461,21 +847,17 @@ class _LandingPageState extends State<TeacherAi>
                     ),
                     child: Column(
                       children: [
-                        // Tab Bar
-                        // Replace your current TabBar with this enhanced version
                         TabBar(
                           controller: _tabController,
                           labelColor: Colors.black,
                           unselectedLabelColor: Colors.grey,
                           indicatorColor: const Color(0xFFE195AB),
-                          indicatorWeight: 3, // Make indicator more visible
+                          indicatorWeight: 3,
                           labelStyle: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14), // Make selected tab text bold
-                          unselectedLabelStyle:
-                              TextStyle(fontSize: 14), // Consistent font size
-                          labelPadding: EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 10), // More padding
+                              fontWeight: FontWeight.bold, fontSize: 14),
+                          unselectedLabelStyle: TextStyle(fontSize: 14),
+                          labelPadding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                           tabs: [
                             Tab(
                               child: Container(
@@ -483,8 +865,7 @@ class _LandingPageState extends State<TeacherAi>
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.assessment,
-                                        size: 12), // Add icon
+                                    Icon(Icons.assessment, size: 12),
                                     SizedBox(width: 0),
                                     Text('Test Generator'),
                                   ],
@@ -497,7 +878,7 @@ class _LandingPageState extends State<TeacherAi>
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.grade, size: 12), // Add icon
+                                    Icon(Icons.grade, size: 12),
                                     SizedBox(width: 0),
                                     Text('Grade Cards'),
                                   ],
@@ -510,8 +891,7 @@ class _LandingPageState extends State<TeacherAi>
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.assignment_turned_in,
-                                        size: 12), // Add icon
+                                    Icon(Icons.assignment_turned_in, size: 12),
                                     SizedBox(width: 0),
                                     Text('Paper Solver'),
                                   ],
@@ -521,27 +901,19 @@ class _LandingPageState extends State<TeacherAi>
                           ],
                         ),
                         const SizedBox(height: 15),
-
-                        // Tab Bar View
                         Expanded(
                           child: TabBarView(
                             controller: _tabController,
-                            physics:
-                                BouncingScrollPhysics(), // Add bouncing effect when scrolling
+                            physics: BouncingScrollPhysics(),
                             children: [
-                              // AI Test Generator Tab
                               AnimatedSwitcher(
                                 duration: Duration(milliseconds: 300),
                                 child: _buildTestGeneratorTab(),
                               ),
-
-                              // AI Grade Card Generator Tab
                               AnimatedSwitcher(
                                 duration: Duration(milliseconds: 300),
                                 child: _buildGradeCardGeneratorTab(),
                               ),
-
-                              // AI Paper Solver Tab
                               AnimatedSwitcher(
                                 duration: Duration(milliseconds: 300),
                                 child: _buildPaperSolverTab(),
@@ -576,8 +948,11 @@ class _LandingPageState extends State<TeacherAi>
     );
   }
 
-  // Number of Questions and Time Limit inputs for the test generator
   Widget _buildTestGeneratorTab() {
+    if (_generatedTest != null) {
+      return _buildTestPreview();
+    }
+
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.all(16.0),
@@ -592,8 +967,21 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
             const SizedBox(height: 20),
-
-            // 1. Grade Level - Now first
+            if (_testGenerationError != null)
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Text(
+                  _testGenerationError!,
+                  style: TextStyle(color: Colors.red.shade800),
+                ),
+              ),
             const Text(
               'Grade Level',
               style: TextStyle(
@@ -634,8 +1022,6 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
             const SizedBox(height: 20),
-
-            // 2. Subject - Now second
             const Text(
               'Subject',
               style: TextStyle(
@@ -672,8 +1058,6 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
             const SizedBox(height: 20),
-
-            // 3. Chapter - New addition
             const Text(
               'Chapter',
               style: TextStyle(
@@ -712,8 +1096,6 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
             const SizedBox(height: 20),
-
-            // 4. Topic - New addition
             const Text(
               'Topic',
               style: TextStyle(
@@ -759,50 +1141,40 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
             const SizedBox(height: 20),
-
-            // Question Type - Now as dropdown instead of chips
             const Text(
-              'Question Type',
+              'Question Types',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  isExpanded: true,
-                  value: _selectedQuestionType,
-                  hint: Text("Select Question Type"),
-                  icon: Icon(Icons.arrow_drop_down),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.black),
-                  onChanged: (String? newValue) {
+            Wrap(
+              spacing: 8,
+              children: _questionTypes.map((type) {
+                final selected = _selectedQuestionTypes.contains(type);
+                return ChoiceChip(
+                  label: Text(type),
+                  selected: selected,
+                  onSelected: (bool value) {
                     setState(() {
-                      _selectedQuestionType = newValue;
+                      if (value) {
+                        _selectedQuestionTypes.add(type);
+                      } else {
+                        _selectedQuestionTypes.remove(type);
+                      }
                     });
                   },
-                  items: _questionTypes
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
+                  selectedColor: const Color(0xFFE195AB),
+                  backgroundColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: selected ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                );
+              }).toList(),
             ),
             const SizedBox(height: 20),
-
-            // Difficulty
             const Text(
               'Difficulty',
               style: TextStyle(
@@ -843,11 +1215,8 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
             const SizedBox(height: 20),
-
-            // Number of Questions and Time Limit in a row
             Row(
               children: [
-                // Number of Questions
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -886,7 +1255,6 @@ class _LandingPageState extends State<TeacherAi>
                   ),
                 ),
                 const SizedBox(width: 16),
-                // Time Limit
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -927,27 +1295,48 @@ class _LandingPageState extends State<TeacherAi>
               ],
             ),
             const SizedBox(height: 30),
-
-            // Generate Button
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: _generateTest,
+                onPressed: _isGeneratingTest ? null : _generateTest,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFE195AB),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text(
-                  'Generate Test',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                child: _isGeneratingTest
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Generating Test...',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      )
+                    : const Text(
+                        'Generate Test',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -970,8 +1359,6 @@ class _LandingPageState extends State<TeacherAi>
             ),
           ),
           const SizedBox(height: 20),
-
-          // Student Selection
           const Text(
             'Select Student',
             style: TextStyle(
@@ -980,8 +1367,6 @@ class _LandingPageState extends State<TeacherAi>
             ),
           ),
           const SizedBox(height: 12),
-
-          // Student List
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -1032,10 +1417,7 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
           ),
-
           const SizedBox(height: 20),
-
-          // Generate Button
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -1085,8 +1467,6 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
             const SizedBox(height: 20),
-
-            // Paper Upload Area
             Container(
               width: double.infinity,
               height: 200,
@@ -1103,7 +1483,6 @@ class _LandingPageState extends State<TeacherAi>
               child: _paperPreviewPath != null
                   ? Stack(
                       children: [
-                        // Paper Preview
                         Center(
                           child:
                               _paperPreviewPath!.toLowerCase().endsWith('.pdf')
@@ -1118,7 +1497,6 @@ class _LandingPageState extends State<TeacherAi>
                                       height: 180,
                                     ),
                         ),
-                        // Remove button
                         Positioned(
                           top: 8,
                           right: 8,
@@ -1175,8 +1553,6 @@ class _LandingPageState extends State<TeacherAi>
                     ),
             ),
             const SizedBox(height: 16),
-
-            // File name display
             if (_selectedPaper != null)
               Container(
                 padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -1208,8 +1584,6 @@ class _LandingPageState extends State<TeacherAi>
                 ),
               ),
             const SizedBox(height: 20),
-
-            // Additional options
             if (_selectedPaper != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1288,8 +1662,6 @@ class _LandingPageState extends State<TeacherAi>
                 ],
               ),
             const SizedBox(height: 30),
-
-            // Generate Solution Button
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -1339,8 +1711,6 @@ class _LandingPageState extends State<TeacherAi>
               ),
             ),
             const SizedBox(height: 30),
-
-            // Solution display
             if (_paperSolved && _paperSolutionText.isNotEmpty)
               Container(
                 width: double.infinity,
@@ -1410,7 +1780,6 @@ class _LandingPageState extends State<TeacherAi>
     );
   }
 
-// Add this method to pick a paper file
   Future<void> _pickPaper() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -1427,7 +1796,6 @@ class _LandingPageState extends State<TeacherAi>
     }
   }
 
-// Add this method to solve the paper
   void _solvePaper() {
     if (_selectedPaper == null) return;
 
@@ -1435,8 +1803,6 @@ class _LandingPageState extends State<TeacherAi>
       _isSolvingPaper = true;
     });
 
-    // This would normally involve sending the file to an API
-    // For now we'll simulate it with a delay
     Future.delayed(Duration(seconds: 5), () {
       setState(() {
         _isSolvingPaper = false;
@@ -1444,7 +1810,6 @@ class _LandingPageState extends State<TeacherAi>
         _paperSolutionText = _generateSampleSolution();
       });
 
-      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Paper solved successfully!'),
@@ -1455,7 +1820,6 @@ class _LandingPageState extends State<TeacherAi>
     });
   }
 
-// Helper method to generate a sample solution
   String _generateSampleSolution() {
     return """# Paper Solution
 
@@ -1518,7 +1882,6 @@ Photosynthesis is the process by which green plants, algae, and some bacteria co
 """;
   }
 
-  // Find the full chat data by chatId
   void _selectChat(String chatId) {
     final selectedChat = _fullChatData.firstWhere(
       (chat) => chat['chatId'] == chatId,
@@ -1527,7 +1890,176 @@ Photosynthesis is the process by which green plants, algae, and some bacteria co
 
     setState(() {
       _selectedChat = selectedChat;
-      _isSidebarVisible = false; // Close sidebar after selection
+      _isSidebarVisible = false;
+    });
+  }
+
+  void _generateGradeCard() {
+    if (_selectedStudent == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select a student first'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Show a loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(
+          color: const Color(0xFFE195AB),
+        ),
+      ),
+    );
+
+    // Simulate API call delay
+    Future.delayed(Duration(seconds: 2), () {
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      // Show success dialog with grade card
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.school, color: const Color(0xFFE195AB)),
+              SizedBox(width: 10),
+              Text('Grade Card Generated'),
+            ],
+          ),
+          content: Container(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Student: ${_selectedStudent!['name']}',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  Text(
+                      'Class: ${_selectedStudent!['grade']} - Section ${_selectedStudent!['section']}'),
+                  SizedBox(height: 15),
+                  Table(
+                    border: TableBorder.all(color: Colors.grey.shade300),
+                    columnWidths: {
+                      0: FlexColumnWidth(3),
+                      1: FlexColumnWidth(1),
+                      2: FlexColumnWidth(1),
+                    },
+                    children: [
+                      TableRow(
+                        decoration: BoxDecoration(color: Colors.grey.shade100),
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text('Subject',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text('Marks',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text('Grade',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                      ...[
+                        'Mathematics',
+                        'Science',
+                        'English',
+                        'History',
+                        'Geography'
+                      ].map((subject) {
+                        // Generate random marks between 65 and 98
+                        final marks =
+                            65 + (DateTime.now().millisecondsSinceEpoch % 33);
+                        final grade = marks >= 90
+                            ? 'A'
+                            : marks >= 80
+                                ? 'B'
+                                : marks >= 70
+                                    ? 'C'
+                                    : 'D';
+
+                        return TableRow(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(subject),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text('$marks'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(grade,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: grade == 'A'
+                                        ? Colors.green
+                                        : grade == 'B'
+                                            ? Colors.blue
+                                            : grade == 'C'
+                                                ? Colors.orange
+                                                : Colors.red,
+                                  )),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                  SizedBox(height: 15),
+                  Text('Overall Performance',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  SizedBox(height: 5),
+                  Text(
+                      'The student shows consistent performance across all subjects with particular strengths in Mathematics and Science. Recommend additional practice in English composition to improve writing skills.'),
+                  SizedBox(height: 15),
+                  Text('Attendance: 92%'),
+                  Text('Class Rank: 4 out of 30'),
+                  SizedBox(height: 10),
+                  Text(
+                      'Generated on: ${DateTime.now().toString().split(' ')[0]}'),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Close'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFE195AB),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Grade card downloaded as PDF'),
+                  ),
+                );
+              },
+              child: Text('Download PDF'),
+            ),
+          ],
+        ),
+      );
     });
   }
 }
