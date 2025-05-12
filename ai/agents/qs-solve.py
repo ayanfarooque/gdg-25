@@ -23,6 +23,15 @@ from crewai.tools import BaseTool
 from typing import Dict, Any, Optional, ClassVar
 from pydantic import Field
 import textwrap  # Add this import
+# Add Flask imports
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import tempfile
+import os
+
+# Create Flask app
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Load environment variables
 load_dotenv()
@@ -363,28 +372,233 @@ def generate_solutions(paper_id, output_path):
         "cloudinary_url": cloudinary_url
     }
 
-if __name__ == "__main__":
-    # List available papers first
+# Function to solve test from text input
+def solve_test_content(content):
+    """Generate solutions for test questions from text content."""
     try:
-        search_results = cloudinary.api.resources_by_tag(
-            "qs_paper",
-            resource_type="image",
-            max_results=500
+        # Initialize the LLM
+        llm = LLM(
+            api_key=GOOGLE_API_KEY,
+            model="gemini/gemini-1.5-flash",
+            verbose=True,
+            temperature=0.3
         )
-        print("\nAvailable question papers:")
-        for resource in search_results.get('resources', []):
-            print(f"ID: {resource['public_id']}")
+
+        # Create solution agent
+        solution_agent = Agent(
+            role="Education Expert",
+            goal="Generate accurate and detailed solutions for test questions",
+            backstory="You are an advanced AI tutor with expertise in solving test questions across various subjects.",
+            verbose=True,
+            llm=llm
+        )
+
+        # Create the task
+        solution_task = Task(
+            description=f"""
+            Analyze the following test questions and provide detailed solutions:
+            
+            {content}
+            
+            For each question:
+            1. Identify the question clearly
+            2. Provide a direct and accurate solution
+            3. Include step-by-step explanations where necessary
+            
+            Format your response as a JSON array where each element has the structure:
+            {{
+                "question": "The full question text",
+                "solution": "The direct answer to the question",
+                "explanation": "Step-by-step explanation of how to reach the answer"
+            }}
+            
+            Do not include any text outside of the JSON structure.
+            """,
+            agent=solution_agent,
+            expected_output="JSON array with questions, solutions, and explanations"
+        )
+
+        # Create crew with just this task
+        crew = Crew(
+            agents=[solution_agent],
+            tasks=[solution_task],
+            verbose=True,
+            process=Process.sequential
+        )
+
+        print("Starting solution generation...")
+        result = crew.kickoff()
+        
+        # Extract JSON from the result
+        result_text = solution_task.output
+        # Try to extract JSON if it's wrapped in backticks or other text
+        if '```json' in result_text:
+            result_text = result_text.split('```json')[1].split('```')[0].strip()
+        elif '```' in result_text:
+            result_text = result_text.split('```')[1].split('```')[0].strip()
+            
+        # Parse the JSON
+        solutions = json.loads(result_text)
+        
+        return solutions
+        
     except Exception as e:
-        print(f"Error listing papers: {e}")
+        print(f"Error generating solutions: {e}")
+        raise
+
+# Function to extract text from uploaded file
+def extract_text_from_file(file_path):
+    """Extract text content from uploaded file."""
+    file_extension = os.path.splitext(file_path)[1].lower()
     
-    # Get input from user or use default
-    paper_id = input("Enter paper ID (or press Enter for first available paper): ").strip()
-    if not paper_id and search_results.get('resources'):
-        paper_id = search_results['resources'][0]['public_id']
-        print(f"Using first available paper: {paper_id}")
+    if file_extension == '.txt':
+        with open(file_path, 'r') as file:
+            return file.read()
     
-    output_path = f"./solution_{paper_id.split('/')[-1]}_{datetime.datetime.now().strftime('%Y%m%d')}.pdf"
+    elif file_extension in ['.pdf', '.docx', '.doc', '.jpg', '.jpeg', '.png']:
+        # Use Gemini model for document understanding
+        with open(file_path, 'rb') as file:
+            file_content = file.read()
+        
+        # Convert file content to base64
+        file_base64 = base64.b64encode(file_content).decode('utf-8')
+        
+        # Determine MIME type
+        mime_type = {
+            '.pdf': 'application/pdf',
+            '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            '.doc': 'application/msword',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.png': 'image/png'
+        }.get(file_extension, 'application/octet-stream')
+        
+        # Use Gemini model for text extraction
+        ocr_model = gen_ai.GenerativeModel('models/gemini-1.5-pro-latest')
+        
+        # Process the document with Gemini
+        response = ocr_model.generate_content(
+            [
+                "Extract all text content from this document, especially focusing on questions and problems to solve. Preserve all questions exactly as they appear.",
+                {
+                    "mime_type": mime_type,
+                    "data": file_base64
+                }
+            ]
+        )
+        
+        return response.text
     
-    result = generate_solutions(paper_id, output_path)
-    print(f"Generated solutions saved locally at: {result['local_path']}")
-    print(f"Solutions uploaded to: {result['cloudinary_url']}")
+    elif file_extension == '.json':
+        with open(file_path, 'r') as file:
+            content = json.load(file)
+            # If it's an array of questions, concatenate them
+            if isinstance(content, list):
+                questions = []
+                for item in content:
+                    if isinstance(item, dict) and 'question' in item:
+                        questions.append(item['question'])
+                    elif isinstance(item, str):
+                        questions.append(item)
+                return "\n\n".join(questions)
+            # If it's a string or has a text/content field
+            elif isinstance(content, dict):
+                if 'text' in content:
+                    return content['text']
+                elif 'content' in content:
+                    return content['content']
+                elif 'questions' in content:
+                    return "\n\n".join(content['questions'])
+            # Return the raw json as text
+            return json.dumps(content)
+    
+    else:
+        return "Unsupported file format"
+
+# Flask routes for API endpoints
+@app.route('/api/solve-test', methods=['POST'])
+def api_solve_test():
+    try:
+        data = request.json
+        if not data or 'test_content' not in data:
+            return jsonify({"error": "Missing test_content parameter"}), 400
+            
+        content = data['test_content']
+        if not content.strip():
+            return jsonify({"error": "Empty test content"}), 400
+            
+        solutions = solve_test_content(content)
+        return jsonify({"solutions": solutions})
+        
+    except Exception as e:
+        print(f"Error in /api/solve-test: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/solve-test-file', methods=['POST'])
+def api_solve_test_file():
+    try:
+        # Check if file is in request
+        if 'file' not in request.files:
+            return jsonify({"error": "No file uploaded"}), 400
+            
+        file = request.files['file']
+        
+        # Check if filename is empty
+        if file.filename == '':
+            return jsonify({"error": "Empty file name"}), 400
+            
+        # Save the file to a temporary location
+        temp_dir = tempfile.gettempdir()
+        file_path = os.path.join(temp_dir, file.filename)
+        file.save(file_path)
+        
+        # Extract text from file
+        content = extract_text_from_file(file_path)
+        
+        # Delete the temporary file
+        os.remove(file_path)
+        
+        # If we couldn't extract any content
+        if not content or content == "Unsupported file format":
+            return jsonify({"error": "Failed to extract content from file or unsupported format"}), 400
+            
+        # Generate solutions from content
+        solutions = solve_test_content(content)
+        return jsonify({"solutions": solutions})
+        
+    except Exception as e:
+        print(f"Error in /api/solve-test-file: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+# Run the Flask app when executed directly
+if __name__ == "__main__":
+    # Check if running in API mode
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == '--api':
+        print("Starting API server on port 5000...")
+        app.run(debug=True, port=5000)
+    else:
+        # Original CLI mode
+        try:
+            search_results = cloudinary.api.resources_by_tag(
+                "qs_paper",
+                resource_type="image",
+                max_results=500
+            )
+            print("\nAvailable question papers:")
+            for resource in search_results.get('resources', []):
+                print(f"ID: {resource['public_id']}")
+        except Exception as e:
+            print(f"Error listing papers: {e}")
+        
+        # Get input from user or use default
+        paper_id = input("Enter paper ID (or press Enter for first available paper): ").strip()
+        if not paper_id and search_results.get('resources'):
+            paper_id = search_results['resources'][0]['public_id']
+            print(f"Using first available paper: {paper_id}")
+        
+        output_path = f"./solution_{paper_id.split('/')[-1]}_{datetime.datetime.now().strftime('%Y%m%d')}.pdf"
+        
+        result = generate_solutions(paper_id, output_path)
+        print(f"Generated solutions saved locally at: {result['local_path']}")
+        print(f"Solutions uploaded to: {result['cloudinary_url']}")
