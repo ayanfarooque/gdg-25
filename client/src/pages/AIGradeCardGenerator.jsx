@@ -1,42 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import FacHeader from './Dashboardpages/facheader';
+import axios from 'axios';
+
+const API_ENDPOINT = "http://127.0.0.1:5001/api/grade-card";
 
 const AIGradeCardGenerator = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [gradeCard, setGradeCard] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState('select');
+  const [students, setStudents] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Sample data
-  const students = [
-    { id: 1, name: "John Doe", grade: "9", avatar: "JD", avgScore: 85 },
-    { id: 2, name: "Jane Smith", grade: "9", avatar: "JS", avgScore: 92 },
-    { id: 3, name: "Alex Johnson", grade: "9", avatar: "AJ", avgScore: 78 }
-  ];
+  // Fetch students on component mount
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
-  const subjects = [
-    { name: "Mathematics", score: "88%", trend: "up" },
-    { name: "Science", score: "85%", trend: "up" },
-    { name: "English", score: "92%", trend: "stable" },
-    { name: "History", score: "78%", trend: "down" }
-  ];
+  // Fetch subjects when a student is selected
+  useEffect(() => {
+    if (selectedStudent) {
+      fetchSubjects(selectedStudent.id);
+    }
+  }, [selectedStudent]);
 
-  const generateGradeCard = () => {
-    setIsGenerating(true);
-    // Simulate AI generation with timeout
-    setTimeout(() => {
-      setGradeCard({
+  const fetchStudents = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await axios.get(`${API_ENDPOINT}/students`);
+
+      if (response.data.success) {
+        setStudents(response.data.data.students);
+      } else {
+        throw new Error(response.data.message || 'Failed to fetch students');
+      }
+    } catch (err) {
+      console.error("Error fetching students:", err);
+      setError("Failed to load students. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchSubjects = async (studentId) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await axios.get(`${API_ENDPOINT}/subjects/${studentId}`);
+
+      if (response.data.success) {
+        setSubjects(response.data.data.subjects);
+      } else {
+        throw new Error(response.data.message || 'Failed to fetch subjects');
+      }
+    } catch (err) {
+      console.error(`Error fetching subjects for student ${studentId}:`, err);
+      setError("Failed to load student's subjects. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const generateGradeCard = async () => {
+    try {
+      setIsGenerating(true);
+      setError(null);
+
+      const studentData = {
         student: selectedStudent,
-        subjects,
-        overallGrade: "B+",
-        attendance: "94%",
-        teacherComments: "John has shown consistent improvement in Mathematics and Science. He should focus more on History to bring his grade up.",
-        generatedOn: new Date().toLocaleDateString()
-      });
+        subjects: subjects
+      };
+
+      const response = await axios.post(`${API_ENDPOINT}/generate`, studentData);
+
+      if (response.data.success) {
+        setGradeCard(response.data.data);
+        setActiveTab('preview');
+      } else {
+        throw new Error(response.data.message || 'Failed to generate grade card');
+      }
+    } catch (err) {
+      console.error("Error generating grade card:", err);
+      setError("Failed to generate grade card. Please try again.");
+    } finally {
       setIsGenerating(false);
-      setActiveTab('preview');
-    }, 2000);
+    }
   };
 
   return (
@@ -50,6 +104,13 @@ const AIGradeCardGenerator = () => {
           <p className="text-gray-600">Generate personalized grade cards with AI insights</p>
         </div>
       </div>
+
+      {error && (
+        <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
 
       <div className="flex border-b border-gray-200 mb-6">
         <button
@@ -67,7 +128,11 @@ const AIGradeCardGenerator = () => {
         </button>
       </div>
 
-      {activeTab === 'select' ? (
+      {isLoading && !isGenerating ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      ) : activeTab === 'select' ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -108,6 +173,55 @@ const AIGradeCardGenerator = () => {
             ))}
           </div>
 
+          {selectedStudent && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Subject Data</h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trend</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {subjects.map((subject, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap font-medium">{subject.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{subject.score}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {subject.trend === "up" ? (
+                            <span className="text-green-600 flex items-center">
+                              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path>
+                              </svg>
+                              Improving
+                            </span>
+                          ) : subject.trend === "down" ? (
+                            <span className="text-red-600 flex items-center">
+                              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                              </svg>
+                              Declining
+                            </span>
+                          ) : (
+                            <span className="text-gray-600 flex items-center">
+                              <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14"></path>
+                              </svg>
+                              Stable
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           <div className="mt-8 flex justify-center">
             <button
               onClick={generateGradeCard}
@@ -146,7 +260,7 @@ const AIGradeCardGenerator = () => {
           <div className="flex justify-between items-center mb-8">
             <div>
               <h2 className="text-xl font-bold">Grade Card</h2>
-              <p className="text-gray-600">Generated on: {gradeCard?.generatedOn}</p>
+              <p className="text-gray-600">Generated on: {gradeCard?.generated_on}</p>
             </div>
             <div className="flex space-x-3">
               <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
@@ -175,7 +289,7 @@ const AIGradeCardGenerator = () => {
                     <h3 className="text-2xl font-bold">{gradeCard?.student.name}</h3>
                     <p className="text-gray-600">Grade {gradeCard?.student.grade}</p>
                     <div className="mt-2 flex items-center">
-                      <span className="text-lg font-bold mr-2">{gradeCard?.overallGrade}</span>
+                      <span className="text-lg font-bold mr-2">{gradeCard?.overall_grade}</span>
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
                         Overall Grade
                       </span>
@@ -208,8 +322,8 @@ const AIGradeCardGenerator = () => {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trend</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comments</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -217,6 +331,17 @@ const AIGradeCardGenerator = () => {
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap font-medium">{subject.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{subject.score}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium
+                          ${subject.grade === 'A+' ? 'bg-green-100 text-green-800' : 
+                            subject.grade === 'A' ? 'bg-emerald-100 text-emerald-800' :
+                            subject.grade === 'B' ? 'bg-blue-100 text-blue-800' :
+                            subject.grade === 'C' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'}`}
+                        >
+                          {subject.grade}
+                        </span>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {subject.trend === "up" ? (
                           <span className="text-green-600 flex items-center">
@@ -241,11 +366,6 @@ const AIGradeCardGenerator = () => {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
-                        {subject.name === "Mathematics" ? "Excellent progress" : 
-                         subject.name === "Science" ? "Showing great understanding" :
-                         subject.name === "English" ? "Consistent performance" : "Needs more focus"}
-                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -253,10 +373,32 @@ const AIGradeCardGenerator = () => {
             </div>
           </div>
 
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-3">Strengths</h3>
+            <div className="flex flex-wrap gap-2">
+              {gradeCard?.strengths.map((strength, index) => (
+                <span key={index} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                  {strength}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-3">Areas for Improvement</h3>
+            <div className="flex flex-wrap gap-2">
+              {gradeCard?.areas_for_improvement.map((area, index) => (
+                <span key={index} className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                  {area}
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div>
             <h3 className="text-lg font-semibold mb-3">Teacher Comments</h3>
             <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <p className="text-gray-800">{gradeCard?.teacherComments}</p>
+              <p className="text-gray-800">{gradeCard?.teacher_comments}</p>
             </div>
           </div>
         </motion.div>

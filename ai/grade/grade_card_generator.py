@@ -2,6 +2,8 @@ import json
 import os
 from typing import Dict, List, Tuple
 import random
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 class GradeCardGenerator:
     def __init__(self):
@@ -145,33 +147,131 @@ class GradeCardGenerator:
         from datetime import datetime
         return datetime.now().strftime("%B %d, %Y")
 
-# Example usage
-def main():
-    # Sample student data
-    student_data = {
-        'student': {
-            'name': 'John Doe',
-            'grade': '9',
-            'avatar': 'JD',
-            'avgScore': 85
-        },
-        'subjects': [
-            {'name': 'Mathematics', 'score': '88%', 'trend': 'up'},
-            {'name': 'Science', 'score': '85%', 'trend': 'up'},
-            {'name': 'English', 'score': '92%', 'trend': 'stable'},
-            {'name': 'History', 'score': '78%', 'trend': 'down'}
+# Create Flask app
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
+
+# Initialize the grade card generator
+generator = GradeCardGenerator()
+
+@app.route('/api/grade-card/generate', methods=['POST'])
+def generate_grade_card():
+    """Generate a grade card from student data"""
+    try:
+        # Get student data from request
+        student_data = request.json
+        
+        if not student_data:
+            return jsonify({
+                'success': False,
+                'message': 'No student data provided'
+            }), 400
+        
+        # Generate grade card
+        grade_card = generator.generate_grade_card(student_data)
+        
+        # Optionally save the grade card
+        if request.args.get('save', 'false').lower() == 'true':
+            filepath = generator.save_grade_card(grade_card)
+            grade_card['saved_path'] = filepath
+        
+        return jsonify({
+            'success': True,
+            'data': grade_card
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/api/grade-card/students', methods=['GET'])
+def get_students():
+    """Get sample student data"""
+    try:
+        # Sample student data
+        students = [
+            {"id": 1, "name": "John Doe", "grade": "9", "avatar": "JD", "avgScore": 85},
+            {"id": 2, "name": "Jane Smith", "grade": "9", "avatar": "JS", "avgScore": 92},
+            {"id": 3, "name": "Alex Johnson", "grade": "9", "avatar": "AJ", "avgScore": 78},
+            {"id": 4, "name": "Maria Garcia", "grade": "10", "avatar": "MG", "avgScore": 88},
+            {"id": 5, "name": "David Chen", "grade": "10", "avatar": "DC", "avgScore": 95}
         ]
-    }
+        
+        return jsonify({
+            'success': True,
+            'data': {
+                'students': students
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
 
-    # Initialize generator and generate grade card
-    generator = GradeCardGenerator()
-    grade_card = generator.generate_grade_card(student_data)
-    
-    # Save grade card to JSON file
-    generator.save_grade_card(grade_card)
-    
-    # Print results
-    print(json.dumps(grade_card, indent=2))
+@app.route('/api/grade-card/subjects/<int:student_id>', methods=['GET'])
+def get_student_subjects(student_id):
+    """Get subject data for a specific student"""
+    try:
+        # Sample subject data based on student ID
+        # In a real app, this would come from a database
+        subjects_by_student = {
+            1: [
+                {"name": "Mathematics", "score": "88%", "trend": "up"},
+                {"name": "Science", "score": "85%", "trend": "up"},
+                {"name": "English", "score": "92%", "trend": "stable"},
+                {"name": "History", "score": "78%", "trend": "down"}
+            ],
+            2: [
+                {"name": "Mathematics", "score": "95%", "trend": "up"},
+                {"name": "Science", "score": "90%", "trend": "stable"},
+                {"name": "English", "score": "96%", "trend": "up"},
+                {"name": "History", "score": "87%", "trend": "up"}
+            ],
+            3: [
+                {"name": "Mathematics", "score": "72%", "trend": "down"},
+                {"name": "Science", "score": "75%", "trend": "stable"},
+                {"name": "English", "score": "85%", "trend": "up"},
+                {"name": "History", "score": "80%", "trend": "stable"}
+            ],
+            4: [
+                {"name": "Mathematics", "score": "88%", "trend": "stable"},
+                {"name": "Science", "score": "92%", "trend": "up"},
+                {"name": "English", "score": "85%", "trend": "down"},
+                {"name": "History", "score": "89%", "trend": "up"}
+            ],
+            5: [
+                {"name": "Mathematics", "score": "98%", "trend": "up"},
+                {"name": "Science", "score": "96%", "trend": "up"},
+                {"name": "English", "score": "94%", "trend": "stable"},
+                {"name": "History", "score": "92%", "trend": "up"}
+            ]
+        }
+        
+        if student_id not in subjects_by_student:
+            return jsonify({
+                'success': False,
+                'message': f'Student with ID {student_id} not found'
+            }), 404
+            
+        return jsonify({
+            'success': True,
+            'data': {
+                'subjects': subjects_by_student[student_id]
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
 
+# Run the app if this file is executed directly
 if __name__ == "__main__":
-    main()
+    print("Starting Flask server for Grade Card Generator API...")
+    print("API endpoints available at: http://127.0.0.1:5001")
+    app.run(host='0.0.0.0', port=5001, debug=True)
