@@ -17,6 +17,7 @@ const adminRoutes = require('./routes/adminRoutes.js')
 const communityRoutes = require('./routes/communityRoutes.js')
 const postRoutes = require('./routes/postRoutes.js')
 const chatbot = require('./routes/chatbot.js')
+const gradecardRoutes = require('./routes/gradecardRoutes.js')
 require("dotenv").config();
 console.log("JWT_SECRET:", process.env.JWT_SECRET);
 connectDB();
@@ -47,6 +48,7 @@ app.use("/api/submissions", submission)
 app.use("/api/communities",communityRoutes)
 app.use('/api/post',postRoutes)
 app.use('/api/chatbot',chatbot)
+app.use('/api/grade-card',gradecardRoutes)
 app.use((req, res, next) => {
     res.status(404).json({ message: 'Route not found' });
 });

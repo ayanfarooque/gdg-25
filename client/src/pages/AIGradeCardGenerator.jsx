@@ -27,6 +27,26 @@ const AIGradeCardGenerator = () => {
     }
   }, [selectedStudent]);
 
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await axios.post(`http://localhost:5000/api/grade-card/save`, { gradeCard });
+
+      if (response.data.success) {
+        alert("Grade card saved successfully!");
+      } else {
+        throw new Error(response.data.message || 'Failed to save grade card');
+      }
+    } catch (err) {
+      console.error("Error saving grade card:", err);
+      setError("Failed to save grade card. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
   const fetchStudents = async () => {
     try {
       setIsLoading(true);
@@ -263,6 +283,12 @@ const AIGradeCardGenerator = () => {
               <p className="text-gray-600">Generated on: {gradeCard?.generated_on}</p>
             </div>
             <div className="flex space-x-3">
+              <button onClick={() => handleSave()} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                <svg className="w-5 h-5 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Save
+              </button>
               <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                 <svg className="w-5 h-5 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
