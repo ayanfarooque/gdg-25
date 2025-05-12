@@ -1,0 +1,22 @@
+{
+  "normal_bot": {
+    "question": "What are the main principles of machine learning?",
+    "botType": "normal"
+  },
+  "career_bot": {
+    "question": "I'm interested in becoming a data scientist. What skills should I develop and what educational path should I follow?",
+    "botType": "career"
+  },
+  "math_bot": {
+    "question": "Can you solve the integral of x^2 * sin(x) dx?",
+    "botType": "math"
+  },
+  "math_bot_quadratic": {
+    "question": "How do I solve the quadratic equation 2x^2 + 5x - 3 = 0?",
+    "botType": "math"
+  },
+  "normal_bot_programming": {
+    "question": "Explain the differences between Python and JavaScript programming languages.",
+    "botType": "normal"
+  }
+}
