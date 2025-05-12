@@ -48,16 +48,22 @@ const AITestSolver = () => {
       let response;
       const formData = new FormData();
       
+      if(!testFile) {
+         response = await axios.post('http://127.0.0.1:5000/api/solve-test', {
+          test_content: testText
+        });
+      }
       if (testFile) {
         formData.append('file', testFile);
         response = await axios.post('http://127.0.0.1:5000/api/solve-test-file', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-      } else {
-        response = await axios.post('http://127.0.0.1:5000/api/solve-test', {
-          test_content: testText
-        });
-      }
+       } 
+       //else {
+      //   response = await axios.post('http://127.0.0.1:5000/api/solve-test', {
+      //     test_content: testText
+      //   });
+      // }
 
       if (response.data && response.data.solutions) {
         setSolution(response.data.solutions);
