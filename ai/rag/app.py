@@ -34,10 +34,6 @@ def ask_doubt():
         if not question:
             return jsonify({'success': False, 'message': 'No question provided'}), 400
 
-        # Use Gemini 2.0 Flash model for all cases
-        model_name = "gemini-1.5-flash"
-        llm = processor.create_llm_model(model_name)
-
         # Create prompt based on bot type
         if bot_type == "normal":
             prompt = f"As a helpful assistant, please answer this question: {question}"
@@ -48,9 +44,11 @@ def ask_doubt():
         else:
             prompt = f"Please answer this question: {question}"
 
-        # Get response from the model using generativeai API
-        response_obj = llm.generate_content(prompt)
-        response = response_obj.text if hasattr(response_obj, 'text') else str(response_obj)
+        # Get response using ask_gemini method
+        response = processor.ask_gemini(prompt)
+        
+        if response is None:
+            return jsonify({'success': False, 'message': 'Failed to get response from AI model'}), 500
 
         return jsonify({
             'success': True,
@@ -78,7 +76,6 @@ def process_file():
 
             # Process file based on bot type
             if bot_type == "math" and file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-                # For math image processing (simplified mock response for now)
                 response = "I've analyzed the math problem in your image. This appears to be a calculus problem involving differentiation."
             else:
                 # Use RAG for regular document processing
@@ -89,10 +86,11 @@ def process_file():
                 # Create a question based on the context provided
                 prompt = f"Based on the uploaded document, {context if context else 'please summarize the key points'}"
 
-                # Get response from LLM using generativeai API
-                llm = processor.create_llm_model("gemini-1.5-flash")
-                response_obj = llm.generate_content(prompt)
-                response = response_obj.text if hasattr(response_obj, 'text') else str(response_obj)
+                # Get response using ask_gemini method
+                response = processor.ask_gemini(prompt)
+                
+                if response is None:
+                    return jsonify({'success': False, 'message': 'Failed to get response from AI model'}), 500
 
         return jsonify({
             'success': True,

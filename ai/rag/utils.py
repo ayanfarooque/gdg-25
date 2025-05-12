@@ -23,7 +23,13 @@ class DocumentProcessor:
     def __init__(self, api_key: str):
         self.api_key = api_key
         genai.configure(api_key=api_key)
+        # Use the correct Gemini 2.0 Flash model
         self.gemini_model = genai.GenerativeModel('models/gemini-2.0-flash-lite')
+        try:
+            print("Successfully initialized Gemini model")
+        except Exception as e:
+            print(f"Failed to initialize Gemini model: {str(e)}")
+            raise
         self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
@@ -162,20 +168,25 @@ class DocumentProcessor:
 
     def ask_gemini(self, prompt: str, generation_config=None) -> str:
         """
-        Get a response from Gemini using the Google Generative AI library,
-        using a chat session for better context handling.
+        Get a response from Gemini using the Google Generative AI library
         """
-        chat_session = self.gemini_model.start_chat(history=[])
-        if generation_config is None:
-            from google.generativeai.types import GenerationConfig
-            generation_config = GenerationConfig(
-                temperature=0.2,
-                top_p=0.8,
-                top_k=40
-            )
         try:
-            response = chat_session.send_message(prompt, generation_config=generation_config)
-            return response.text
+            print(f"Sending prompt to Gemini: {prompt[:100]}...")  # Debug log
+            
+            if generation_config is None:
+                generation_config = genai.types.GenerationConfig(
+                    temperature=0.2,
+                    top_p=0.8,
+                    top_k=40
+                )
+            
+            chat = self.gemini_model.start_chat(history=[])
+            response = chat.send_message(prompt, generation_config=generation_config)
+            
+            if hasattr(response, 'text'):
+                return response.text
+            return str(response)
+            
         except Exception as e:
             print(f"Error calling Gemini API: {str(e)}")
             return None
