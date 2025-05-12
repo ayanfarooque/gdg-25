@@ -1,19 +1,19 @@
 # Document Chat with Gemini
 
-This application allows you to upload multiple documents and chat with them using Google's Gemini AI.
+This application allows you to upload multiple documents and chat with them using Google's Gemini 2.0 Flash AI.
 
 ## Features
 
 - Process multiple document types (PDF, DOCX, TXT, CSV, JSON, XML, YAML, Excel, PowerPoint, HTML)
-- Chat with your documents using Google's Gemini AI
+- Chat with your documents using Google's Gemini 2.0 Flash AI
 - Multiple bot personalities (General Assistant, Career Guide, Math Tutor)
 
 ## Setup Instructions
 
 ### Prerequisites
 
-- Python 3.9+ installed
-- Groq API key (for LLM access)
+- Python 3.10 installed
+- Google Gemini API key (get one from [Google AI Studio](https://aistudio.google.com/app/apikey))
 
 ### Installation
 
@@ -38,10 +38,11 @@ This application allows you to upload multiple documents and chat with them usin
    ```bash
    pip install -r requirements.txt
    ```
+   also follow the conda instructions in requirements.txt
 
-4. Create a `.env` file with your API key:
+4. Create a `.env` file with your Gemini API key:
    ```
-   GEMINI_API_KEY=your_api_key_here
+   GEMINI_API_KEY=your_google_gemini_api_key_here
    ```
 
 ### Running the Application
@@ -53,11 +54,6 @@ python app.py
 
 This will start a server at http://127.0.0.1:5000, which the frontend application can communicate with.
 
-To use the Streamlit interface (separate from the API server):
-```bash
-streamlit run streamlit_app.py
-```
-
 ## API Endpoints
 
 The server exposes the following endpoints:
@@ -66,6 +62,18 @@ The server exposes the following endpoints:
 - `POST /api/chatbot/upload` - Upload and process a document
 - `GET /api/chatbot/history` - Get chat history
 
+## Example Usage
+   {
+  "question": "Can you delve into what is the meaning of life?",
+  "botType": "normal"
+   }
+
 ## Frontend Integration
 
 The React frontend connects to this backend at `http://127.0.0.1:5000`.
+
+## Notes
+
+- The backend uses the Gemini 2.0 Flash model (`models/gemini-2.0-flash-lite`) for all LLM responses.
+- Make sure your `.env` file is present and contains a valid API key.
+- If you encounter authentication errors, verify your API key and its permissions in [Google AI Studio](https://aistudio.google.com/app/apikey).
