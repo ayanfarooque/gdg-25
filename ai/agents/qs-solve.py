@@ -31,7 +31,7 @@ import os
 
 # Create Flask app
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, resources={r"/api/*": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}})  # Enable CORS for all routes
 
 # Load environment variables
 load_dotenv()
