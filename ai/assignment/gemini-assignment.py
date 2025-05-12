@@ -20,7 +20,7 @@ nltk.download("popular", quiet=True)
 # Load environment variables
 load_dotenv()
 
-# Configure Google Gemini-Pro AI model
+# Configure Google Gemini-Flash AI model
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")  # Get API key from environment variables
 gen_ai.configure(api_key=GOOGLE_API_KEY)
 model = gen_ai.GenerativeModel('models/gemini-2.0-flash-lite')

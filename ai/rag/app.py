@@ -30,17 +30,14 @@ def ask_doubt():
         data = request.json
         question = data.get('question')
         bot_type = data.get('botType')
-        
+
         if not question:
             return jsonify({'success': False, 'message': 'No question provided'}), 400
-        
-        # Configure model based on bot type
-        model_name = "mixtral-8x7b-32768"  # default model
-        if bot_type == "math":
-            model_name = "gemini-1.5-pro"  # Better for math expressions
-        
+
+        # Use Gemini 2.0 Flash model for all cases
+        model_name = "gemini-1.5-flash"
         llm = processor.create_llm_model(model_name)
-        
+
         # Create prompt based on bot type
         if bot_type == "normal":
             prompt = f"As a helpful assistant, please answer this question: {question}"
@@ -50,17 +47,18 @@ def ask_doubt():
             prompt = f"As a math tutor, please solve this problem step by step, using LaTeX formatting for equations when appropriate. For inline equations, use $equation$ format. For block equations, use $$equation$$ format: {question}"
         else:
             prompt = f"Please answer this question: {question}"
-        
-        # Get response from the model
-        response = llm.invoke(prompt)
-        
+
+        # Get response from the model using generativeai API
+        response_obj = llm.generate_content(prompt)
+        response = response_obj.text if hasattr(response_obj, 'text') else str(response_obj)
+
         return jsonify({
             'success': True,
             'data': {
                 'response': response
             }
         })
-    
+
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
@@ -69,15 +67,15 @@ def process_file():
     try:
         if 'file' not in request.files:
             return jsonify({'success': False, 'message': 'No file provided'}), 400
-        
+
         file = request.files['file']
         context = request.form.get('context', '')
         bot_type = request.form.get('botType', 'normal')
-        
+
         # Create temporary file
         with tempfile.NamedTemporaryFile(delete=False) as temp:
             file.save(temp.name)
-            
+
             # Process file based on bot type
             if bot_type == "math" and file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
                 # For math image processing (simplified mock response for now)
@@ -87,21 +85,22 @@ def process_file():
                 document_text = processor.read_file(temp.name)
                 chunks = processor.text_splitter.split_text(document_text)
                 vector_store = processor.embeddings.embed_documents(chunks)
-                
+
                 # Create a question based on the context provided
                 prompt = f"Based on the uploaded document, {context if context else 'please summarize the key points'}"
-                
-                # Get response from LLM
-                llm = processor.create_llm_model("mixtral-8x7b-32768")
-                response = llm.invoke(prompt)
-        
+
+                # Get response from LLM using generativeai API
+                llm = processor.create_llm_model("gemini-1.5-flash")
+                response_obj = llm.generate_content(prompt)
+                response = response_obj.text if hasattr(response_obj, 'text') else str(response_obj)
+
         return jsonify({
             'success': True,
             'data': {
                 'response': response
             }
         })
-    
+
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 

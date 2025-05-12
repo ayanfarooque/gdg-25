@@ -1,17 +1,32 @@
 streamlit==1.32.0
 python-dotenv==1.0.1
-langchain==0.1.12
-langchain-community==0.0.27
+langchain>=0.1.0
+langchain-community>=0.0.28
+sentence-transformers==2.6.0  # Changed from >= to == for stability
 python-magic-bin==0.4.14
 PyPDF2==3.0.1
 python-docx>=0.8.11
 pandas==2.2.1
 numpy==1.26.4
 tiktoken==0.6.0
-faiss-cpu==1.7.4
 xlrd==2.0.1
 openpyxl==3.1.2
 python-pptx==0.6.23
 PyYAML==6.0.1
-groq==0.4.2
-langchain-groq==0.0.5
+flask==3.0.0
+flask-cors==4.0.0
+google-generativeai==0.4.0
+#Open Anaconda Prompt (not PowerShell)
+#Create and activate new environment:
+  #  conda create -n rag python=3.10
+  #  conda activate rag
+#Install FAISS via conda:
+  #  conda install -c conda-forge faiss-cpu
+#Install remaining requirements:
+  #  cd C:\Users\vedan\OneDrive\Desktop\gdg-25\ai\rag
+  #  pip install -r requirements.txt
+#                 OR
+# To install FAISS on Windows, use conda:
+#   conda install -c conda-forge faiss-cpu
+# Then install the remaining requirements with:
+#   pip install -r requirements.txt

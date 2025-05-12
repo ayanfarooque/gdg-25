@@ -1,10 +1,9 @@
 import os
 from typing import List, Dict, Any
-from langchain_groq import ChatGroq
+import google.generativeai as genai
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings  # updated import
 from langchain_community.vectorstores import FAISS
-from langchain.chains import RetrievalQA
 import PyPDF2
 from docx import Document
 import pandas as pd
@@ -23,6 +22,8 @@ import re
 class DocumentProcessor:
     def __init__(self, api_key: str):
         self.api_key = api_key
+        genai.configure(api_key=api_key)
+        self.gemini_model = genai.GenerativeModel('models/gemini-2.0-flash-lite')
         self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
@@ -158,29 +159,23 @@ class DocumentProcessor:
         # Create vector store
         vector_store = FAISS.from_texts(chunks, self.embeddings)
         return vector_store
-    
-    def create_llm_model(self, model_name: str = "mixtral-8x7b-32768"):
-        """Create a language model instance with the specified model name."""
-        llm = ChatGroq(
-            groq_api_key=self.api_key,
-            model_name=model_name,
-            temperature=0.7,
-            max_tokens=32768
-        )
-        return llm
-        
-    def create_qa_chain(self, vector_store: FAISS) -> RetrievalQA:
-        """Create a question-answering chain using the vector store."""
-        llm = ChatGroq(
-            groq_api_key=self.api_key,
-            model_name="mixtral-8x7b-32768",
-            temperature=0.7,
-            max_tokens=32768
-        )
-        
-        qa_chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=vector_store.as_retriever(search_kwargs={"k": 3})
-        )
-        return qa_chain
+
+    def ask_gemini(self, prompt: str, generation_config=None) -> str:
+        """
+        Get a response from Gemini using the Google Generative AI library,
+        using a chat session for better context handling.
+        """
+        chat_session = self.gemini_model.start_chat(history=[])
+        if generation_config is None:
+            from google.generativeai.types import GenerationConfig
+            generation_config = GenerationConfig(
+                temperature=0.2,
+                top_p=0.8,
+                top_k=40
+            )
+        try:
+            response = chat_session.send_message(prompt, generation_config=generation_config)
+            return response.text
+        except Exception as e:
+            print(f"Error calling Gemini API: {str(e)}")
+            return None
